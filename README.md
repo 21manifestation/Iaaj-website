@@ -16,6 +16,9 @@ This is a plain HTML/CSS/JS site. No build tools, no Node.js needed. Open any `.
 - Founder photo (`images/founder.jpg`) on `about.html`
 - 7 real client transformation images (`images/transformation-1.jpg` ... `transformation-7.jpg`) on `transformations.html`, with 3 featured on `index.html`. These are pre-branded before/after graphics with faces blurred and no names. To add more, drop a new `transformation-N.jpg` into `images/` and add one `<img>` line to the `.transformation-gallery` in `transformations.html`.
 
+## Free guides lead magnet (guides.html)
+Visitors fill a form (name, email, contact number, city), pick which guides they want, and get instant PDF downloads. The 4 PDFs live in `guides/`. To capture the form data into a Google Sheet, the form posts to a Google Apps Script Web App. Paste the deployment URL into `GUIDES_ENDPOINT` near the top of the guides logic in `js/script.js`. Until that URL is set, downloads still work but submissions are not recorded. Setup steps for the sheet + Apps Script are documented in the chat/handover; the script appends: timestamp, name, email, phone, city, guides chosen, page.
+
 ## Things you still need to connect
 1. **Enquiry form** (`contact.html`): sign up free at formspree.io, create a form, and replace `YOUR_FORM_ID` in the form's `action` attribute with your real Formspree form ID. Until then the form shows a friendly warning instead of failing silently.
 2. **Analytics**: once you have a Google Analytics ID and a Meta Pixel ID, add their script snippets in the `<head>` of each HTML page (there's a comment marking where).

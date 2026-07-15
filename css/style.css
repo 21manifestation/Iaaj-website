@@ -29,6 +29,61 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Guide lead-magnet select + download */
+.guide-check-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin: 10px 0 4px;
+}
+
+@media (min-width: 560px) {
+  .guide-check-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.guide-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border: 1.5px solid #e6e2da;
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.guide-check:hover { border-color: var(--red); }
+
+.guide-check input { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--red); flex-shrink: 0; }
+
+.guide-check.checked { border-color: var(--red); background: rgba(236, 0, 53, 0.04); }
+
+.guide-check .gc-title { display: block; font-weight: 700; font-family: var(--font-heading); font-size: 0.95rem; }
+.guide-check .gc-desc { display: block; font-size: 0.8rem; color: var(--grey); margin-top: 2px; }
+
+.download-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.download-list a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1.5px solid #e6e2da;
+  border-radius: 12px;
+  padding: 16px 18px;
+  font-weight: 600;
+  font-family: var(--font-heading);
+  transition: border-color 0.15s ease, transform 0.1s ease;
+}
+
+.download-list a:hover { border-color: var(--red); transform: translateY(-1px); }
+.download-list a .dl-arrow { color: var(--red); font-size: 1.1rem; }
+
 .transformation-gallery {
   display: grid;
   grid-template-columns: 1fr;
