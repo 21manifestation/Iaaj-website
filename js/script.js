@@ -27,6 +27,16 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  // Subtle shadow under the sticky header once the page starts scrolling.
+  var header = document.querySelector('.site-header');
+  if (header) {
+    var onHeaderScroll = function () {
+      header.classList.toggle('scrolled', window.scrollY > 8);
+    };
+    onHeaderScroll();
+    window.addEventListener('scroll', onHeaderScroll, { passive: true });
+  }
+
   // ---- Free guides lead magnet ----
   // Data is sent to a Google Apps Script Web App, which appends it to a Google Sheet.
   // Paste the deployment URL from Apps Script between the quotes below. Until then,

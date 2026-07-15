@@ -529,6 +529,121 @@ section {
   border-left: 4px solid var(--red);
 }
 
+/* ---------------- Press / trust bar ---------------- */
+.press-bar {
+  background: var(--white);
+  border-bottom: 1px solid #ececec;
+  padding: 30px 0;
+}
+
+.press-label {
+  text-align: center;
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #9a9a9a;
+  margin-bottom: 20px;
+}
+
+.press-logos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 14px 32px;
+}
+
+.press-logos span {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1.02rem;
+  color: #9a9a9a;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.press-logos span:hover { color: var(--black); }
+
+/* ---------------- Mechanism / education ---------------- */
+.mechanism-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 22px;
+}
+
+@media (min-width: 820px) {
+  .mechanism-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.mechanism-card {
+  border: 1px solid #ececec;
+  border-radius: 16px;
+  padding: 28px 26px;
+  background: var(--white);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mechanism-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.07);
+}
+
+.mech-tag {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 12px;
+}
+
+.mechanism-card h3 { margin-bottom: 10px; }
+
+/* ---------------- Credentials strip ---------------- */
+.cred-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.cred-list span {
+  border: 1px solid #e0ddd5;
+  border-radius: 999px;
+  padding: 9px 17px;
+  font-size: 0.82rem;
+  font-family: var(--font-heading);
+  font-weight: 500;
+  color: var(--grey);
+  background: var(--white);
+}
+
+/* ---------------- Craft polish ---------------- */
+.site-header.scrolled {
+  box-shadow: 0 2px 24px rgba(0, 0, 0, 0.07);
+}
+
+.grid-3 .card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.grid-3 .card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.07);
+}
+
+.section-black .grid-3 .card:hover {
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.3);
+}
+
+@media (min-width: 900px) {
+  section { padding: 92px 0; }
+}
+
 .pillar-letter {
   font-family: var(--font-heading);
   font-weight: 800;
