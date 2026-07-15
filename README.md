@@ -10,9 +10,11 @@ This is a plain HTML/CSS/JS site. No build tools, no Node.js needed. Open any `.
 - `contact.html` — Contact / enquiry form
 
 ## Things marked as placeholders (swap in when ready)
-- Founder photo on `about.html`
-- Client transformation photos and stories on `index.html` and `transformations.html`
 - Instagram post images on `index.html` (currently a grey placeholder grid)
+
+## Real content now in place
+- Founder photo (`images/founder.jpg`) on `about.html`
+- 7 real client transformation images (`images/transformation-1.jpg` ... `transformation-7.jpg`) on `transformations.html`, with 3 featured on `index.html`. These are pre-branded before/after graphics with faces blurred and no names. To add more, drop a new `transformation-N.jpg` into `images/` and add one `<img>` line to the `.transformation-gallery` in `transformations.html`.
 
 ## Things you still need to connect
 1. **Enquiry form** (`contact.html`): sign up free at formspree.io, create a form, and replace `YOUR_FORM_ID` in the form's `action` attribute with your real Formspree form ID. Until then the form shows a friendly warning instead of failing silently.

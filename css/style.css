@@ -29,6 +29,28 @@ html {
   scroll-behavior: smooth;
 }
 
+.transformation-gallery {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 22px;
+}
+
+@media (min-width: 620px) {
+  .transformation-gallery { grid-template-columns: 1fr 1fr; }
+}
+
+@media (min-width: 960px) {
+  .transformation-gallery { grid-template-columns: 1fr 1fr 1fr; }
+}
+
+.transformation-gallery img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
 .reveal {
   opacity: 0;
   transform: translateY(28px);
@@ -183,6 +205,12 @@ p { color: var(--grey); }
   align-items: center;
   gap: 10px;
   line-height: 1;
+}
+
+.logo-img {
+  height: 66px;
+  width: auto;
+  display: block;
 }
 
 .logo-icon {
