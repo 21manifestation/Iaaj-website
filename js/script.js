@@ -123,10 +123,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Enquiry form: show a friendly success message without leaving the page.
-  // Works once the form's "action" is set to a real Formspree endpoint (see contact.html comments).
-  // Enquiry form: hand the lead straight to WhatsApp with all the details pre-filled.
-  // The visitor taps send, and the enquiry lands in the IAAJ WhatsApp chats.
+  // Enquiry form: qualify the lead on the page first. Every submission is logged to the
+  // Google Sheet with a qualified flag. Only qualified leads are handed to WhatsApp, so cold
+  // leads never land in the chats. Unqualified visitors are pointed to the free guides instead.
+  var ENQUIRY_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwpUHmEvN8SwbZ9RBZL8osYQSYzmOjEHQFIN6RIhXtwr_rY5LiqUi-p4tp6L1VagbhHSw/exec';
+
   var form = document.querySelector('#enquiry-form');
   if (form) {
     form.addEventListener('submit', function (e) {
@@ -138,19 +139,42 @@ document.addEventListener('DOMContentLoaded', function () {
         return el ? el.value.trim() : '';
       };
 
-      var msg =
-        "Hi, I'd like to enquire about IAAJ coaching.\n\n" +
-        'Name: ' + val('name') + '\n' +
-        'Email: ' + val('email') + '\n' +
-        'WhatsApp: ' + val('whatsapp') + '\n' +
-        'Dealing with: ' + val('condition') + '\n' +
-        'My struggle: ' + (val('struggle') || 'Not specified');
+      var timeline = val('timeline');
+      var invest = val('invest');
+      var qualified = (timeline === 'Ready now' || timeline === 'Within a month') && invest === 'Ready';
 
-      window.open('https://wa.me/919403912211?text=' + encodeURIComponent(msg), '_blank');
+      // Log every enquiry to the sheet. Fields map to the existing Apps Script columns:
+      // phone=WhatsApp, city=Condition, guides=Struggle, page=Source + qualification status.
+      if (ENQUIRY_ENDPOINT.indexOf('script.google.com') !== -1) {
+        var body = new URLSearchParams({
+          name: val('name'),
+          email: val('email'),
+          phone: val('whatsapp'),
+          city: val('condition'),
+          guides: val('struggle'),
+          page: 'Enquiry — ' + (qualified ? 'QUALIFIED' : 'not qualified') +
+                ' (start: ' + timeline + ', invest: ' + invest + ')'
+        });
+        fetch(ENQUIRY_ENDPOINT, { method: 'POST', mode: 'no-cors', body: body }).catch(function () {});
+      }
 
-      form.reset();
-      document.querySelector('#form-success').style.display = 'block';
-      form.style.display = 'none';
+      if (qualified) {
+        var msg =
+          "Hi, I'd like to enquire about IAAJ coaching.\n\n" +
+          'Name: ' + val('name') + '\n' +
+          'Email: ' + val('email') + '\n' +
+          'WhatsApp: ' + val('whatsapp') + '\n' +
+          'Dealing with: ' + val('condition') + '\n' +
+          'Looking to start: ' + timeline + '\n' +
+          'My struggle: ' + (val('struggle') || 'Not specified');
+        window.open('https://wa.me/919403912211?text=' + encodeURIComponent(msg), '_blank');
+        form.style.display = 'none';
+        document.querySelector('#form-success').style.display = 'block';
+      } else {
+        // Not ready to commit: nurture with the free guides instead of a cold WhatsApp lead.
+        form.style.display = 'none';
+        document.querySelector('#form-nurture').style.display = 'block';
+      }
     });
   }
 });

@@ -117,9 +117,27 @@
             <label for="struggle">Tell us a bit about your current struggle</label>
             <textarea id="struggle" name="struggle" rows="4"></textarea>
           </div>
+          <div class="form-field">
+            <label for="timeline">How soon are you looking to start?</label>
+            <select id="timeline" name="timeline" required>
+              <option value="">Select one</option>
+              <option value="Ready now">I am ready to start now</option>
+              <option value="Within a month">Within the next month</option>
+              <option value="Exploring">Just exploring for now</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="invest">Coaching is a paid, personalised program with a 50% advance to lock your slot. Are you ready to invest in this?</label>
+            <select id="invest" name="invest" required>
+              <option value="">Select one</option>
+              <option value="Ready">Yes, I am ready to invest in myself</option>
+              <option value="Thinking">I need to think about it first</option>
+            </select>
+          </div>
           <button type="submit" class="btn btn-primary btn-block">Send enquiry on WhatsApp</button>
         </form>
         <div id="form-success" class="form-success">WhatsApp should have opened with your details. Just tap send and we will take it from there. If nothing opened, message us directly on WhatsApp.</div>
+        <div id="form-nurture" class="form-success" style="display:none; background:#fff; border:1px solid #ececec; color:var(--black);">Thank you for being honest, and there is no pressure at all. The best place to start is our <a href="guides.html" style="color:var(--red); font-weight:600;">free guides</a>. Read through them, start applying what fits, and message us on WhatsApp whenever you are truly ready to commit. We will be here.</div>
         <p class="form-note">A 50% advance is required to lock a coaching slot. We will explain everything after your enquiry.</p>
       </div>
     </div>
