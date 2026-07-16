@@ -108,7 +108,8 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelector('#quiz-result-type').textContent = r.type;
     document.querySelector('#quiz-result-desc').textContent = r.desc;
     document.querySelector('#quiz-result-actions').innerHTML =
-      '<a class="btn btn-primary" target="_blank" rel="noopener" href="' + WA + encodeURIComponent(r.wa) + '">Message us on WhatsApp</a>' +
+      '<a class="btn btn-primary" href="contact.html">Fill the enquiry form</a>' +
+      '<a class="btn btn-outline" target="_blank" rel="noopener" href="' + WA + encodeURIComponent(r.wa) + '">Message us on WhatsApp</a>' +
       '<a class="btn btn-outline" href="guides.html">Get your free guide</a>';
     show(rScreen);
   }
