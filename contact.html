@@ -84,15 +84,13 @@
 
       <div class="card">
         <h3>Enquiry form</h3>
-        <p style="margin-top:6px; margin-bottom:20px;">Fill this out and we will get back to you on WhatsApp or email.</p>
+        <p style="margin-top:6px; margin-bottom:20px;">Fill this out and it opens WhatsApp with your details ready to send, so we can pick it up right away.</p>
 
         <!--
-          This form uses Formspree (a free service that emails you form submissions,
-          since a plain website has no server of its own to receive them).
-          To connect it: sign up free at formspree.io, create a form, and replace
-          YOUR_FORM_ID below with the ID Formspree gives you. Full steps are in README.md.
+          On submit, this opens WhatsApp pre-filled with the enquiry details addressed
+          to the IAAJ number, so leads land directly in WhatsApp. Handled in js/script.js.
         -->
-        <form id="enquiry-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+        <form id="enquiry-form">
           <div class="form-field">
             <label for="name">Name</label>
             <input type="text" id="name" name="name" required>
@@ -119,9 +117,9 @@
             <label for="struggle">Tell us a bit about your current struggle</label>
             <textarea id="struggle" name="struggle" rows="4"></textarea>
           </div>
-          <button type="submit" class="btn btn-primary btn-block">Send enquiry</button>
+          <button type="submit" class="btn btn-primary btn-block">Send enquiry on WhatsApp</button>
         </form>
-        <div id="form-success" class="form-success">Thank you. Your enquiry has been sent. We will reach out on WhatsApp or email shortly.</div>
+        <div id="form-success" class="form-success">WhatsApp should have opened with your details. Just tap send and we will take it from there. If nothing opened, message us directly on WhatsApp.</div>
         <p class="form-note">A 50% advance is required to lock a coaching slot. We will explain everything after your enquiry.</p>
       </div>
     </div>

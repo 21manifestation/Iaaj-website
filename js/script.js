@@ -125,34 +125,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Enquiry form: show a friendly success message without leaving the page.
   // Works once the form's "action" is set to a real Formspree endpoint (see contact.html comments).
+  // Enquiry form: hand the lead straight to WhatsApp with all the details pre-filled.
+  // The visitor taps send, and the enquiry lands in the IAAJ WhatsApp chats.
   var form = document.querySelector('#enquiry-form');
   if (form) {
     form.addEventListener('submit', function (e) {
-      var action = form.getAttribute('action') || '';
-      if (action.indexOf('YOUR_FORM_ID') !== -1) {
-        // Form is not connected yet, let the user know instead of failing silently.
-        e.preventDefault();
-        alert('This form is not connected yet. Message us on WhatsApp instead, or ask your site builder to finish the Formspree setup.');
-        return;
-      }
-
       e.preventDefault();
-      var data = new FormData(form);
-      fetch(action, {
-        method: 'POST',
-        body: data,
-        headers: { Accept: 'application/json' }
-      }).then(function (response) {
-        if (response.ok) {
-          form.reset();
-          document.querySelector('#form-success').style.display = 'block';
-          form.style.display = 'none';
-        } else {
-          alert('Something went wrong sending your message. Please try WhatsApp instead.');
-        }
-      }).catch(function () {
-        alert('Something went wrong sending your message. Please try WhatsApp instead.');
-      });
+      if (!form.checkValidity()) { form.reportValidity(); return; }
+
+      var val = function (id) {
+        var el = document.getElementById(id);
+        return el ? el.value.trim() : '';
+      };
+
+      var msg =
+        "Hi, I'd like to enquire about IAAJ coaching.\n\n" +
+        'Name: ' + val('name') + '\n' +
+        'Email: ' + val('email') + '\n' +
+        'WhatsApp: ' + val('whatsapp') + '\n' +
+        'Dealing with: ' + val('condition') + '\n' +
+        'My struggle: ' + (val('struggle') || 'Not specified');
+
+      window.open('https://wa.me/919403912211?text=' + encodeURIComponent(msg), '_blank');
+
+      form.reset();
+      document.querySelector('#form-success').style.display = 'block';
+      form.style.display = 'none';
     });
   }
 });

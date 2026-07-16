@@ -19,9 +19,11 @@ This is a plain HTML/CSS/JS site. No build tools, no Node.js needed. Open any `.
 ## Free guides lead magnet (guides.html)
 Visitors fill a form (name, email, contact number, city), pick which guides they want, and get instant PDF downloads. The 4 PDFs live in `guides/`. To capture the form data into a Google Sheet, the form posts to a Google Apps Script Web App. Paste the deployment URL into `GUIDES_ENDPOINT` near the top of the guides logic in `js/script.js`. Until that URL is set, downloads still work but submissions are not recorded. Setup steps for the sheet + Apps Script are documented in the chat/handover; the script appends: timestamp, name, email, phone, city, guides chosen, page.
 
+## Enquiry form (contact.html)
+On submit, the enquiry form opens WhatsApp pre-filled with the visitor's details (name, email, WhatsApp number, condition, struggle) addressed to the IAAJ number, so leads arrive directly in WhatsApp. No backend needed. Logic is in `js/script.js`.
+
 ## Things you still need to connect
-1. **Enquiry form** (`contact.html`): sign up free at formspree.io, create a form, and replace `YOUR_FORM_ID` in the form's `action` attribute with your real Formspree form ID. Until then the form shows a friendly warning instead of failing silently.
-2. **Analytics**: once you have a Google Analytics ID and a Meta Pixel ID, add their script snippets in the `<head>` of each HTML page (there's a comment marking where).
+1. **Analytics**: once you have a Google Analytics ID and a Meta Pixel ID, add their script snippets in the `<head>` of each HTML page (there's a comment marking where).
 
 ## WhatsApp number
 The WhatsApp button links to `+91 9403912211`. If this number ever changes, search and replace `919403912211` across all `.html` files.
