@@ -529,6 +529,35 @@ section {
   border-left: 4px solid var(--red);
 }
 
+/* ---------------- Stat strip (below hero) ---------------- */
+.stat-strip {
+  background: var(--cream);
+  padding: 26px 0;
+}
+
+.stat-strip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 16px 48px;
+  text-align: center;
+}
+
+.stat-strip-grid strong {
+  display: block;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: var(--red);
+  line-height: 1.1;
+}
+
+.stat-strip-grid span {
+  font-size: 0.82rem;
+  color: var(--grey);
+}
+
 /* ---------------- Press / trust bar ---------------- */
 .press-bar {
   background: var(--white);
