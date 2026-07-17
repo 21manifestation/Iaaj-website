@@ -1,7 +1,7 @@
 // Client onboarding form -> Google Apps Script -> Google Sheet (+ photos to Drive).
 // Paste the deployment URL from the onboarding Apps Script between the quotes below.
 document.addEventListener('DOMContentLoaded', function () {
-  var ONBOARDING_ENDPOINT = 'YOUR_ONBOARDING_APPS_SCRIPT_URL';
+  var ONBOARDING_ENDPOINT = 'https://script.google.com/macros/s/AKfycbym0dzREDgc6IJvysBb-OyIreFi5u_X_rgA2A6gu7dl2SUzy4ocHIZv6oK_2ATz9qtzxg/exec';
 
   var form = document.querySelector('#onboarding-form');
   if (!form) return;
