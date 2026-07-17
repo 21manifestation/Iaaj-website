@@ -44,32 +44,26 @@ document.addEventListener('DOMContentLoaded', function () {
   var GUIDES_ENDPOINT = 'YOUR_APPS_SCRIPT_URL';
 
   var GUIDES = {
-    protein:   { name: 'Protein Guide',          file: 'guides/iaaj-protein-guide.pdf' },
-    hydration: { name: 'Hydration Guide',        file: 'guides/iaaj-hydration-guide.pdf' },
-    sleep:     { name: 'Sleep Guide',            file: 'guides/iaaj-sleep-guide.pdf' },
-    hormonal:  { name: 'PCOS & Hormonal Guide',  file: 'guides/iaaj-hormonal-guide.pdf' }
+    protein:   { name: 'Protein Guide',              file: 'guides/iaaj-protein-guide.pdf' },
+    hydration: { name: 'Hydration Guide',            file: 'guides/iaaj-hydration-guide.pdf' },
+    sleep:     { name: 'Sleep Guide',                file: 'guides/iaaj-sleep-guide.pdf' },
+    hormonal:  { name: 'PCOS & Hormonal Guide',      file: 'guides/iaaj-hormonal-guide.pdf' },
+    insulin:   { name: 'Insulin & Blood Sugar Guide', file: 'guides/iaaj-insulin-guide.pdf' },
+    alcohol:   { name: 'Alcohol Guide',              file: 'guides/iaaj-alcohol-guide.pdf' }
   };
 
   var guidesForm = document.querySelector('#guides-form');
   if (guidesForm) {
     var guideBoxes = guidesForm.querySelectorAll('input[name="guides"]');
-    var allBox = guidesForm.querySelector('#g-all');
     var guideError = guidesForm.querySelector('#g-guide-error');
 
-    // Highlight the card when its checkbox is ticked, and keep "all" in sync.
+    // Highlight the card when its checkbox is ticked.
     function refreshCards() {
       guideBoxes.forEach(function (box) {
         box.closest('.guide-check').classList.toggle('checked', box.checked);
       });
-      var everyChecked = Array.prototype.every.call(guideBoxes, function (b) { return b.checked; });
-      allBox.checked = everyChecked;
-      allBox.closest('.guide-check').classList.toggle('checked', everyChecked);
     }
 
-    allBox.addEventListener('change', function () {
-      guideBoxes.forEach(function (box) { box.checked = allBox.checked; });
-      refreshCards();
-    });
     guideBoxes.forEach(function (box) {
       box.addEventListener('change', function () {
         if (guideError) guideError.style.display = 'none';
