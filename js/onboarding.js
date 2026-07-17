@@ -9,18 +9,6 @@ document.addEventListener('DOMContentLoaded', function () {
   var statusEl = document.querySelector('#onboarding-status');
   var submitBtn = document.querySelector('#onboarding-submit');
 
-  // Every plain field id we collect, in a sensible column order.
-  var FIELDS = [
-    'firstName', 'lastName', 'email', 'phone', 'emergencyPhone', 'location', 'address',
-    'gender', 'occupation', 'dob', 'age',
-    'water', 'foodPref', 'breakfast', 'lunch', 'dinner', 'snacks', 'oils', 'mealTiming', 'dairy',
-    'activityLevel', 'workoutTime', 'fitnessGoal', 'bodyweight', 'height', 'waist',
-    'stress', 'sleepHours', 'sleepQuality',
-    'diagnosis', 'periods',
-    'whyJoin', 'selfAccept', 'blocker', 'mindfulness', 'meditation',
-    'allergies', 'medication', 'smokeDrink', 'strengthTraining', 'workoutIntensity', 'foundUs', 'anythingElse'
-  ];
-
   function val(id) {
     var el = document.getElementById(id);
     return el ? el.value.trim() : '';
@@ -79,13 +67,71 @@ document.addEventListener('DOMContentLoaded', function () {
       compressPhoto(frontFile, 1280, 0.72),
       compressPhoto(sideFile, 1280, 0.72)
     ]).then(function (photos) {
-      var payload = { submittedAt: new Date().toLocaleString() };
-      FIELDS.forEach(function (id) { payload[id] = val(id); });
-      payload.supplements = checkGroup('supplements');
-      payload.medicalIssues = checkGroup('medicalIssues');
-      payload.injuries = checkGroup('injuries');
-      payload.frontPhoto = photos[0];
-      payload.sidePhoto = photos[1];
+      // Human-readable keys become the Google Sheet column headers, in this order.
+      var payload = {
+        'Submitted At': new Date().toLocaleString(),
+        'First Name': val('firstName'),
+        'Last Name': val('lastName'),
+        'Email': val('email'),
+        'Contact Number': val('phone'),
+        'Emergency Contact': val('emergencyPhone'),
+        'State/Country': val('location'),
+        'Address': val('address'),
+        'Gender': val('gender'),
+        'Occupation': val('occupation'),
+        'Date of Birth': val('dob'),
+        'Age': val('age'),
+        'Water Intake': val('water'),
+        'Food Preference': val('foodPref'),
+        'Breakfast': val('breakfast'),
+        'Lunch': val('lunch'),
+        'Dinner': val('dinner'),
+        'Snacks': val('snacks'),
+        'Oils': val('oils'),
+        'Meal Timing': val('mealTiming'),
+        'Dairy OK': val('dairy'),
+        'Supplements': checkGroup('supplements'),
+        'Activity Level': val('activityLevel'),
+        'Workout Time': val('workoutTime'),
+        'Fitness Goal': val('fitnessGoal'),
+        'Bodyweight': val('bodyweight'),
+        'Height': val('height'),
+        'Stress': val('stress'),
+        'Sleep Hours': val('sleepHours'),
+        'Neck': val('m_neck'),
+        'Shoulder': val('m_shoulder'),
+        'Chest': val('m_chest'),
+        'Upper Arm': val('m_upperArm'),
+        'Waist': val('m_waist'),
+        'Navel': val('m_navel'),
+        'Hips': val('m_hips'),
+        'Lower Belly': val('m_lowerBelly'),
+        'Thigh Left': val('m_thighLeft'),
+        'Thigh Right': val('m_thighRight'),
+        'Calves': val('m_calves'),
+        'Sleep Quality (1-5)': val('sleepQualityScale'),
+        'Energy (1-5)': val('energyLevel'),
+        'Hunger (1-5)': val('hungerLevel'),
+        'Mood (1-5)': val('moodLevel'),
+        'PCOS/Thyroid': val('diagnosis'),
+        'Periods': val('periods'),
+        'Why Join': val('whyJoin'),
+        'Self Acceptance': val('selfAccept'),
+        'Biggest Blocker': val('blocker'),
+        'Mindfulness': val('mindfulness'),
+        'Meditation': val('meditation'),
+        'Allergies': val('allergies'),
+        'Medical Issues': checkGroup('medicalIssues'),
+        'Injuries': checkGroup('injuries'),
+        'Medication': val('medication'),
+        'Smoke/Drink': val('smokeDrink'),
+        'Strength Training': val('strengthTraining'),
+        'Workout Intensity': val('workoutIntensity'),
+        'Found Us Via': val('foundUs'),
+        'Anything Else': val('anythingElse'),
+        'Front Photo': photos[0],
+        'Side Photo': photos[1]
+      };
 
       if (ONBOARDING_ENDPOINT.indexOf('script.google.com') === -1) {
         // Endpoint not wired yet: don't lose the client, just confirm.

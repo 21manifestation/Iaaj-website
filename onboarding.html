@@ -119,20 +119,13 @@
         <div class="form-field"><label for="height">Height (cm or ft) *</label><input type="text" id="height" required></div>
       </div>
       <div class="grid-2">
-        <div class="form-field"><label for="waist">Waist size (inches) *</label><input type="text" id="waist" required></div>
         <div class="form-field">
           <label for="stress">Current stress level *</label>
           <select id="stress" required><option value="">Select one</option><option>Low</option><option>Moderate</option><option>High</option></select>
         </div>
-      </div>
-      <div class="grid-2">
         <div class="form-field">
           <label for="sleepHours">Average sleep per night *</label>
           <select id="sleepHours" required><option value="">Select one</option><option>Less than 5 hours</option><option>5 to 6 hours</option><option>6 to 7 hours</option><option>7 to 8 hours</option><option>More than 8 hours</option></select>
-        </div>
-        <div class="form-field">
-          <label for="sleepQuality">Sleep quality *</label>
-          <select id="sleepQuality" required><option value="">Select one</option><option>Good</option><option>Average</option><option>Poor</option></select>
         </div>
       </div>
       <div class="grid-2">
@@ -146,6 +139,54 @@
         </div>
       </div>
       <p class="form-note" style="margin-top:-6px;">Please take current photos in fitted clothing. They are only used for your visual assessment and plan.</p>
+
+      <!-- Section: Starting measurements -->
+      <h2 style="margin:40px 0 6px;">Starting body measurements</h2>
+      <p style="margin-bottom:20px;">Grab a measuring tape and note these down. This is your starting point, and it is how we track real change beyond the scale. All measurements in inches.</p>
+      <div class="grid-2">
+        <div class="form-field"><label for="m_neck">Neck *</label><input type="text" id="m_neck" required></div>
+        <div class="form-field"><label for="m_shoulder">Shoulder *</label><input type="text" id="m_shoulder" required></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-field"><label for="m_chest">Chest *</label><input type="text" id="m_chest" required></div>
+        <div class="form-field"><label for="m_upperArm">Upper arm *</label><input type="text" id="m_upperArm" required></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-field"><label for="m_waist">Waist *</label><input type="text" id="m_waist" required></div>
+        <div class="form-field"><label for="m_navel">Navel *</label><input type="text" id="m_navel" required></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-field"><label for="m_hips">Hips *</label><input type="text" id="m_hips" required></div>
+        <div class="form-field"><label for="m_lowerBelly">Lower belly *</label><input type="text" id="m_lowerBelly" required></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-field"><label for="m_thighLeft">Thigh - left *</label><input type="text" id="m_thighLeft" required></div>
+        <div class="form-field"><label for="m_thighRight">Thigh - right *</label><input type="text" id="m_thighRight" required></div>
+      </div>
+      <div class="form-field"><label for="m_calves">Calves *</label><input type="text" id="m_calves" required></div>
+
+      <h3 style="margin:28px 0 4px;">How you are feeling right now</h3>
+      <p style="margin-bottom:18px;">On a scale of 1 to 5, where 1 is very low and 5 is excellent.</p>
+      <div class="grid-2">
+        <div class="form-field">
+          <label for="sleepQualityScale">Sleep quality (1-5) *</label>
+          <select id="sleepQualityScale" required><option value="">Select one</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+        </div>
+        <div class="form-field">
+          <label for="energyLevel">Energy levels (1-5) *</label>
+          <select id="energyLevel" required><option value="">Select one</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="form-field">
+          <label for="hungerLevel">Hunger levels (1-5) *</label>
+          <select id="hungerLevel" required><option value="">Select one</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+        </div>
+        <div class="form-field">
+          <label for="moodLevel">Mood levels (1-5) *</label>
+          <select id="moodLevel" required><option value="">Select one</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+        </div>
+      </div>
 
       <!-- Section 4 -->
       <h2 style="margin:40px 0 6px;">Hormonal health</h2>
