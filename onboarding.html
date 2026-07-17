@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client onboarding | It's All About Journey</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="images/favicon.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Poppins:wght@600;700;800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <nav class="nav" style="justify-content:center;">
+    <a href="index.html" class="logo">
+      <img src="images/logo-full-on-light.png" alt="It's All About Journey" class="logo-img">
+    </a>
+  </nav>
+</header>
+
+<section class="hero" style="padding:56px 0;">
+  <div class="corner-block top-right"></div>
+  <div class="container">
+    <span class="eyebrow">Welcome aboard</span>
+    <h1>Your healthy journey begins here.</h1>
+    <p style="color:rgba(255,255,255,0.85); max-width:560px; margin-top:12px;">Welcome to the team. Fill this in as accurately as you can. The more we understand about you, the better your Nutrition Journey Master and Workout Journey Master can build a plan around your body, not a template.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container" style="max-width:760px;">
+    <form id="onboarding-form">
+
+      <!-- Section 1 -->
+      <h2 style="margin-bottom:6px;">About you</h2>
+      <p style="margin-bottom:22px;">The basics, so we know who we are working with.</p>
+      <div class="grid-2">
+        <div class="form-field"><label for="firstName">First name *</label><input type="text" id="firstName" required></div>
+        <div class="form-field"><label for="lastName">Last name *</label><input type="text" id="lastName" required></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-field"><label for="email">Email *</label><input type="email" id="email" required></div>
+        <div class="form-field"><label for="phone">Contact number *</label><input type="tel" id="phone" required></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-field"><label for="emergencyPhone">Emergency contact number *</label><input type="tel" id="emergencyPhone" required></div>
+        <div class="form-field"><label for="location">State and country (for time zone) *</label><input type="text" id="location" required></div>
+      </div>
+      <div class="form-field"><label for="address">Full address with city and pin code *</label><textarea id="address" rows="3" required></textarea></div>
+      <div class="grid-2">
+        <div class="form-field">
+          <label for="gender">Gender *</label>
+          <select id="gender" required><option value="">Select one</option><option>Female</option><option>Male</option><option>Other</option></select>
+        </div>
+        <div class="form-field">
+          <label for="occupation">Occupation</label>
+          <select id="occupation"><option value="">Select one</option><option>Working Professional</option><option>Self Employed</option><option>House Wife</option><option>Student</option><option>Other</option></select>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="form-field"><label for="dob">Date of birth *</label><input type="date" id="dob" required></div>
+        <div class="form-field"><label for="age">Age *</label><input type="number" id="age" min="10" max="100" required></div>
+      </div>
+
+      <!-- Section 2 -->
+      <h2 style="margin:40px 0 6px;">Food and nutrition</h2>
+      <p style="margin-bottom:22px;">How you eat right now, honestly. No judgement.</p>
+      <div class="grid-2">
+        <div class="form-field">
+          <label for="water">Current water intake *</label>
+          <select id="water" required><option value="">Select one</option><option>1 to 2 litres</option><option>2 to 4 litres</option><option>4 to 6 litres</option><option>More than 6 litres</option></select>
+        </div>
+        <div class="form-field">
+          <label for="foodPref">Food preference *</label>
+          <select id="foodPref" required><option value="">Select one</option><option>Only Veg</option><option>Veg with Eggs</option><option>Veg and Non Veg</option><option>Only Non Veg</option></select>
+        </div>
+      </div>
+      <div class="form-field"><label for="breakfast">Your general breakfast options with time *</label><textarea id="breakfast" rows="2" required></textarea></div>
+      <div class="form-field"><label for="lunch">Your general lunch options with time *</label><textarea id="lunch" rows="2" required></textarea></div>
+      <div class="form-field"><label for="dinner">Your general dinner options with time *</label><textarea id="dinner" rows="2" required></textarea></div>
+      <div class="form-field"><label for="snacks">Your general snack options with time *</label><textarea id="snacks" rows="2" required></textarea></div>
+      <div class="grid-2">
+        <div class="form-field"><label for="oils">Which oils are you currently using? *</label><input type="text" id="oils" required></div>
+        <div class="form-field"><label for="mealTiming">First and last meal timing *</label><input type="text" id="mealTiming" placeholder="e.g. 8 AM to 9 PM" required></div>
+      </div>
+      <div class="form-field">
+        <label for="dairy">Are you okay with dairy (cheese, butter, ghee, paneer)? *</label>
+        <select id="dairy" required><option value="">Select one</option><option>Yes</option><option>No</option><option>I may be lactose intolerant</option></select>
+      </div>
+      <div class="form-field">
+        <label>Which supplements are you currently having? *</label>
+        <div class="check-group" data-name="supplements">
+          <label class="chk"><input type="checkbox" value="Whey protein"> Whey protein</label>
+          <label class="chk"><input type="checkbox" value="Vitamins and Minerals"> Vitamins and Minerals</label>
+          <label class="chk"><input type="checkbox" value="Fish oil"> Fish oil</label>
+          <label class="chk"><input type="checkbox" value="Advance Supplements"> Advance Supplements</label>
+          <label class="chk"><input type="checkbox" value="None"> None</label>
+        </div>
+      </div>
+
+      <!-- Section 3 -->
+      <h2 style="margin:40px 0 6px;">Fitness and body</h2>
+      <p style="margin-bottom:22px;">Where your body is starting from.</p>
+      <div class="grid-2">
+        <div class="form-field">
+          <label for="activityLevel">Current activity level *</label>
+          <select id="activityLevel" required><option value="">Select one</option><option>Light</option><option>Moderate</option><option>High</option><option>Extreme</option></select>
+        </div>
+        <div class="form-field">
+          <label for="workoutTime">Preferred workout time *</label>
+          <select id="workoutTime" required><option value="">Select one</option><option>6 AM - 7 AM</option><option>7 AM - 8 AM</option><option>7 PM - 8 PM</option><option>8 PM - 9 PM</option></select>
+        </div>
+      </div>
+      <div class="form-field"><label for="fitnessGoal">Your fitness goal *</label><textarea id="fitnessGoal" rows="2" required></textarea></div>
+      <div class="grid-2">
+        <div class="form-field"><label for="bodyweight">Current bodyweight (kg) *</label><input type="text" id="bodyweight" required></div>
+        <div class="form-field"><label for="height">Height (cm or ft) *</label><input type="text" id="height" required></div>
+      </div>
+      <div class="grid-2">
+        <div class="form-field"><label for="waist">Waist size (inches) *</label><input type="text" id="waist" required></div>
+        <div class="form-field">
+          <label for="stress">Current stress level *</label>
+          <select id="stress" required><option value="">Select one</option><option>Low</option><option>Moderate</option><option>High</option></select>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="form-field">
+          <label for="sleepHours">Average sleep per night *</label>
+          <select id="sleepHours" required><option value="">Select one</option><option>Less than 5 hours</option><option>5 to 6 hours</option><option>6 to 7 hours</option><option>7 to 8 hours</option><option>More than 8 hours</option></select>
+        </div>
+        <div class="form-field">
+          <label for="sleepQuality">Sleep quality *</label>
+          <select id="sleepQuality" required><option value="">Select one</option><option>Good</option><option>Average</option><option>Poor</option></select>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="form-field">
+          <label for="frontPhoto">Current front-view photo *</label>
+          <input type="file" id="frontPhoto" accept="image/*" required>
+        </div>
+        <div class="form-field">
+          <label for="sidePhoto">Current side-view photo *</label>
+          <input type="file" id="sidePhoto" accept="image/*" required>
+        </div>
+      </div>
+      <p class="form-note" style="margin-top:-6px;">Please take current photos in fitted clothing. They are only used for your visual assessment and plan.</p>
+
+      <!-- Section 4 -->
+      <h2 style="margin:40px 0 6px;">Hormonal health</h2>
+      <p style="margin-bottom:22px;">This is what we specialise in, so it matters most.</p>
+      <div class="grid-2">
+        <div class="form-field">
+          <label for="diagnosis">Have you been diagnosed with any of these? *</label>
+          <select id="diagnosis" required><option value="">Select one</option><option>PCOS / PCOD</option><option>Thyroid</option><option>Both PCOS and thyroid</option><option>Neither</option><option>Not sure</option></select>
+        </div>
+        <div class="form-field">
+          <label for="periods">Are your periods regular? *</label>
+          <select id="periods" required><option value="">Select one</option><option>Regular</option><option>Irregular</option><option>Not applicable</option></select>
+        </div>
+      </div>
+
+      <!-- Section 5 -->
+      <h2 style="margin:40px 0 6px;">Mindset</h2>
+      <p style="margin-bottom:22px;">The part most plans ignore.</p>
+      <div class="form-field"><label for="whyJoin">Why did you join this program? *</label><textarea id="whyJoin" rows="3" required></textarea></div>
+      <div class="form-field"><label for="selfAccept">Do you accept yourself just the way you are? Why or why not? *</label><textarea id="selfAccept" rows="3" required></textarea></div>
+      <div class="form-field"><label for="blocker">What is the one thing stopping you from reaching your goals? *</label><textarea id="blocker" rows="3" required></textarea></div>
+      <div class="grid-2">
+        <div class="form-field">
+          <label for="mindfulness">Would you like a mindfulness session? *</label>
+          <select id="mindfulness" required><option value="">Select one</option><option>Yes</option><option>No</option></select>
+        </div>
+        <div class="form-field"><label for="meditation">Tried meditation before? If yes, what kind?</label><input type="text" id="meditation"></div>
+      </div>
+
+      <!-- Section 6 -->
+      <h2 style="margin:40px 0 6px;">Medical history</h2>
+      <p style="margin-bottom:22px;">For your safety. Please be complete and honest.</p>
+      <div class="form-field"><label for="allergies">Any nausea or allergies? *</label><textarea id="allergies" rows="2" required></textarea></div>
+      <div class="form-field">
+        <label>Any past or current issues with the following? *</label>
+        <div class="check-group" data-name="medicalIssues">
+          <label class="chk"><input type="checkbox" value="Heart disease"> Heart disease</label>
+          <label class="chk"><input type="checkbox" value="Cardiovascular condition"> Cardiovascular condition</label>
+          <label class="chk"><input type="checkbox" value="Dizziness"> Dizziness</label>
+          <label class="chk"><input type="checkbox" value="Blackouts or fainting"> Blackouts or fainting</label>
+          <label class="chk"><input type="checkbox" value="Asthma"> Asthma</label>
+          <label class="chk"><input type="checkbox" value="High or Low Blood Pressure"> High or Low Blood Pressure</label>
+          <label class="chk"><input type="checkbox" value="Arthritis"> Arthritis</label>
+          <label class="chk"><input type="checkbox" value="Diabetes"> Diabetes</label>
+          <label class="chk"><input type="checkbox" value="Acidity or Constipation"> Acidity or Constipation</label>
+          <label class="chk"><input type="checkbox" value="None"> None</label>
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Do you have any problem areas or injuries? *</label>
+        <div class="check-group" data-name="injuries">
+          <label class="chk"><input type="checkbox" value="Knees"> Knees</label>
+          <label class="chk"><input type="checkbox" value="Lower back"> Lower back</label>
+          <label class="chk"><input type="checkbox" value="Neck or Shoulders"> Neck or Shoulders</label>
+          <label class="chk"><input type="checkbox" value="Hips or Pelvis"> Hips or Pelvis</label>
+          <label class="chk"><input type="checkbox" value="None"> None</label>
+        </div>
+      </div>
+      <div class="form-field"><label for="medication">Are you on any medication? If yes, which? *</label><textarea id="medication" rows="2" required></textarea></div>
+      <div class="grid-2">
+        <div class="form-field">
+          <label for="smokeDrink">Do you smoke or drink? *</label>
+          <select id="smokeDrink" required><option value="">Select one</option><option>No</option><option>Yes</option></select>
+        </div>
+        <div class="form-field">
+          <label for="strengthTraining">Ever done strength training? *</label>
+          <select id="strengthTraining" required><option value="">Select one</option><option>No</option><option>Yes</option></select>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="form-field">
+          <label for="workoutIntensity">Workout intensity you are ready for *</label>
+          <select id="workoutIntensity" required><option value="">Select one</option><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select>
+        </div>
+        <div class="form-field">
+          <label for="foundUs">How did you find out about us? *</label>
+          <select id="foundUs" required><option value="">Select one</option><option>Instagram Page</option><option>Facebook</option><option>Via Influencer</option><option>Ads</option><option>Reference</option><option>Other</option></select>
+        </div>
+      </div>
+      <div class="form-field"><label for="anythingElse">Anything else we should know?</label><textarea id="anythingElse" rows="2"></textarea></div>
+
+      <!-- Section 7 -->
+      <h2 style="margin:40px 0 6px;">Before you submit</h2>
+      <div class="card" style="background:var(--cream); border:none;">
+        <p style="font-weight:600; color:var(--black);">Refund policy</p>
+        <p style="margin-top:6px;">We strictly have no refund policy once the initial counselling sessions are done and your plans have been shared.</p>
+      </div>
+      <div class="form-field" style="margin-top:18px;">
+        <label class="chk" style="font-size:0.95rem;"><input type="checkbox" id="terms" required> I have read and accept the above terms. *</label>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block" id="onboarding-submit">Submit and start my journey</button>
+      <p class="form-note" id="onboarding-status" style="display:none;"></p>
+    </form>
+
+    <div id="onboarding-success" style="display:none; text-align:center; padding:20px 0;">
+      <h2 style="color:var(--red);">You're all set.</h2>
+      <p style="margin-top:10px; max-width:520px; margin-left:auto; margin-right:auto;">Thank you. Your details are in with the team. Your Nutrition Journey Master and Workout Journey Master will take it from here, and you will hear from us on your WhatsApp group. Welcome to the journey.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-bottom" style="border:none; padding-top:0;">
+      <span>&copy; <span id="year"></span> It's All About Journey. All rights reserved.</span>
+      <span><a href="https://www.instagram.com/itsallaboutjourney/" target="_blank" rel="noopener">@itsallaboutjourney</a> &middot; <a href="mailto:iaajofficial1@gmail.com">iaajofficial1@gmail.com</a></span>
+    </div>
+    <p style="margin-top:16px; font-size:0.72rem; color:rgba(255,255,255,0.4); max-width:640px;">IAAJ coaching does not provide medical advice. Please consult a physician before starting any nutrition or fitness program, and disclose any medical conditions during your assessment.</p>
+  </div>
+</footer>
+
+<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+<script src="js/onboarding.js"></script>
+</body>
+</html>

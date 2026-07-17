@@ -529,6 +529,35 @@ section {
   border-left: 4px solid var(--red);
 }
 
+/* ---------------- Onboarding checkbox groups ---------------- */
+.check-group {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+@media (min-width: 560px) {
+  .check-group { grid-template-columns: 1fr 1fr; }
+}
+
+.chk {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 0.9rem;
+  color: var(--black);
+  cursor: pointer;
+}
+
+.chk input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--red);
+  flex: 0 0 auto;
+  margin: 0;
+}
+
 /* ---------------- Stat strip (below hero) ---------------- */
 .stat-strip {
   background: var(--cream);
