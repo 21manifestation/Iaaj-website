@@ -88,6 +88,7 @@ document.addEventListener('DOMContentLoaded', function () {
         phone: guidesForm.querySelector('#g-phone').value.trim(),
         city: guidesForm.querySelector('#g-city').value.trim(),
         guides: selected.map(function (k) { return GUIDES[k].name; }).join(', '),
+        keys: selected.join(', '),
         page: 'Free guides'
       };
 
