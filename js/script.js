@@ -99,19 +99,9 @@ document.addEventListener('DOMContentLoaded', function () {
         fetch(GUIDES_ENDPOINT, { method: 'POST', mode: 'no-cors', body: body }).catch(function () {});
       }
 
-      // Build the download list for exactly what they picked, then reveal it.
-      var list = document.querySelector('#download-list');
-      list.innerHTML = '';
-      selected.forEach(function (key) {
-        var g = GUIDES[key];
-        var a = document.createElement('a');
-        a.href = g.file;
-        a.setAttribute('download', '');
-        a.setAttribute('target', '_blank');
-        a.setAttribute('rel', 'noopener');
-        a.innerHTML = '<span>' + g.name + '</span><span class="dl-arrow">Download &darr;</span>';
-        list.appendChild(a);
-      });
+      // Guides are delivered by email (the Apps Script sends them). Confirm on-page.
+      var sentTo = document.querySelector('#sent-to-email');
+      if (sentTo) sentTo.textContent = payload.email;
 
       guidesForm.style.display = 'none';
       document.querySelector('#guides-download').style.display = 'block';
