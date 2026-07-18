@@ -822,6 +822,52 @@ section {
 
 .quiz-disclaimer { font-size: 0.78rem; color: var(--grey); margin-top: 24px; }
 
+/* ---------------- Articles ---------------- */
+.article-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 22px;
+}
+
+@media (min-width: 720px) {
+  .article-list { grid-template-columns: 1fr 1fr; }
+}
+
+.article-card {
+  display: block;
+  border: 1px solid #ececec;
+  border-radius: 16px;
+  padding: 26px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.article-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.07);
+}
+
+.a-date {
+  font-size: 0.75rem;
+  color: var(--grey);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.article-card h3 { margin: 8px 0; color: var(--black); }
+.article-card p { font-size: 0.95rem; }
+.article-card .a-more { color: var(--red); font-weight: 600; font-family: var(--font-heading); font-size: 0.9rem; display: inline-block; margin-top: 12px; }
+
+.article-prose { max-width: 720px; margin: 0 auto; }
+.article-prose p { margin-bottom: 18px; font-size: 1.05rem; line-height: 1.8; }
+.article-prose h2 { margin: 36px 0 12px; }
+.article-prose h3 { margin: 26px 0 8px; }
+.article-prose ul { margin: 0 0 18px 22px; list-style: disc; }
+.article-prose li { margin-bottom: 8px; color: var(--grey); }
+.article-prose a { color: var(--red); font-weight: 600; }
+.article-prose .lead { font-size: 1.2rem; color: var(--black); }
+
 .pillar-letter {
   font-family: var(--font-heading);
   font-weight: 800;
