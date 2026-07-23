@@ -52,7 +52,10 @@ document.addEventListener('DOMContentLoaded', function () {
     alcohol:   { name: 'Alcohol Guide',               file: 'guides/iaaj-alcohol-guide.pdf' },
     stress:    { name: 'Stress & Cortisol Guide',     file: 'guides/iaaj-stress-cortisol-guide.pdf' },
     cravings:  { name: 'Cravings Guide',              file: 'guides/iaaj-cravings-guide.pdf' },
-    plateaus:  { name: 'Plateaus Guide',               file: 'guides/iaaj-plateaus-guide.pdf' }
+    plateaus:  { name: 'Plateaus Guide',               file: 'guides/iaaj-plateaus-guide.pdf' },
+    cheatmeals:{ name: 'Cheat Meals Guide',            file: 'guides/iaaj-cheat-meals-guide.pdf' },
+    eatingout: { name: 'Eating Out Guide',             file: 'guides/iaaj-eating-out-guide.pdf' },
+    mindset:   { name: 'Mindset & Self-Sabotage Guide', file: 'guides/iaaj-mindset-guide.pdf' }
   };
 
   var guidesForm = document.querySelector('#guides-form');
