@@ -44,12 +44,15 @@ document.addEventListener('DOMContentLoaded', function () {
   var GUIDES_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxTYPEbIJola1EQvOuS-48sKXYirfHTcorLaQjkptorl_YSMIYt6TljSVApCa-XwGtcfg/exec';
 
   var GUIDES = {
-    protein:   { name: 'Protein Guide',              file: 'guides/iaaj-protein-guide.pdf' },
-    hydration: { name: 'Hydration Guide',            file: 'guides/iaaj-hydration-guide.pdf' },
-    sleep:     { name: 'Sleep Guide',                file: 'guides/iaaj-sleep-guide.pdf' },
-    hormonal:  { name: 'PCOS & Hormonal Guide',      file: 'guides/iaaj-hormonal-guide.pdf' },
+    protein:   { name: 'Protein Guide',               file: 'guides/iaaj-protein-guide.pdf' },
+    hydration: { name: 'Hydration Guide',             file: 'guides/iaaj-hydration-guide.pdf' },
+    sleep:     { name: 'Sleep Guide',                 file: 'guides/iaaj-sleep-guide.pdf' },
+    hormonal:  { name: 'PCOS & Hormonal Guide',       file: 'guides/iaaj-hormonal-guide.pdf' },
     insulin:   { name: 'Insulin & Blood Sugar Guide', file: 'guides/iaaj-insulin-guide.pdf' },
-    alcohol:   { name: 'Alcohol Guide',              file: 'guides/iaaj-alcohol-guide.pdf' }
+    alcohol:   { name: 'Alcohol Guide',               file: 'guides/iaaj-alcohol-guide.pdf' },
+    stress:    { name: 'Stress & Cortisol Guide',     file: 'guides/iaaj-stress-cortisol-guide.pdf' },
+    cravings:  { name: 'Cravings Guide',              file: 'guides/iaaj-cravings-guide.pdf' },
+    plateaus:  { name: 'Plateaus Guide',               file: 'guides/iaaj-plateaus-guide.pdf' }
   };
 
   var guidesForm = document.querySelector('#guides-form');
