@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Data is sent to a Google Apps Script Web App, which appends it to a Google Sheet.
   // Paste the deployment URL from Apps Script between the quotes below. Until then,
   // downloads still work but submissions are not saved anywhere.
-  var GUIDES_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxTYPEbIJola1EQvOuS-48sKXYirfHTcorLaQjkptorl_YSMIYt6TljSVApCa-XwGtcfg/exec';
+  var GUIDES_ENDPOINT = 'https://script.google.com/macros/s/AKfycbz--RdsdnGAq-rdt1rMjbgYwsaiqGqz2MdrzLBF--XBq6tKYCVLANe03JQdOTYHBdf-7Q/exec';
 
   var GUIDES = {
     protein:   { name: 'Protein Guide',               file: 'guides/iaaj-protein-guide.pdf' },
