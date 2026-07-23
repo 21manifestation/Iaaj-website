@@ -45,7 +45,7 @@
   <div class="container">
     <span class="eyebrow">2-minute quiz</span>
     <h1>What's actually getting in your way?</h1>
-    <p style="color:rgba(255,255,255,0.85); max-width:520px; margin-top:14px; font-size:1.15rem;">Three quick questions. We'll show you where your body is likely stuck, and where to start.</p>
+    <p style="color:rgba(255,255,255,0.85); max-width:520px; margin-top:14px; font-size:1.15rem;">A few quick questions. We'll show you where your body is likely stuck, and where to start.</p>
   </div>
 </section>
 
@@ -67,6 +67,26 @@
           <div class="quiz-question" id="quiz-question-text"></div>
           <div class="quiz-options" id="quiz-options"></div>
           <button class="quiz-back" id="quiz-back">&larr; Back</button>
+        </div>
+
+        <div class="quiz-screen" id="quiz-capture-screen">
+          <div class="quiz-question">Almost there. Where should we send your result?</div>
+          <p class="quiz-capture-note">We will also send the one guide that matches your result, so you have something to act on today.</p>
+          <form id="quiz-capture-form">
+            <div class="form-field">
+              <label for="qz-name">Name</label>
+              <input type="text" id="qz-name" required>
+            </div>
+            <div class="form-field">
+              <label for="qz-email">Email</label>
+              <input type="email" id="qz-email" required>
+            </div>
+            <div class="form-field">
+              <label for="qz-phone">WhatsApp number (optional)</label>
+              <input type="tel" id="qz-phone">
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Show my result</button>
+          </form>
         </div>
 
         <div class="quiz-screen" id="quiz-result-screen">
