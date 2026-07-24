@@ -119,6 +119,11 @@ document.addEventListener('DOMContentLoaded', function () {
   // leads never land in the chats. Unqualified visitors are pointed to the free guides instead.
   var ENQUIRY_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwpUHmEvN8SwbZ9RBZL8osYQSYzmOjEHQFIN6RIhXtwr_rY5LiqUi-p4tp6L1VagbhHSw/exec';
 
+  // Also copies every enquiry into the sales team's Master CRM sheet, alongside their
+  // Instagram/Superreply leads. This is additive, the ENQUIRY_ENDPOINT sheet above still
+  // gets every submission and still drives the nurture emails, this is just a second copy.
+  var MASTER_CRM_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxhhkL_pBf91KHLSFaXlc8YOZR5rCgbQpSpMsQswF5e0zR9QdiVR0DkAXVoa-n9bVqS/exec';
+
   var form = document.querySelector('#enquiry-form');
   if (form) {
     form.addEventListener('submit', function (e) {
@@ -147,6 +152,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 ' (start: ' + timeline + ', invest: ' + invest + ')'
         });
         fetch(ENQUIRY_ENDPOINT, { method: 'POST', mode: 'no-cors', body: body }).catch(function () {});
+      }
+
+      // Copy into the Master Sales CRM, using its own field names (condition + qualification
+      // are native columns there, distinct from "city" which we don't collect on this form).
+      if (MASTER_CRM_ENDPOINT.indexOf('script.google.com') !== -1) {
+        var crmBody = new URLSearchParams({
+          name: val('name'),
+          email: val('email'),
+          phone: val('whatsapp'),
+          condition: val('condition'),
+          qualification: qualified ? 'QUALIFIED' : 'High Intent',
+          source: 'Website Enquiry',
+          notes: val('struggle') + ' (start: ' + timeline + ', invest: ' + invest + ')'
+        });
+        fetch(MASTER_CRM_ENDPOINT, { method: 'POST', mode: 'no-cors', body: crmBody }).catch(function () {});
       }
 
       if (qualified) {
