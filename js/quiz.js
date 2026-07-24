@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Paste the deployment URL from the quiz Apps Script here once it's set up.
   // Until then, the quiz still works end to end, it just doesn't log/email anything.
-  var QUIZ_ENDPOINT = 'YOUR_APPS_SCRIPT_URL';
+  var QUIZ_ENDPOINT = 'https://script.google.com/macros/s/AKfycbx5WDsVj1hD-PFXoDZHdz_Poqw2dxOVTmkLYV-mxRdRj5K2Z6WPfUmawtXCjIFcW6l_/exec';
 
   var QUESTIONS = [
     {
