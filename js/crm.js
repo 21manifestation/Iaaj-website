@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function loadSampleData() {
-    // Fallback demonstration data if offline or before script deployment
+    // High-Intent Sales Leads (Website Enquiries & Superreply IG DMs)
     allLeads = [
       {
         leadId: 'LEAD-1001',
@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function () {
         assignedRep: 'Unassigned',
         lastContacted: '',
         nextFollowUp: '',
-        notes: 'Looking to start ready now. Struggling with PCOS weight gain for 3 years.'
+        notes: 'Enquiry form: Ready now, ready to invest. Struggling with PCOS weight gain for 3 years.'
       },
       {
         leadId: 'LEAD-1002',
@@ -152,14 +152,14 @@ document.addEventListener('DOMContentLoaded', function () {
         phone: '9876543210',
         email: 'priya@example.com',
         city: 'Mumbai',
-        source: 'Free Guide',
+        source: 'IG DM',
         condition: 'Thyroid',
-        qualification: 'QUALIFIED',
+        qualification: 'High Intent',
         status: 'Contacted',
         assignedRep: 'Sales Rep 1',
         lastContacted: new Date(Date.now() - 43200000).toISOString(),
         nextFollowUp: new Date(Date.now() + 86400000).toISOString(),
-        notes: 'Downloaded Protein & Hormonal guides. Spoke on WhatsApp.'
+        notes: 'IG DM via Superreply: Asked for 90-day program pricing & breakdown.'
       },
       {
         leadId: 'LEAD-1003',
@@ -168,14 +168,14 @@ document.addEventListener('DOMContentLoaded', function () {
         phone: '9123456789',
         email: 'sneha@example.com',
         city: 'Nagpur',
-        source: 'Hormonal Quiz',
-        condition: 'Insulin & Blood Sugar',
+        source: 'Website Enquiry',
+        condition: 'Insulin Resistance',
         qualification: 'QUALIFIED',
         status: 'Follow-up',
         assignedRep: 'Sales Rep 2',
         lastContacted: new Date(Date.now() - 86400000).toISOString(),
         nextFollowUp: new Date().toISOString(),
-        notes: 'Quiz Result: Blood Sugar & Insulin. Interested in BLESS 90 Premium plan.'
+        notes: 'Enquiry form: Ready within a month. Interested in BLESS 90 Premium plan.'
       }
     ];
     renderDashboard();

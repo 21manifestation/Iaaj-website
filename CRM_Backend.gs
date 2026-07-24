@@ -1,10 +1,14 @@
 /**
- * IAAJ Master Sales CRM — Google Apps Script Backend
+ * IAAJ Master Sales CRM — Google Apps Script Backend (High-Intent Sales Pipeline)
+ * 
+ * Strategy:
+ * - Only High-Intent leads (Website Enquiries & Superreply IG DMs) enter the Master Sales CRM for sales calls.
+ * - Top-of-Funnel leads (Free Guides & Quiz) stay in their dedicated sheets for automated Email & WhatsApp Nurture.
  * 
  * Instructions:
  * 1. Open script.google.com in an incognito window signed into iaajofficial1@gmail.com.
  * 2. Create a new Apps Script project named "IAAJ Master Sales CRM".
- * 3. Bind it to a Google Sheet named "IAAJ Master Sales CRM" (or paste this script inside the sheet's Extensions -> Apps Script).
+ * 3. Bind it to a Google Sheet named "IAAJ Master Sales CRM" (or paste inside the sheet's Extensions -> Apps Script).
  * 4. Ensure two tabs exist in the Google Sheet:
  *    - "All Leads" (Headers: Lead ID, Date & Time, Name, WhatsApp / Phone, Email, City, Source, Hormonal Condition, Qualification, Lead Status, Assigned Rep, Last Contacted, Next Follow-up Date, Notes)
  *    - "Settings"  (Cell A1: "DistributionMode", Cell B1: "MANUAL", Cell A2: "LastAssignedIndex", Cell B2: "0")
@@ -20,7 +24,6 @@ function doGet(e) {
   var leads = [];
   
   if (data.length > 1) {
-    var headers = data[0];
     for (var i = 1; i < data.length; i++) {
       var row = data[i];
       if (!row[0] && !row[2]) continue; // Skip empty rows
@@ -31,7 +34,7 @@ function doGet(e) {
         phone: row[3] || '',
         email: row[4] || '',
         city: row[5] || '',
-        source: row[6] || 'Website',
+        source: row[6] || 'Website Enquiry',
         condition: row[7] || 'General',
         qualification: row[8] || 'QUALIFIED',
         status: row[9] || 'New',
@@ -111,7 +114,15 @@ function doPost(e) {
         .setMimeType(ContentService.MimeType.JSON);
     }
     
-    // --- ACTION: Ingest New Lead ---
+    // --- ACTION: Ingest New High-Intent Lead ---
+    var sourceStr = p.source || p.page || 'Website Enquiry';
+    
+    // Safety Filter: Skip cold lead sources if posted by mistake
+    if (sourceStr.indexOf('Free guide') > -1 || sourceStr.indexOf('Quiz') > -1) {
+      return ContentService.createTextOutput(JSON.stringify({ status: 'skipped', reason: 'Top of funnel lead reserved for email/WA nurture' }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
     var now = new Date();
     var totalRows = sheet.getLastRow();
     var leadId = 'LEAD-' + (1000 + totalRows);
@@ -134,14 +145,14 @@ function doPost(e) {
       p.phone || p.whatsapp || '',
       p.email || '',
       p.city || '',
-      p.source || p.page || 'Website',
-      p.condition || p.city || 'General',
-      p.qualification || (p.page && p.page.indexOf('QUALIFIED') > -1 ? 'QUALIFIED' : 'Standard'),
+      sourceStr,
+      p.condition || p.city || 'PCOS/Thyroid',
+      p.qualification || (sourceStr.indexOf('QUALIFIED') > -1 ? 'QUALIFIED' : 'High Intent'),
       'New',
       assignedRep,
       '', // Last Contacted
       '', // Next Follow-up
-      p.guides || p.notes || ''
+      p.notes || p.guides || ''
     ]);
     
     return ContentService.createTextOutput(JSON.stringify({ status: 'success', leadId: leadId, assignedRep: assignedRep }))
