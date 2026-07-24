@@ -1,0 +1,483 @@
+/* IAAJ Master Sales CRM Styles */
+
+:root {
+  --crm-bg: #f8f9fa;
+  --crm-card-bg: #ffffff;
+  --crm-border: #e2e8f0;
+  --crm-text-dark: #111111;
+  --crm-text-muted: #64748b;
+  --crm-red: #ec0035;
+  --crm-green: #0eae1d;
+  --crm-amber: #d97706;
+  --crm-blue: #2563eb;
+  --crm-purple: #7c3aed;
+}
+
+body.crm-body {
+  background-color: var(--crm-bg);
+  color: var(--crm-text-dark);
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* PIN Auth Screen */
+.crm-auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background: radial-gradient(circle at center, #222 0%, #111 100%);
+}
+
+.crm-auth-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 40px 32px;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.crm-auth-logo {
+  height: 50px;
+  margin-bottom: 20px;
+}
+
+.crm-auth-card h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+  color: #111;
+}
+
+.crm-auth-card p {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 24px;
+}
+
+.crm-pin-form input {
+  font-size: 1.25rem;
+  letter-spacing: 4px;
+  text-align: center;
+  padding: 12px;
+  margin-bottom: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.crm-pin-error {
+  color: var(--crm-red);
+  font-size: 0.85rem;
+  margin-top: 12px;
+}
+
+/* CRM Header */
+.crm-header {
+  background: #ffffff;
+  border-bottom: 1px solid var(--crm-border);
+  padding: 16px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.crm-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.crm-header-logo {
+  height: 38px;
+}
+
+.crm-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.crm-badge-admin {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.crm-badge-sales {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.crm-header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.crm-user-info {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+/* Main Container */
+.crm-main {
+  max-width: 1320px;
+  margin: 24px auto;
+  padding: 0 24px 60px;
+}
+
+/* Admin Bar */
+.crm-admin-bar {
+  background: #1e293b;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.crm-admin-bar-title {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.crm-admin-toggle-group {
+  display: flex;
+  gap: 8px;
+  background: #0f172a;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.crm-toggle-btn {
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.crm-toggle-btn.active {
+  background: var(--crm-red);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(236,0,53,0.4);
+}
+
+.crm-admin-mode-desc {
+  font-size: 0.82rem;
+  color: #cbd5e1;
+}
+
+/* Stats Row */
+.crm-stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.crm-stat-card {
+  background: #ffffff;
+  border: 1px solid var(--crm-border);
+  border-radius: 10px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.crm-stat-num {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #0f172a;
+}
+
+.crm-stat-label {
+  font-size: 0.82rem;
+  color: var(--crm-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 6px;
+  font-weight: 600;
+}
+
+.crm-text-red { color: var(--crm-red); }
+.crm-text-green { color: var(--crm-green); }
+
+/* Controls & Filter Bar */
+.crm-controls {
+  background: #ffffff;
+  border: 1px solid var(--crm-border);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.crm-search-box input {
+  width: 320px;
+  max-width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--crm-border);
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.crm-filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.crm-filter-group select {
+  padding: 10px 14px;
+  border: 1px solid var(--crm-border);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  background: #ffffff;
+  color: #334155;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Leads Grid */
+.crm-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 16px;
+}
+
+.crm-section-header h3 {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  font-size: 1.2rem;
+  color: #0f172a;
+}
+
+.crm-subtext {
+  font-size: 0.82rem;
+  color: var(--crm-text-muted);
+}
+
+.crm-leads-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 20px;
+}
+
+.crm-loading-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+  color: var(--crm-text-muted);
+  font-style: italic;
+}
+
+/* Lead Card Design */
+.crm-lead-card {
+  background: #ffffff;
+  border: 1px solid var(--crm-border);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+
+.crm-lead-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.06);
+}
+
+.crm-lead-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.crm-lead-name {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.crm-lead-meta {
+  font-size: 0.82rem;
+  color: var(--crm-text-muted);
+}
+
+.crm-lead-tag-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.crm-tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.crm-tag-qual {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.crm-tag-unqual {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.crm-tag-source {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.crm-tag-condition {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.crm-lead-details {
+  font-size: 0.88rem;
+  color: #334155;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.crm-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* WhatsApp CTA Button */
+.crm-wa-btn {
+  background: #25d366;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  box-shadow: 0 2px 6px rgba(37,211,102,0.3);
+}
+
+.crm-wa-btn:hover {
+  background: #1da851;
+  color: #ffffff;
+}
+
+/* Lead Actions Grid */
+.crm-card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--crm-border);
+}
+
+.crm-field-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  color: var(--crm-text-muted);
+  font-weight: 700;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.crm-select-sm, .crm-input-sm {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--crm-border);
+  border-radius: 6px;
+  font-size: 0.82rem;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.crm-notes-textarea {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-height: 54px;
+  padding: 8px;
+  border: 1px solid var(--crm-border);
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.crm-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.crm-save-lead-btn {
+  background: #0f172a;
+  color: #ffffff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.crm-save-lead-btn:hover {
+  background: var(--crm-red);
+}
+
+/* Status Pill Colors */
+.status-new { border-left: 4px solid var(--crm-blue); }
+.status-contacted { border-left: 4px solid var(--crm-amber); }
+.status-follow-up { border-left: 4px solid var(--crm-purple); }
+.status-converted { border-left: 4px solid var(--crm-green); }
+.status-lost { border-left: 4px solid #94a3b8; }

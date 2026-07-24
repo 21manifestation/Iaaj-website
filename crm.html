@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>IAAJ Master Sales CRM Dashboard</title>
+
+  <!-- Google Fonts & Styles -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/crm.css">
+  <link rel="icon" href="/images/logo-full-on-light.png">
+</head>
+<body class="crm-body">
+
+  <!-- PIN Authentication Screen -->
+  <div id="crm-auth-screen" class="crm-auth-container">
+    <div class="crm-auth-card">
+      <img src="/images/logo-full-on-light.png" alt="IAAJ Logo" class="crm-auth-logo">
+      <h2>Master Sales CRM</h2>
+      <p>Enter team security PIN to access the dashboard</p>
+
+      <form id="crm-pin-form" class="crm-pin-form">
+        <div class="form-field">
+          <input type="password" id="crm-pin-input" placeholder="Enter PIN" maxlength="6" required autocomplete="off">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Access Dashboard</button>
+        <p id="crm-pin-error" class="crm-pin-error" style="display:none;">Invalid PIN. Please try again.</p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Dashboard Container (Hidden until PIN verified) -->
+  <div id="crm-dashboard-screen" class="crm-dashboard" style="display: none;">
+    
+    <!-- Top Header -->
+    <header class="crm-header">
+      <div class="crm-header-left">
+        <img src="/images/logo-full-on-light.png" alt="IAAJ Logo" class="crm-header-logo">
+        <span class="crm-badge crm-badge-admin" id="crm-role-badge">Admin View</span>
+      </div>
+      <div class="crm-header-right">
+        <span class="crm-user-info" id="crm-user-name">Welcome, Gaurav</span>
+        <button id="crm-logout-btn" class="btn btn-outline btn-sm">Logout</button>
+      </div>
+    </header>
+
+    <!-- Main Content Wrapper -->
+    <main class="crm-main">
+      
+      <!-- Admin Distribution Control Bar (Gaurav Admin Only) -->
+      <section id="crm-admin-bar" class="crm-admin-bar">
+        <div class="crm-admin-bar-title">
+          ⚡ <strong>Lead Distribution Mode:</strong>
+        </div>
+        <div class="crm-admin-toggle-group">
+          <button type="button" class="crm-toggle-btn active" data-mode="MANUAL" id="mode-manual-btn">
+            📌 Manual Distribution
+          </button>
+          <button type="button" class="crm-toggle-btn" data-mode="ROUND_ROBIN" id="mode-auto-btn">
+            🔄 Auto Round-Robin
+          </button>
+        </div>
+        <span class="crm-admin-mode-desc" id="crm-mode-desc">
+          New leads land as <em>Unassigned</em> for Gaurav to manually distribute.
+        </span>
+      </section>
+
+      <!-- Key Metrics Row -->
+      <section class="crm-stats-row">
+        <div class="crm-stat-card">
+          <span class="crm-stat-num" id="stat-total-leads">0</span>
+          <span class="crm-stat-label">Total Leads</span>
+        </div>
+        <div class="crm-stat-card">
+          <span class="crm-stat-num crm-text-red" id="stat-new-leads">0</span>
+          <span class="crm-stat-label">New Leads</span>
+        </div>
+        <div class="crm-stat-card">
+          <span class="crm-stat-num crm-text-green" id="stat-qualified">0</span>
+          <span class="crm-stat-label">Qualified Leads</span>
+        </div>
+        <div class="crm-stat-card">
+          <span class="crm-stat-num" id="stat-followups">0</span>
+          <span class="crm-stat-label">Follow-ups Pending</span>
+        </div>
+      </section>
+
+      <!-- Filter & Search Controls -->
+      <section class="crm-controls">
+        <div class="crm-search-box">
+          <input type="text" id="crm-search-input" placeholder="Search by name, phone, email, condition...">
+        </div>
+
+        <div class="crm-filter-group">
+          <select id="crm-filter-rep">
+            <option value="ALL">All Reps</option>
+            <option value="Unassigned">Unassigned Only</option>
+            <option value="Gaurav">Gaurav</option>
+            <option value="Sales Rep 1">Sales Rep 1</option>
+            <option value="Sales Rep 2">Sales Rep 2</option>
+          </select>
+
+          <select id="crm-filter-status">
+            <option value="ALL">All Statuses</option>
+            <option value="New">New</option>
+            <option value="Contacted">Contacted</option>
+            <option value="Follow-up">Follow-up</option>
+            <option value="Converted">Converted</option>
+            <option value="Lost">Lost</option>
+          </select>
+
+          <select id="crm-filter-source">
+            <option value="ALL">All Sources</option>
+            <option value="Website Enquiry">Website Enquiry</option>
+            <option value="Free Guide">Free Guide</option>
+            <option value="Quiz">Hormonal Quiz</option>
+            <option value="IG DM">IG DM</option>
+          </select>
+
+          <button id="crm-refresh-btn" class="btn btn-primary btn-sm">↻ Refresh Leads</button>
+        </div>
+      </section>
+
+      <!-- Lead Cards Grid -->
+      <section class="crm-leads-section">
+        <div class="crm-section-header">
+          <h3>Lead Records (<span id="crm-lead-count">0</span>)</h3>
+          <span class="crm-subtext">Click 'Chat on WhatsApp' to open pre-filled sales message</span>
+        </div>
+
+        <div id="crm-leads-grid" class="crm-leads-grid">
+          <!-- Lead cards rendered dynamically via JS -->
+          <div class="crm-loading-state">Loading Master CRM Leads...</div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/js/crm.js"></script>
+</body>
+</html>

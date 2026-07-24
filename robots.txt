@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /crm
+Disallow: /onboarding
 
 Sitemap: https://www.itsallaboutjourney.com/sitemap.xml
+
