@@ -117,8 +117,23 @@ html {
   transform: translateY(0);
 }
 
+/* Children of a revealing section come in one after another rather than all at
+   once. The delay is set inline by script.js so the step stays in one place. */
+.reveal-child {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal-child.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .reveal {
+  .reveal,
+  .reveal-child {
     opacity: 1;
     transform: none;
     transition: none;
@@ -156,11 +171,17 @@ h1, h2, h3, h4 {
   letter-spacing: -0.01em;
 }
 
-h1 { font-size: clamp(2rem, 5vw, 3.2rem); }
-h2 { font-size: clamp(1.6rem, 4vw, 2.4rem); }
-h3 { font-size: clamp(1.2rem, 3vw, 1.5rem); }
+h1 { font-size: clamp(2.3rem, 6vw, 4rem); letter-spacing: -0.025em; }
+h2 { font-size: clamp(1.9rem, 4.6vw, 3rem); letter-spacing: -0.02em; }
+h3 { font-size: clamp(1.25rem, 3vw, 1.6rem); }
 
 p { color: var(--grey); }
+
+/* Body copy sits at a comfortable measure. Long lines are the fastest way to
+   make a page feel like homework, which is the opposite of the tone we want. */
+.section-head p,
+.card p,
+.pillar-card p { max-width: 62ch; }
 
 .container {
   max-width: var(--max-width);
@@ -456,7 +477,7 @@ p { color: var(--grey); }
 /* ---------------- Sections ---------------- */
 
 section {
-  padding: 70px 0;
+  padding: clamp(72px, 9vw, 130px) 0;
 }
 
 .section-cream {
@@ -478,8 +499,8 @@ section {
 }
 
 .section-head {
-  max-width: 620px;
-  margin-bottom: 44px;
+  max-width: 700px;
+  margin-bottom: clamp(44px, 5vw, 68px);
 }
 
 .section-head.center {
@@ -493,13 +514,13 @@ section {
 .grid-3 {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 24px;
+  gap: clamp(24px, 2.6vw, 34px);
 }
 
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 24px;
+  gap: clamp(24px, 3vw, 44px);
 }
 
 @media (min-width: 720px) {
@@ -511,7 +532,7 @@ section {
   background: var(--white);
   border: 1px solid #ececec;
   border-radius: 16px;
-  padding: 30px 26px;
+  padding: clamp(30px, 3vw, 38px) clamp(26px, 2.6vw, 34px);
 }
 
 .card-number {
@@ -527,6 +548,111 @@ section {
   border-radius: 16px;
   padding: 26px;
   border-left: 4px solid var(--red);
+}
+
+/* ---------------- Proof strip + founder note ---------------- */
+
+.proof-strip {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(20px, 2.4vw, 30px);
+}
+
+@media (min-width: 700px) { .proof-strip { grid-template-columns: repeat(3, 1fr); } }
+
+.proof-strip img {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.founder-note {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(26px, 3.5vw, 56px);
+  align-items: center;
+}
+
+@media (min-width: 820px) { .founder-note { grid-template-columns: 0.8fr 1.2fr; } }
+
+.founder-note img {
+  width: 100%;
+  height: auto;
+  border-radius: 18px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* ---------------- BLESS method, pinned ---------------- */
+/* The heading column stays put while the five pillars scroll past it. Built on
+   position: sticky rather than scroll hijacking, so the page still scrolls at
+   the speed the reader expects and keyboard/reduced-motion users are unaffected. */
+
+.bless-layout { display: grid; grid-template-columns: 1fr; gap: 40px; }
+
+@media (min-width: 900px) {
+  .bless-layout { grid-template-columns: 0.85fr 1.15fr; gap: 70px; align-items: start; }
+  .bless-aside { position: sticky; top: 130px; }
+}
+
+.bless-track {
+  list-style: none;
+  margin-top: 30px;
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+}
+
+@media (min-width: 900px) { .bless-track { display: flex; } }
+
+.bless-track li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 0;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--grey);
+  opacity: 0.45;
+  transition: opacity 0.35s ease, color 0.35s ease;
+}
+
+.bless-track li span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.bless-track li.active { opacity: 1; color: var(--red); }
+
+.bless-steps { display: flex; flex-direction: column; gap: clamp(24px, 3vw, 40px); }
+
+.bless-step {
+  background: var(--white);
+  border: 1px solid #ececec;
+  border-left: 4px solid var(--red);
+  border-radius: 16px;
+  padding: clamp(28px, 3vw, 40px);
+  transition: box-shadow 0.35s ease, transform 0.35s ease;
+}
+
+.bless-step h3 { margin-top: 8px; }
+.bless-step p { margin-top: 8px; max-width: 54ch; }
+
+@media (min-width: 900px) {
+  .bless-step.active { box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08); transform: translateY(-2px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bless-track li, .bless-step { transition: none; }
 }
 
 /* ---------------- Onboarding checkbox groups ---------------- */

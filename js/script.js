@@ -10,21 +10,64 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Fade sections in as they scroll into view (skip the hero, it's visible on load).
+  // Repeated items inside a section (cards, pillars, gallery images) come in one
+  // after another instead of together, which reads calmer than a single big jump.
+  var STAGGER_STEP_MS = 80;
+  var STAGGER_MAX_MS = 480;
+  var STAGGER_SELECTOR = '.card, .pillar-card, .article-card, .step-card, .faq-item, .proof-strip img, .transformation-gallery img';
+
   var revealTargets = document.querySelectorAll('section:not(.hero)');
   if ('IntersectionObserver' in window) {
     var revealObserver = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('in-view');
-          revealObserver.unobserve(entry.target);
-        }
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('in-view');
+        entry.target.querySelectorAll('.reveal-child').forEach(function (child) {
+          child.classList.add('in-view');
+        });
+        revealObserver.unobserve(entry.target);
       });
     }, { threshold: 0.12 });
 
     revealTargets.forEach(function (el) {
       el.classList.add('reveal');
+
+      // Only stagger when there are several siblings, otherwise a lone card
+      // just looks like it lagged behind the heading.
+      var children = el.querySelectorAll(STAGGER_SELECTOR);
+      if (children.length > 1) {
+        children.forEach(function (child, i) {
+          child.classList.add('reveal-child');
+          child.style.setProperty('--reveal-delay', Math.min(i * STAGGER_STEP_MS, STAGGER_MAX_MS) + 'ms');
+        });
+      }
+
       revealObserver.observe(el);
     });
+  }
+
+  // BLESS method: highlight the pillar the reader is currently level with, and
+  // mirror it in the sticky track alongside. Purely decorative, so if anything
+  // here is unsupported the pillars still read fine as a plain stacked list.
+  var blessSteps = document.querySelectorAll('.bless-step');
+  if (blessSteps.length && 'IntersectionObserver' in window) {
+    var blessMarks = document.querySelectorAll('.bless-track li');
+
+    var setActiveStep = function (index) {
+      blessSteps.forEach(function (s) { s.classList.toggle('active', +s.dataset.step === index); });
+      blessMarks.forEach(function (m) { m.classList.toggle('active', +m.dataset.step === index); });
+    };
+
+    var blessObserver = new IntersectionObserver(function (entries) {
+      // Pick the entry closest to the middle of the viewport so the highlight
+      // doesn't flicker when two cards are on screen together.
+      var best = null;
+      entries.forEach(function (entry) { if (entry.isIntersecting) best = entry; });
+      if (best) setActiveStep(+best.target.dataset.step);
+    }, { rootMargin: '-45% 0px -45% 0px' });
+
+    blessSteps.forEach(function (step) { blessObserver.observe(step); });
+    setActiveStep(0);
   }
 
   // Subtle shadow under the sticky header once the page starts scrolling.
