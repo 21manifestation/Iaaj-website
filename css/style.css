@@ -950,36 +950,83 @@ section {
 
 .quiz-capture-note { font-size: 0.9rem; color: var(--grey); margin-bottom: 18px; }
 
-/* ---------------- Floating "Take the quiz" CTA ---------------- */
-.quiz-float {
+/* ---------------- Floating action stack ----------------
+   Quiz, Journey Master chat and WhatsApp all live in one group at the bottom
+   right. Same size, same shape, same shadow, one consistent gap. The chat
+   button is injected into this stack by js/faq-bot.js. */
+
+.float-stack {
   position: fixed;
-  left: 20px;
+  right: 20px;
   bottom: 20px;
-  z-index: 90;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.float-btn {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: var(--black);
+  justify-content: center;
   color: var(--white);
-  border-radius: 999px;
-  padding: 13px 20px 13px 16px;
-  font-family: var(--font-heading);
-  font-weight: 600;
-  font-size: 0.88rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.quiz-float:hover {
+.float-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
 }
 
-.quiz-float svg { width: 20px; height: 20px; flex-shrink: 0; color: var(--red); }
+.float-btn svg { width: 25px; height: 25px; }
+
+.float-quiz { background: var(--red); }
+.float-chat { background: var(--black); }
+.float-wa   { background: #25D366; }
+
+/* Label slides out to the left on hover. Desktop only: on touch there is no
+   hover state, and the icons plus aria-labels carry the meaning. */
+.float-btn::after {
+  content: attr(data-label);
+  position: absolute;
+  right: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%) translateX(6px);
+  white-space: nowrap;
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.8rem;
+  padding: 8px 13px;
+  border-radius: 999px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+@media (hover: hover) and (min-width: 700px) {
+  .float-btn:hover::after { opacity: 1; transform: translateY(-50%) translateX(0); }
+}
 
 @media (max-width: 560px) {
-  .quiz-float span { display: none; }
-  .quiz-float { padding: 13px; }
+  .float-stack { right: 16px; bottom: 16px; gap: 10px; }
+  .float-btn { width: 50px; height: 50px; }
+  .float-btn svg { width: 23px; height: 23px; }
+  .float-btn::after { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .float-btn, .float-btn::after { transition: none; }
 }
 
 /* ---------------- Articles ---------------- */
@@ -1174,61 +1221,22 @@ section {
   font-weight: 700;
 }
 
-/* ---------------- Sticky WhatsApp ---------------- */
+/* ---------------- Journey Master chat panel ---------------- */
 
-.whatsapp-float {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 200;
-  background: #25D366;
-  color: var(--white);
-  width: 58px;
-  height: 58px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-}
+.float-chat .faqbot-icon-close { display: none; }
+.float-chat.open .faqbot-icon-chat { display: none; }
+.float-chat.open .faqbot-icon-close { display: block; }
 
-.whatsapp-float svg {
-  width: 28px;
-  height: 28px;
-}
-
-/* ---------------- FAQ assistant floater ---------------- */
-
-.faqbot-float {
-  position: fixed;
-  bottom: 92px;
-  right: 20px;
-  z-index: 210;
-  background: var(--black);
-  color: var(--white);
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.faqbot-float:hover { transform: translateY(-2px); }
-.faqbot-float svg { width: 24px; height: 24px; color: var(--red); }
-.faqbot-float .faqbot-icon-close { display: none; }
-.faqbot-float.open .faqbot-icon-chat { display: none; }
-.faqbot-float.open .faqbot-icon-close { display: block; }
+/* While the chat is open the panel needs that corner, so the other two buttons
+   step aside and the chat toggle doubles as the close button. */
+.float-stack.chat-open .float-quiz,
+.float-stack.chat-open .float-wa { display: none; }
 
 .faqbot-panel {
   position: fixed;
-  bottom: 156px;
+  bottom: 96px;
   right: 20px;
-  z-index: 200;
+  z-index: 199;
   width: 340px;
   max-width: calc(100vw - 40px);
   height: 460px;
@@ -1389,7 +1397,6 @@ section {
 .faqbot-inputrow button svg { width: 16px; height: 16px; }
 
 @media (max-width: 560px) {
-  .faqbot-float { bottom: 84px; width: 48px; height: 48px; }
   .faqbot-panel {
     bottom: 0;
     right: 0;

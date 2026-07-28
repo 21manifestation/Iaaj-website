@@ -119,7 +119,9 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     var floatBtn = document.createElement('button');
-    floatBtn.className = 'faqbot-float';
+    floatBtn.className = 'float-btn float-chat';
+    floatBtn.setAttribute('type', 'button');
+    floatBtn.setAttribute('data-label', 'Ask a question');
     floatBtn.setAttribute('aria-label', 'Ask a quick question');
     floatBtn.innerHTML =
       '<svg class="faqbot-icon-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>' +
@@ -145,7 +147,18 @@
         '</button>' +
       '</div>';
 
-    document.body.appendChild(floatBtn);
+    // Sit inside the shared float stack, directly above the WhatsApp button, so
+    // all three buttons stay one consistent group. Fall back to the body if the
+    // stack markup is missing for any reason.
+    var stack = document.querySelector('.float-stack');
+    var waBtn = stack && stack.querySelector('.float-wa');
+    if (stack && waBtn) {
+      stack.insertBefore(floatBtn, waBtn);
+    } else if (stack) {
+      stack.appendChild(floatBtn);
+    } else {
+      document.body.appendChild(floatBtn);
+    }
     document.body.appendChild(panel);
 
     var body = panel.querySelector('#faqbot-body');
@@ -269,6 +282,7 @@
       opened = true;
       panel.classList.add('open');
       floatBtn.classList.add('open');
+      if (stack) stack.classList.add('chat-open');
       if (!body.hasChildNodes()) {
         addBubble("Hi! I'm Journey Master, here to give you instant answers. Ask me anything about the coaching, PCOS, thyroid or getting started.", 'bot');
         addChips();
@@ -280,6 +294,7 @@
       opened = false;
       panel.classList.remove('open');
       floatBtn.classList.remove('open');
+      if (stack) stack.classList.remove('chat-open');
     }
 
     floatBtn.addEventListener('click', function () {
