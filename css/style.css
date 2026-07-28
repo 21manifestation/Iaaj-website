@@ -899,7 +899,7 @@ section {
 .article-prose h3 { margin: 26px 0 8px; }
 .article-prose ul { margin: 0 0 18px 22px; list-style: disc; }
 .article-prose li { margin-bottom: 8px; color: var(--grey); }
-.article-prose a { color: var(--red); font-weight: 600; }
+.article-prose a:not(.btn) { color: var(--red); font-weight: 600; }
 .article-prose .lead { font-size: 1.2rem; color: var(--black); }
 
 .pillar-letter {
