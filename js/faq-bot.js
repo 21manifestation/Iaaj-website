@@ -217,6 +217,9 @@
       wa.rel = 'noopener';
       wa.className = 'btn btn-primary faqbot-fallback-btn';
       wa.textContent = 'Message us on WhatsApp';
+      wa.addEventListener('click', function () {
+        if (window.iaajTrack) window.iaajTrack('faqbot_handoff', { to: 'whatsapp', question: userText.slice(0, 100) });
+      });
       actions.appendChild(wa);
 
       var contact = document.createElement('a');
@@ -248,6 +251,17 @@
 
       var typingRow = showTyping();
       var match = findBestMatch(text);
+
+      // Log what was asked and whether we could answer it. The unanswered ones
+      // are the useful list: they are the questions women have that the site
+      // does not address yet, and they should drive new FAQs and articles.
+      if (window.iaajTrack) {
+        window.iaajTrack('faqbot_question', {
+          question: text.slice(0, 100),
+          answered: match ? 'yes' : 'no',
+          matched_faq: match ? match.q : '(none)'
+        });
+      }
 
       setTimeout(function () {
         typingRow.remove();

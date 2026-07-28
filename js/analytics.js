@@ -14,6 +14,40 @@
   gtag('config', GA_ID);
 })();
 
+// ---- Shared event helper ----
+// Safe to call before GA has finished loading: gtag queues into dataLayer.
+window.iaajTrack = function (name, params) {
+  try {
+    if (typeof window.gtag === 'function') window.gtag('event', name, params || {});
+  } catch (e) { /* tracking must never break the page */ }
+};
+
+// ---- Floating button usage ----
+// We have three floating CTAs competing for the same corner. Track which one
+// women actually reach for, so the decision to keep or drop one is made on
+// real numbers rather than taste.
+document.addEventListener('DOMContentLoaded', function () {
+  var stack = document.querySelector('.float-stack');
+  if (!stack) return;
+
+  stack.addEventListener('click', function (e) {
+    var btn = e.target.closest('.float-btn');
+    if (!btn) return;
+
+    var which = btn.classList.contains('float-quiz') ? 'quiz'
+              : btn.classList.contains('float-wa') ? 'whatsapp'
+              : btn.classList.contains('float-chat') ? 'chat'
+              : 'unknown';
+
+    // The chat button toggles. Its own handler runs before this one and has
+    // already flipped the class, so "open" here means the click just opened it.
+    // Anything else is a close, which we don't count.
+    if (which === 'chat' && !btn.classList.contains('open')) return;
+
+    window.iaajTrack('float_click', { float_action: which, page_path: location.pathname });
+  });
+});
+
 // ---- Meta (Facebook) Pixel ----
 // Paste the Pixel ID between the quotes once available, then it activates automatically.
 (function () {
