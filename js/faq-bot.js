@@ -130,7 +130,7 @@
     panel.innerHTML =
       '<div class="faqbot-header">' +
         '<div>' +
-          '<strong>IAAJ Assistant</strong>' +
+          '<strong>Journey Master</strong>' +
           '<span>Instant answers &middot; not a real person</span>' +
         '</div>' +
         '<button type="button" class="faqbot-close" aria-label="Close">' +
@@ -270,7 +270,7 @@
       panel.classList.add('open');
       floatBtn.classList.add('open');
       if (!body.hasChildNodes()) {
-        addBubble("Hi! I'm the IAAJ assistant. Ask me anything about the coaching, PCOS, thyroid or getting started.", 'bot');
+        addBubble("Hi! I'm Journey Master, here to give you instant answers. Ask me anything about the coaching, PCOS, thyroid or getting started.", 'bot');
         addChips();
       }
       setTimeout(function () { input.focus(); }, 200);
