@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
   
   // 1. CRM Backend Endpoint URL
   // Paste your Apps Script Web App URL below after deploying CRM_Backend.gs
-  var CRM_ENDPOINT = 'https://script.google.com/macros/s/AKfycbz--RdsdnGAq-rdt1rMjbgYwsaiqGqz2MdrzLBF--XBq6tKYCVLANe03JQdOTYHBdf-7Q/exec';
+  var CRM_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxhhkL_pBf91KHLSFaXlc8YOZR5rCgbQpSpMsQswF5e0zR9QdiVR0DkAXVoa-n9bVqS/exec';
 
   // Security PIN Configuration
   var ADMIN_PIN = '9403'; // Gaurav PIN
@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var filtered = allLeads.filter(function (l) {
       var matchesSearch = !search ||
         (l.name && l.name.toLowerCase().indexOf(search) > -1) ||
-        (l.phone && l.phone.indexOf(search) > -1) ||
+        (l.phone && String(l.phone).indexOf(search) > -1) ||
         (l.email && l.email.toLowerCase().indexOf(search) > -1) ||
         (l.condition && l.condition.toLowerCase().indexOf(search) > -1);
 
@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // --- 5. TAP-TO-WHATSAPP MESSAGE GENERATOR ---
   function generateWhatsAppUrl(lead) {
-    var rawPhone = (lead.phone || '').replace(/\D/g, '');
+    var rawPhone = String(lead.phone || '').replace(/\D/g, '');
     if (!rawPhone) return 'https://wa.me/919403912211';
 
     if (rawPhone.length === 10) rawPhone = '91' + rawPhone;
