@@ -8,9 +8,11 @@ document.addEventListener('DOMContentLoaded', function () {
   // Paste your Apps Script Web App URL below after deploying CRM_Backend.gs
   var CRM_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxhhkL_pBf91KHLSFaXlc8YOZR5rCgbQpSpMsQswF5e0zR9QdiVR0DkAXVoa-n9bVqS/exec';
 
-  // Security PIN Configuration
+  // Security PIN Configuration — each sales rep gets their own PIN so they
+  // only ever see leads assigned to them, not the whole pipeline.
   var ADMIN_PIN = '9403'; // Gaurav PIN
-  var SALES_PIN = '1234'; // Sales Rep PIN
+  var REP1_PIN = '1111';  // Sales Rep 1 PIN
+  var REP2_PIN = '2222';  // Sales Rep 2 PIN
 
   var currentRole = sessionStorage.getItem('iaaj_crm_role') || null;
   var allLeads = [];
@@ -58,10 +60,14 @@ document.addEventListener('DOMContentLoaded', function () {
         currentRole = 'ADMIN';
         sessionStorage.setItem('iaaj_crm_role', 'ADMIN');
         showDashboard('ADMIN');
-      } else if (pin === SALES_PIN) {
-        currentRole = 'SALES';
-        sessionStorage.setItem('iaaj_crm_role', 'SALES');
-        showDashboard('SALES');
+      } else if (pin === REP1_PIN) {
+        currentRole = 'Sales Rep 1';
+        sessionStorage.setItem('iaaj_crm_role', 'Sales Rep 1');
+        showDashboard('Sales Rep 1');
+      } else if (pin === REP2_PIN) {
+        currentRole = 'Sales Rep 2';
+        sessionStorage.setItem('iaaj_crm_role', 'Sales Rep 2');
+        showDashboard('Sales Rep 2');
       } else {
         pinError.style.display = 'block';
       }
@@ -88,11 +94,15 @@ document.addEventListener('DOMContentLoaded', function () {
       roleBadge.className = 'crm-badge crm-badge-admin';
       userName.textContent = 'Welcome, Gaurav (Admin)';
       adminBar.style.display = 'flex';
+      if (filterRep) filterRep.style.display = '';
     } else {
-      roleBadge.textContent = 'Sales View';
+      roleBadge.textContent = role;
       roleBadge.className = 'crm-badge crm-badge-sales';
-      userName.textContent = 'Welcome, Sales Team';
+      userName.textContent = 'Welcome, ' + role;
       adminBar.style.display = 'none';
+      // Reps only ever see their own leads, so the "assigned rep" filter is
+      // meaningless (and picking another rep would just show zero results).
+      if (filterRep) filterRep.style.display = 'none';
     }
 
     fetchLeads();
@@ -182,21 +192,28 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // --- 4. RENDER DASHBOARD & METRICS ---
+  // Reps only ever see their own assigned leads. Admin sees everything.
+  function getVisibleLeads() {
+    if (currentRole === 'ADMIN') return allLeads;
+    return allLeads.filter(function (l) { return l.assignedRep === currentRole; });
+  }
+
   function renderDashboard() {
     updateMetrics();
     renderLeadCards();
   }
 
   function updateMetrics() {
-    statTotal.textContent = allLeads.length;
+    var visible = getVisibleLeads();
+    statTotal.textContent = visible.length;
 
-    var newCount = allLeads.filter(function (l) { return l.status === 'New'; }).length;
+    var newCount = visible.filter(function (l) { return l.status === 'New'; }).length;
     statNew.textContent = newCount;
 
-    var qualCount = allLeads.filter(function (l) { return l.qualification === 'QUALIFIED'; }).length;
+    var qualCount = visible.filter(function (l) { return l.qualification === 'QUALIFIED'; }).length;
     statQualified.textContent = qualCount;
 
-    var followCount = allLeads.filter(function (l) { return l.status === 'Follow-up' || l.nextFollowUp; }).length;
+    var followCount = visible.filter(function (l) { return l.status === 'Follow-up' || l.nextFollowUp; }).length;
     statFollowups.textContent = followCount;
   }
 
@@ -206,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var statusVal = filterStatus.value;
     var sourceVal = filterSource.value;
 
-    var filtered = allLeads.filter(function (l) {
+    var filtered = getVisibleLeads().filter(function (l) {
       var matchesSearch = !search ||
         (l.name && l.name.toLowerCase().indexOf(search) > -1) ||
         (l.phone && String(l.phone).indexOf(search) > -1) ||
