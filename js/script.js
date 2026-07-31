@@ -1,5 +1,19 @@
 // Mobile nav toggle
 document.addEventListener('DOMContentLoaded', function () {
+  // Public coaching CTAs go to the application form and CRM. WhatsApp is only
+  // offered after someone completes the quiz or requests guides.
+  var isLeadMagnetPage = /\/(guides|quiz)(?:\.html)?$/.test(location.pathname);
+  document.querySelectorAll('a[href*="wa.me/"]').forEach(function (link) {
+    var isGuideCompletionLink = isLeadMagnetPage && !!link.closest('#guides-download');
+    if (isGuideCompletionLink) return;
+    link.href = '/contact';
+    link.removeAttribute('target');
+    link.removeAttribute('rel');
+    link.textContent = 'Apply for coaching';
+    link.setAttribute('aria-label', 'Apply for coaching');
+  });
+  document.querySelectorAll('.float-wa').forEach(function (button) { button.remove(); });
+
   var toggle = document.querySelector('.nav-toggle');
   var menu = document.querySelector('.mobile-menu');
 
@@ -158,8 +172,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Enquiry form: qualify the lead on the page first. Every submission is logged to the
-  // Google Sheet with a qualified flag. Only qualified leads are handed to WhatsApp, so cold
-  // leads never land in the chats. Unqualified visitors are pointed to the free guides instead.
+  // Google Sheet and Master Sales CRM. Sales reps call qualified applicants directly.
   var ENQUIRY_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwpUHmEvN8SwbZ9RBZL8osYQSYzmOjEHQFIN6RIhXtwr_rY5LiqUi-p4tp6L1VagbhHSw/exec';
 
   // Also copies every enquiry into the sales team's Master CRM sheet, alongside their
@@ -213,19 +226,10 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       if (qualified) {
-        var msg =
-          "Hi, I'd like to enquire about IAAJ coaching.\n\n" +
-          'Name: ' + val('name') + '\n' +
-          'Email: ' + val('email') + '\n' +
-          'WhatsApp: ' + val('whatsapp') + '\n' +
-          'Dealing with: ' + val('condition') + '\n' +
-          'Looking to start: ' + timeline + '\n' +
-          'My struggle: ' + (val('struggle') || 'Not specified');
-        window.open('https://wa.me/919403912211?text=' + encodeURIComponent(msg), '_blank');
         form.style.display = 'none';
         document.querySelector('#form-success').style.display = 'block';
       } else {
-        // Not ready to commit: nurture with the free guides instead of a cold WhatsApp lead.
+        // Not ready to commit: nurture with the free guides instead of a cold sales lead.
         form.style.display = 'none';
         document.querySelector('#form-nurture').style.display = 'block';
       }

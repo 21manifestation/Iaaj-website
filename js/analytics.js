@@ -23,7 +23,7 @@ window.iaajTrack = function (name, params) {
 };
 
 // ---- Floating button usage ----
-// We have three floating CTAs competing for the same corner. Track which one
+// We have two floating CTAs competing for the same corner. Track which one
 // women actually reach for, so the decision to keep or drop one is made on
 // real numbers rather than taste.
 document.addEventListener('DOMContentLoaded', function () {
@@ -35,7 +35,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!btn) return;
 
     var which = btn.classList.contains('float-quiz') ? 'quiz'
-              : btn.classList.contains('float-wa') ? 'whatsapp'
               : btn.classList.contains('float-chat') ? 'chat'
               : 'unknown';
 

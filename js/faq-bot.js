@@ -1,16 +1,14 @@
 // Floating "Ask a question" widget. Answers instantly from the FAQ list below by
 // matching keywords in what the visitor types. No API, no server, everything runs
-// in the browser. If nothing matches confidently, it hands off to WhatsApp.
+// in the browser. If nothing matches confidently, it routes to the coaching application.
 //
 // To update the answers the bot gives, edit the FAQS array. Keep "keywords" as
 // extra words/phrases a visitor might type that don't appear in the question itself.
 (function () {
-  var WHATSAPP_NUMBER = '919403912211';
-
   var FAQS = [
     {
       q: 'How do I start?',
-      a: 'Message us on WhatsApp or fill the enquiry form. We will understand what you are dealing with and walk you through everything after that.',
+      a: 'Fill the coaching application and the team will understand what you are dealing with before getting in touch.',
       keywords: ['start', 'begin', 'join', 'sign up', 'get started', 'enquiry', 'first step'],
       link: { text: 'Fill the enquiry form', href: 'contact.html' }
     },
@@ -63,7 +61,7 @@
     },
     {
       q: 'How many clients do you take each month?',
-      a: 'Slots are limited, since coaching is personal and hands on. Message us to check current availability.',
+      a: 'Slots are limited, since coaching is personal and hands on. Apply and the team will confirm current availability.',
       keywords: ['slots', 'availability', 'spots', 'how many clients', 'waitlist']
     }
   ];
@@ -113,10 +111,6 @@
     return bestScore >= 3 ? best : null;
   }
 
-  function waLink(text) {
-    return 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(text);
-  }
-
   document.addEventListener('DOMContentLoaded', function () {
     var floatBtn = document.createElement('button');
     floatBtn.className = 'float-btn float-chat';
@@ -147,14 +141,10 @@
         '</button>' +
       '</div>';
 
-    // Sit inside the shared float stack, directly above the WhatsApp button, so
-    // all three buttons stay one consistent group. Fall back to the body if the
-    // stack markup is missing for any reason.
+    // Sit inside the shared float stack. Fall back to the body if the stack
+    // markup is missing for any reason.
     var stack = document.querySelector('.float-stack');
-    var waBtn = stack && stack.querySelector('.float-wa');
-    if (stack && waBtn) {
-      stack.insertBefore(floatBtn, waBtn);
-    } else if (stack) {
+    if (stack) {
       stack.appendChild(floatBtn);
     } else {
       document.body.appendChild(floatBtn);
@@ -205,27 +195,19 @@
       row.className = 'faqbot-msg bot';
       var bubble = document.createElement('div');
       bubble.className = 'faqbot-bubble';
-      bubble.textContent = "I don't want to guess wrong on that one. Message us directly and a real person on the team will help you.";
+      bubble.textContent = "I don't want to guess wrong on that one. Apply for coaching and a real person on the team will help you.";
       row.appendChild(bubble);
 
       var actions = document.createElement('div');
       actions.className = 'faqbot-fallback-actions';
 
-      var wa = document.createElement('a');
-      wa.href = waLink('Hi, I had a question: ' + userText);
-      wa.target = '_blank';
-      wa.rel = 'noopener';
-      wa.className = 'btn btn-primary faqbot-fallback-btn';
-      wa.textContent = 'Message us on WhatsApp';
-      wa.addEventListener('click', function () {
-        if (window.iaajTrack) window.iaajTrack('faqbot_handoff', { to: 'whatsapp', question: userText.slice(0, 100) });
-      });
-      actions.appendChild(wa);
-
       var contact = document.createElement('a');
       contact.href = 'contact.html';
-      contact.className = 'btn btn-outline faqbot-fallback-btn';
-      contact.textContent = 'Fill the enquiry form';
+      contact.className = 'btn btn-primary faqbot-fallback-btn';
+      contact.textContent = 'Apply for coaching';
+      contact.addEventListener('click', function () {
+        if (window.iaajTrack) window.iaajTrack('faqbot_handoff', { to: 'application', question: userText.slice(0, 100) });
+      });
       actions.appendChild(contact);
 
       row.appendChild(actions);
