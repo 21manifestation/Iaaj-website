@@ -113,11 +113,14 @@ document.addEventListener('DOMContentLoaded', function () {
     leadsGrid.innerHTML = '<div class="crm-loading-state">Loading Master CRM Leads...</div>';
 
     if (!CRM_ENDPOINT || CRM_ENDPOINT.indexOf('script.google.com') === -1) {
-      loadSampleData();
+      showLoadError();
       return;
     }
 
-    fetch(CRM_ENDPOINT)
+    // Never serve an old browser-cached snapshot to the sales team. A fresh
+    // timestamp also makes it clear whether the live Apps Script is reachable.
+    var endpointUrl = CRM_ENDPOINT + (CRM_ENDPOINT.indexOf('?') === -1 ? '?' : '&') + '_=' + Date.now();
+    fetch(endpointUrl, { cache: 'no-store' })
       .then(function (res) { return res.json(); })
       .then(function (data) {
         if (data && data.leads) {
@@ -128,67 +131,22 @@ document.addEventListener('DOMContentLoaded', function () {
           }
           renderDashboard();
         } else {
-          loadSampleData();
+          showLoadError();
         }
       })
       .catch(function () {
-        loadSampleData();
+        showLoadError();
       });
   }
 
-  function loadSampleData() {
-    // High-Intent Sales Leads (Website Enquiries & Superreply IG DMs)
-    allLeads = [
-      {
-        leadId: 'LEAD-1001',
-        date: new Date().toISOString(),
-        name: 'Ananya Sharma',
-        phone: '9403912211',
-        email: 'ananya@example.com',
-        city: 'Pune',
-        source: 'Website Enquiry',
-        condition: 'PCOS',
-        qualification: 'QUALIFIED',
-        status: 'New',
-        assignedRep: 'Unassigned',
-        lastContacted: '',
-        nextFollowUp: '',
-        notes: 'Enquiry form: Ready now, ready to invest. Struggling with PCOS weight gain for 3 years.'
-      },
-      {
-        leadId: 'LEAD-1002',
-        date: new Date(Date.now() - 86400000).toISOString(),
-        name: 'Priya Verma',
-        phone: '9876543210',
-        email: 'priya@example.com',
-        city: 'Mumbai',
-        source: 'IG DM',
-        condition: 'Thyroid',
-        qualification: 'High Intent',
-        status: 'Contacted',
-        assignedRep: 'Sales Rep 1',
-        lastContacted: new Date(Date.now() - 43200000).toISOString(),
-        nextFollowUp: new Date(Date.now() + 86400000).toISOString(),
-        notes: 'IG DM via Superreply: Asked for 90-day program pricing & breakdown.'
-      },
-      {
-        leadId: 'LEAD-1003',
-        date: new Date(Date.now() - 172800000).toISOString(),
-        name: 'Sneha Kulkarni',
-        phone: '9123456789',
-        email: 'sneha@example.com',
-        city: 'Nagpur',
-        source: 'Website Enquiry',
-        condition: 'Insulin Resistance',
-        qualification: 'QUALIFIED',
-        status: 'Follow-up',
-        assignedRep: 'Sales Rep 2',
-        lastContacted: new Date(Date.now() - 86400000).toISOString(),
-        nextFollowUp: new Date().toISOString(),
-        notes: 'Enquiry form: Ready within a month. Interested in BLESS 90 Premium plan.'
-      }
-    ];
-    renderDashboard();
+  function showLoadError() {
+    // Showing fake records is worse than showing an error: it makes a live
+    // CRM problem look like each salesperson has only one real lead.
+    allLeads = [];
+    updateMetrics();
+    leadCountEl.textContent = '0';
+    leadsGrid.innerHTML =
+      '<div class="crm-loading-state">Could not load live leads. Please click Refresh Leads. No sample data is shown.</div>';
   }
 
   // --- 4. RENDER DASHBOARD & METRICS ---
