@@ -63,6 +63,27 @@
       q: 'How many clients do you take each month?',
       a: 'Slots are limited, since coaching is personal and hands on. Apply and the team will confirm current availability.',
       keywords: ['slots', 'availability', 'spots', 'how many clients', 'waitlist']
+    },
+    {
+      q: 'What do I get in the 1,999 consultation?',
+      a: 'A 45-minute call with a Nutrition Journey Master, plus a starting plan built around your body. It is a one-time session, with no ongoing coaching or check-ins attached.',
+      keywords: ['1999', '1,999', 'consultation', 'one time consultation', 'single session', 'what is the consultation']
+    },
+    {
+      q: 'Does the 1,999 consultation count toward BLESS 90?',
+      a: 'Yes. It is fully redeemable. Apply for BLESS 90 within 7 days of your call and the entire 1,999 is credited toward your program.',
+      keywords: ['redeemable', 'redeem', 'credited', 'adjusted', 'count toward', 'deduct']
+    },
+    {
+      q: 'Will I get BLESS 90 pricing on the consultation call?',
+      a: 'Yes. We share BLESS 90 pricing before the call ends, so you leave knowing all your options. There is no pressure either way.',
+      keywords: ['bless 90 price', 'bless 90 pricing', 'how much is bless 90', 'program price', 'program cost']
+    },
+    {
+      q: 'How do I book the 1,999 consultation?',
+      a: 'Message us on WhatsApp saying you want to book, and we will send you a payment link and confirm your slot.',
+      keywords: ['book consultation', 'schedule consultation', 'how to book', 'pay for consultation', 'book the call'],
+      link: { text: 'Book the consultation', href: 'contact.html' }
     }
   ];
 
