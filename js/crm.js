@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', function () {
   // 1. CRM Backend Endpoint URL
   // Paste your Apps Script Web App URL below after deploying CRM_Backend.gs
   var CRM_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxhhkL_pBf91KHLSFaXlc8YOZR5rCgbQpSpMsQswF5e0zR9QdiVR0DkAXVoa-n9bVqS/exec';
+  // Reads go through the same-origin serverless proxy (see api/crm.js); writes
+  // still go direct to CRM_ENDPOINT with mode:'no-cors'.
+  var CRM_READ_ENDPOINT = '/api/crm';
 
   // Security PIN Configuration — each sales rep gets their own PIN so they
   // only ever see leads assigned to them, not the whole pipeline.
@@ -112,14 +115,11 @@ document.addEventListener('DOMContentLoaded', function () {
   function fetchLeads() {
     leadsGrid.innerHTML = '<div class="crm-loading-state">Loading Master CRM Leads...</div>';
 
-    if (!CRM_ENDPOINT || CRM_ENDPOINT.indexOf('script.google.com') === -1) {
-      showLoadError();
-      return;
-    }
-
-    // Never serve an old browser-cached snapshot to the sales team. A fresh
-    // timestamp also makes it clear whether the live Apps Script is reachable.
-    var endpointUrl = CRM_ENDPOINT + (CRM_ENDPOINT.indexOf('?') === -1 ? '?' : '&') + '_=' + Date.now();
+    // Read through the same-origin proxy at /api/crm rather than hitting Apps
+    // Script directly. Google's /exec redirect intermittently 404s for
+    // cross-origin browser fetches, which silently emptied the whole dashboard.
+    // Writes still POST straight to CRM_ENDPOINT below, which works fine.
+    var endpointUrl = CRM_READ_ENDPOINT + '?_=' + Date.now();
     fetch(endpointUrl, { cache: 'no-store' })
       .then(function (res) { return res.json(); })
       .then(function (data) {
