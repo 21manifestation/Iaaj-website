@@ -224,6 +224,8 @@ body.crm-body {
 
 .crm-text-red { color: var(--crm-red); }
 .crm-text-green { color: var(--crm-green); }
+.crm-text-amber { color: var(--crm-amber); }
+.crm-text-overdue { color: #b91c1c; }
 
 /* Controls & Filter Bar */
 .crm-controls {
@@ -264,6 +266,29 @@ body.crm-body {
   color: #334155;
   font-weight: 500;
   cursor: pointer;
+}
+
+.crm-followup-views {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.crm-view-btn {
+  border: 1px solid var(--crm-border);
+  background: #ffffff;
+  color: #475569;
+  padding: 9px 12px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.crm-view-btn.active {
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #ffffff;
 }
 
 /* Leads Grid */
@@ -371,6 +396,18 @@ body.crm-body {
   background: #fef3c7;
   color: #b45309;
 }
+
+.crm-followup-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.crm-followup-today { background: #fef3c7; color: #92400e; }
+.crm-followup-overdue { background: #fee2e2; color: #b91c1c; }
+.crm-followup-upcoming { background: #e0e7ff; color: #3730a3; }
 
 .crm-lead-details {
   font-size: 0.88rem;
@@ -481,3 +518,4 @@ body.crm-body {
 .status-follow-up { border-left: 4px solid var(--crm-purple); }
 .status-converted { border-left: 4px solid var(--crm-green); }
 .status-lost { border-left: 4px solid #94a3b8; }
+.has-followup-overdue { border-top: 2px solid #ef4444; }

@@ -72,20 +72,20 @@
       <!-- Key Metrics Row -->
       <section class="crm-stats-row">
         <div class="crm-stat-card">
-          <span class="crm-stat-num" id="stat-total-leads">0</span>
-          <span class="crm-stat-label">Total Leads</span>
-        </div>
-        <div class="crm-stat-card">
           <span class="crm-stat-num crm-text-red" id="stat-new-leads">0</span>
           <span class="crm-stat-label">New Leads</span>
         </div>
         <div class="crm-stat-card">
-          <span class="crm-stat-num crm-text-green" id="stat-qualified">0</span>
-          <span class="crm-stat-label">Qualified Leads</span>
+          <span class="crm-stat-num crm-text-amber" id="stat-due-today">0</span>
+          <span class="crm-stat-label">Calls Due Today</span>
         </div>
         <div class="crm-stat-card">
-          <span class="crm-stat-num" id="stat-followups">0</span>
-          <span class="crm-stat-label">Follow-ups Pending</span>
+          <span class="crm-stat-num crm-text-overdue" id="stat-overdue">0</span>
+          <span class="crm-stat-label">Overdue Leads</span>
+        </div>
+        <div class="crm-stat-card">
+          <span class="crm-stat-num crm-text-green" id="stat-converted">0</span>
+          <span class="crm-stat-label">Converted</span>
         </div>
       </section>
 
@@ -93,6 +93,12 @@
       <section class="crm-controls">
         <div class="crm-search-box">
           <input type="text" id="crm-search-input" placeholder="Search by name, phone, email, condition...">
+        </div>
+
+        <div class="crm-followup-views" aria-label="Follow-up views">
+          <button type="button" class="crm-view-btn active" data-followup-view="ALL">All leads</button>
+          <button type="button" class="crm-view-btn" data-followup-view="TODAY">Due today</button>
+          <button type="button" class="crm-view-btn" data-followup-view="OVERDUE">Overdue</button>
         </div>
 
         <div class="crm-filter-group">

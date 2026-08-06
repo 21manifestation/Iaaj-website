@@ -165,3 +165,108 @@ function doPost(e) {
     lock.releaseLock();
   }
 }
+
+// ---------------------------------------------------------------------------
+// Daily sales follow-up email
+// ---------------------------------------------------------------------------
+// Setup once in the Apps Script editor:
+// 1. In Settings add: SalesRep1Email | rep-one@email.com
+//                    SalesRep2Email | rep-two@email.com
+// 2. Run setupDailySalesReminder() once and approve permissions.
+// It creates one 9 AM daily trigger in the script project's timezone.
+
+function getSettingsMap(settingsSheet) {
+  var values = settingsSheet.getDataRange().getValues();
+  var settings = {};
+  for (var i = 0; i < values.length; i++) {
+    if (values[i][0]) settings[String(values[i][0]).trim()] = String(values[i][1] || '').trim();
+  }
+  return settings;
+}
+
+function setupDailySalesReminder() {
+  var triggers = ScriptApp.getProjectTriggers();
+  for (var i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === 'sendDailySalesReminder') {
+      ScriptApp.deleteTrigger(triggers[i]);
+    }
+  }
+  ScriptApp.newTrigger('sendDailySalesReminder').timeBased().everyDays(1).atHour(9).create();
+}
+
+function sendDailySalesReminder() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('All Leads') || ss.getSheets()[0];
+  var settingsSheet = ss.getSheetByName('Settings');
+  if (!settingsSheet) return;
+
+  var settings = getSettingsMap(settingsSheet);
+  var reps = [
+    { name: 'Sales Rep 1', email: settings.SalesRep1Email },
+    { name: 'Sales Rep 2', email: settings.SalesRep2Email }
+  ];
+  var data = sheet.getDataRange().getValues();
+  var now = new Date();
+  var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  reps.forEach(function(rep) {
+    if (!rep.email) return;
+
+    var counts = { newLeads: 0, dueToday: 0, overdue: 0, converted: 0 };
+    var dueNames = [];
+    var overdueNames = [];
+
+    for (var i = 1; i < data.length; i++) {
+      var row = data[i];
+      if (String(row[10] || '') !== rep.name) continue;
+
+      var status = String(row[9] || 'New');
+      if (status === 'New') counts.newLeads++;
+      if (status === 'Converted') { counts.converted++; continue; }
+      if (status === 'Lost') continue;
+
+      var followUp = row[12];
+      if (!(followUp instanceof Date) || isNaN(followUp.getTime())) continue;
+      var dueDate = new Date(followUp.getFullYear(), followUp.getMonth(), followUp.getDate());
+      var leadName = String(row[2] || 'Unnamed lead');
+
+      if (dueDate.getTime() < today.getTime()) {
+        counts.overdue++;
+        overdueNames.push(leadName);
+      } else if (dueDate.getTime() === today.getTime()) {
+        counts.dueToday++;
+        dueNames.push(leadName);
+      }
+    }
+
+    var list = function(names, emptyText) {
+      return names.length ? '<ul><li>' + names.map(function(name) { return escapeHtmlForEmail(name); }).join('</li><li>') + '</li></ul>' : '<p>' + emptyText + '</p>';
+    };
+    var subject = 'IAAJ sales plan: ' + counts.newLeads + ' new · ' + counts.dueToday + ' due today · ' + counts.overdue + ' overdue';
+    var html =
+      '<div style="font-family:Arial,sans-serif;color:#222;max-width:560px">' +
+      '<h2 style="margin-bottom:8px">Your IAAJ sales dashboard</h2>' +
+      '<p>Good morning, ' + escapeHtmlForEmail(rep.name) + '. Here is your follow-up list for today.</p>' +
+      '<table style="border-collapse:collapse;width:100%;margin:18px 0"><tr>' +
+      metricCell('New leads', counts.newLeads, '#e8113c') +
+      metricCell('Due today', counts.dueToday, '#b45309') +
+      metricCell('Overdue', counts.overdue, '#b91c1c') +
+      metricCell('Converted', counts.converted, '#15803d') +
+      '</tr></table>' +
+      '<h3>Calls due today</h3>' + list(dueNames, 'No calls are due today.') +
+      '<h3>Overdue follow-ups</h3>' + list(overdueNames, 'Nothing is overdue.') +
+      '<p style="margin-top:22px"><a href="https://itsallaboutjourney.com/crm" style="background:#e8113c;color:#fff;padding:12px 16px;text-decoration:none;border-radius:5px;font-weight:bold">Open CRM</a></p>' +
+      '<p style="font-size:12px;color:#666">After every call, update the status and set the next follow-up date before moving on.</p>' +
+      '</div>';
+
+    MailApp.sendEmail({ to: rep.email, subject: subject, htmlBody: html });
+  });
+}
+
+function metricCell(label, value, color) {
+  return '<td style="border:1px solid #eee;padding:12px;text-align:center"><strong style="font-size:22px;color:' + color + '">' + value + '</strong><br><span style="font-size:11px;color:#666;text-transform:uppercase">' + label + '</span></td>';
+}
+
+function escapeHtmlForEmail(value) {
+  return String(value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}

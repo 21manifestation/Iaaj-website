@@ -36,16 +36,18 @@ document.addEventListener('DOMContentLoaded', function () {
   var modeAutoBtn = document.getElementById('mode-auto-btn');
   var modeDesc = document.getElementById('crm-mode-desc');
 
-  var statTotal = document.getElementById('stat-total-leads');
   var statNew = document.getElementById('stat-new-leads');
-  var statQualified = document.getElementById('stat-qualified');
-  var statFollowups = document.getElementById('stat-followups');
+  var statDueToday = document.getElementById('stat-due-today');
+  var statOverdue = document.getElementById('stat-overdue');
+  var statConverted = document.getElementById('stat-converted');
 
   var searchInput = document.getElementById('crm-search-input');
   var filterRep = document.getElementById('crm-filter-rep');
   var filterStatus = document.getElementById('crm-filter-status');
   var filterSource = document.getElementById('crm-filter-source');
   var refreshBtn = document.getElementById('crm-refresh-btn');
+  var followupViewButtons = document.querySelectorAll('[data-followup-view]');
+  var activeFollowupView = 'ALL';
 
   var leadsGrid = document.getElementById('crm-leads-grid');
   var leadCountEl = document.getElementById('crm-lead-count');
@@ -163,16 +165,40 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function updateMetrics() {
     var visible = getVisibleLeads();
-    statTotal.textContent = visible.length;
+    statNew.textContent = visible.filter(function (l) { return l.status === 'New'; }).length;
+    statDueToday.textContent = visible.filter(function (l) { return getFollowUpState(l) === 'today'; }).length;
+    statOverdue.textContent = visible.filter(function (l) { return getFollowUpState(l) === 'overdue'; }).length;
+    statConverted.textContent = visible.filter(function (l) { return l.status === 'Converted'; }).length;
+  }
 
-    var newCount = visible.filter(function (l) { return l.status === 'New'; }).length;
-    statNew.textContent = newCount;
+  function isClosedLead(lead) {
+    return lead.status === 'Converted' || lead.status === 'Lost';
+  }
 
-    var qualCount = visible.filter(function (l) { return l.qualification === 'QUALIFIED'; }).length;
-    statQualified.textContent = qualCount;
+  function getFollowUpState(lead) {
+    if (isClosedLead(lead) || !lead.nextFollowUp) return '';
+    var due = new Date(lead.nextFollowUp);
+    if (isNaN(due.getTime())) return '';
+    due = new Date(due.getFullYear(), due.getMonth(), due.getDate());
+    var now = new Date();
+    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    if (due.getTime() < today.getTime()) return 'overdue';
+    if (due.getTime() === today.getTime()) return 'today';
+    return 'upcoming';
+  }
 
-    var followCount = visible.filter(function (l) { return l.status === 'Follow-up' || l.nextFollowUp; }).length;
-    statFollowups.textContent = followCount;
+  function toDateInput(value) {
+    if (!value) return '';
+    var date = new Date(value);
+    if (isNaN(date.getTime())) return '';
+    return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+  }
+
+  function followUpBadge(lead) {
+    var state = getFollowUpState(lead);
+    if (!state) return '';
+    var labels = { today: 'Due today', overdue: 'Overdue', upcoming: 'Follow-up set' };
+    return '<span class="crm-followup-badge crm-followup-' + state + '">' + labels[state] + '</span>';
   }
 
   function renderLeadCards() {
@@ -192,7 +218,12 @@ document.addEventListener('DOMContentLoaded', function () {
       var matchesStatus = statusVal === 'ALL' || l.status === statusVal;
       var matchesSource = sourceVal === 'ALL' || l.source === sourceVal;
 
-      return matchesSearch && matchesRep && matchesStatus && matchesSource;
+      var followUpState = getFollowUpState(l);
+      var matchesFollowupView = activeFollowupView === 'ALL' ||
+        (activeFollowupView === 'TODAY' && followUpState === 'today') ||
+        (activeFollowupView === 'OVERDUE' && followUpState === 'overdue');
+
+      return matchesSearch && matchesRep && matchesStatus && matchesSource && matchesFollowupView;
     });
 
     leadCountEl.textContent = filtered.length;
@@ -206,10 +237,11 @@ document.addEventListener('DOMContentLoaded', function () {
     filtered.forEach(function (lead) {
       var dateStr = lead.date ? new Date(lead.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }) : '';
       var statusClass = 'status-' + (lead.status || 'new').toLowerCase().replace(/\s+/g, '-');
+      var followUpState = getFollowUpState(lead);
       var waUrl = generateWhatsAppUrl(lead);
 
       html += `
-        <div class="crm-lead-card ${statusClass}" data-id="${lead.leadId}">
+        <div class="crm-lead-card ${statusClass} ${followUpState ? 'has-followup-' + followUpState : ''}" data-id="${lead.leadId}">
           <div class="crm-lead-header">
             <div>
               <h4 class="crm-lead-name">${escapeHtml(lead.name || 'Unnamed Lead')}</h4>
@@ -219,6 +251,7 @@ document.addEventListener('DOMContentLoaded', function () {
               <span class="crm-tag ${lead.qualification === 'QUALIFIED' ? 'crm-tag-qual' : 'crm-tag-unqual'}">
                 ${escapeHtml(lead.qualification || 'Standard')}
               </span>
+              ${followUpBadge(lead)}
             </div>
           </div>
 
@@ -254,6 +287,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 <option value="Sales Rep 1" ${lead.assignedRep === 'Sales Rep 1' ? 'selected' : ''}>Sales Rep 1</option>
                 <option value="Sales Rep 2" ${lead.assignedRep === 'Sales Rep 2' ? 'selected' : ''}>Sales Rep 2</option>
               </select>
+            </div>
+
+            <div>
+              <label class="crm-field-label">Next Follow-up</label>
+              <input type="date" class="crm-input-sm card-followup-input" value="${toDateInput(lead.nextFollowUp)}">
             </div>
 
             <textarea class="crm-notes-textarea card-notes-input" placeholder="Add sales note or objection detail...">${escapeHtml(lead.notes || '')}</textarea>
@@ -299,6 +337,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var newStatus = card.querySelector('.card-status-select').value;
     var newRep = card.querySelector('.card-rep-select').value;
     var newNotes = card.querySelector('.card-notes-input').value;
+    var newFollowUp = card.querySelector('.card-followup-input').value;
 
     btnEl.textContent = 'Saving...';
     btnEl.disabled = true;
@@ -309,6 +348,7 @@ document.addEventListener('DOMContentLoaded', function () {
         allLeads[i].status = newStatus;
         allLeads[i].assignedRep = newRep;
         allLeads[i].notes = newNotes;
+        allLeads[i].nextFollowUp = newFollowUp ? newFollowUp + 'T00:00:00' : '';
         break;
       }
     }
@@ -319,6 +359,7 @@ document.addEventListener('DOMContentLoaded', function () {
         leadId: leadId,
         status: newStatus,
         assignedRep: newRep,
+        nextFollowUp: newFollowUp,
         notes: newNotes
       });
       fetch(CRM_ENDPOINT, { method: 'POST', mode: 'no-cors', body: body })
@@ -378,6 +419,13 @@ document.addEventListener('DOMContentLoaded', function () {
   if (filterStatus) filterStatus.addEventListener('change', renderLeadCards);
   if (filterSource) filterSource.addEventListener('change', renderLeadCards);
   if (refreshBtn) refreshBtn.addEventListener('click', fetchLeads);
+  followupViewButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      activeFollowupView = button.dataset.followupView;
+      followupViewButtons.forEach(function (item) { item.classList.toggle('active', item === button); });
+      renderLeadCards();
+    });
+  });
 
   function escapeHtml(str) {
     return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
