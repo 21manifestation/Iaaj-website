@@ -83,6 +83,17 @@
         </div>
       </div>
 
+      <div class="card" style="border:2px solid var(--red); margin-bottom:24px;">
+        <span class="eyebrow" style="color:var(--red);">Not ready to apply yet?</span>
+        <h3 style="margin-top:6px;">Book a 1-on-1 consultation &mdash; &#8377;1,999</h3>
+        <p style="margin-top:10px;">45 minutes with a Nutrition Journey Master. You leave with your starting point and a plan built around your body, no ongoing coaching attached.</p>
+        <div style="background:var(--cream); border-radius:8px; padding:14px 16px; margin:16px 0; font-weight:600; font-size:0.92rem;">
+          Fully redeemable. Apply for BLESS 90 within 7 days of your call and the entire &#8377;1,999 is credited toward your program. The call is basically free.
+        </div>
+        <button type="button" class="btn btn-primary btn-block" id="consult-cta">Message us to book &rarr;</button>
+        <p class="form-note">Opens WhatsApp with a message ready to send. We'll reply with a payment link and confirm your slot.</p>
+      </div>
+
       <div class="card">
         <h3>Enquiry form</h3>
         <p style="margin-top:6px; margin-bottom:20px;">Fill this out so we can understand your needs before the team gets in touch.</p>
@@ -175,6 +186,20 @@
 
 
 <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+<script>
+  // Deliberately a <button>, not an <a href="wa.me/...">, so the site-wide CTA
+  // rewriter in js/script.js (which redirects wa.me links to /contact) never
+  // touches it. Self-contained here rather than in the shared script file.
+  document.addEventListener('DOMContentLoaded', function () {
+    var consultBtn = document.getElementById('consult-cta');
+    if (consultBtn) {
+      consultBtn.addEventListener('click', function () {
+        var msg = 'Hi, I want to make payment for one time consultation.';
+        window.open('https://wa.me/919403912211?text=' + encodeURIComponent(msg), '_blank');
+      });
+    }
+  });
+</script>
 <script src="js/faq-bot.js"></script>
 <script src="js/script.js"></script>
 <div class="float-stack">
