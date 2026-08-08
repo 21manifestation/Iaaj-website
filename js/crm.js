@@ -292,6 +292,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <div>
               <label class="crm-field-label">Next Follow-up</label>
               <input type="date" class="crm-input-sm card-followup-input" value="${toDateInput(lead.nextFollowUp)}">
+              <span class="crm-inline-error card-followup-error" style="display:none;">Set a follow-up date before saving as Contacted or Follow-up.</span>
             </div>
 
             <textarea class="crm-notes-textarea card-notes-input" placeholder="Add sales note or objection detail...">${escapeHtml(lead.notes || '')}</textarea>
@@ -337,7 +338,23 @@ document.addEventListener('DOMContentLoaded', function () {
     var newStatus = card.querySelector('.card-status-select').value;
     var newRep = card.querySelector('.card-rep-select').value;
     var newNotes = card.querySelector('.card-notes-input').value;
-    var newFollowUp = card.querySelector('.card-followup-input').value;
+    var followUpInput = card.querySelector('.card-followup-input');
+    var followUpError = card.querySelector('.card-followup-error');
+    var newFollowUp = followUpInput.value;
+
+    // A lead marked Contacted or Follow-up with no next follow-up date is
+    // exactly the gap that let leads sit un-worked before this was added
+    // (see the growth-plan data: 0 leads had nextFollowUp set). Block the
+    // save rather than let it happen silently again.
+    var needsFollowUp = (newStatus === 'Contacted' || newStatus === 'Follow-up') && !newFollowUp;
+    if (needsFollowUp) {
+      followUpInput.classList.add('crm-input-error');
+      followUpError.style.display = 'block';
+      followUpInput.focus();
+      return;
+    }
+    followUpInput.classList.remove('crm-input-error');
+    followUpError.style.display = 'none';
 
     btnEl.textContent = 'Saving...';
     btnEl.disabled = true;

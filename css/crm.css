@@ -476,6 +476,18 @@ body.crm-body {
   box-sizing: border-box;
 }
 
+.crm-input-error {
+  border-color: #d92d20;
+  background: #fef3f2;
+}
+
+.crm-inline-error {
+  display: block;
+  font-size: 0.72rem;
+  color: #d92d20;
+  margin-top: 4px;
+}
+
 .crm-notes-textarea {
   grid-column: 1 / -1;
   width: 100%;
