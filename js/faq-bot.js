@@ -61,7 +61,7 @@
     },
     {
       q: 'How many clients do you take each month?',
-      a: 'Slots are limited, since coaching is personal and hands on. Apply and the team will confirm current availability.',
+      a: 'A maximum of 10 new clients each month, since coaching is personal and hands on. Apply and the team will confirm current availability.',
       keywords: ['slots', 'availability', 'spots', 'how many clients', 'waitlist']
     },
     {
