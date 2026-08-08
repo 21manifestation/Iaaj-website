@@ -133,9 +133,16 @@ html {
   gap: 18px;
   width: max-content;
   animation: chat-marquee-scroll 60s linear infinite;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
-.chat-marquee:hover .chat-marquee-track { animation-play-state: paused; }
+/* Pause on hover only on devices with a real pointer (mouse/trackpad).
+   Without this guard, touchscreens can get a "stuck" hover state after a
+   tap or scroll (there's no mouse to un-hover), freezing the marquee. */
+@media (hover: hover) and (pointer: fine) {
+  .chat-marquee:hover .chat-marquee-track { animation-play-state: paused; }
+}
 
 .chat-marquee-track.marquee-reverse { animation-direction: reverse; }
 
