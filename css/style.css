@@ -879,6 +879,24 @@ section {
   box-shadow: var(--shadow-lg);
 }
 
+/* Custom icon set for IAAJ's own hormonal-type framework: a droplet for
+   insulin, a butterfly for thyroid (the gland's actual shape), a loop for
+   the feedback cycle, a crescent for stress/sleep. Specific to how IAAJ
+   explains the body, not a generic icon pack. */
+.mech-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-3);
+  color: var(--red);
+}
+
+.mech-icon svg { width: 26px; height: 26px; }
+
 .mech-tag {
   display: block;
   font-family: var(--font-heading);

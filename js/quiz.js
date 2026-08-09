@@ -6,6 +6,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var WA = 'https://wa.me/919403912211?text=';
 
+  // Same custom icon set as the home page's "What's actually happening"
+  // section (index.html), reused here so the same hormonal-type framework
+  // looks like one system in both places rather than two coincidentally
+  // similar ones.
+  var ICONS = {
+    insulin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-3.2 4.2-6 8.2-6 11a6 6 0 0 0 12 0c0-2.8-2.8-6.8-6-11z"/><path d="M8.3 14l1.7 -2.4l1.7 2.4l1.7 -2.4l1.7 2.4"/></svg>',
+    thyroid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="8.2" cy="12" rx="3.6" ry="5.2" transform="rotate(-18 8.2 12)"/><ellipse cx="15.8" cy="12" rx="3.6" ry="5.2" transform="rotate(18 15.8 12)"/><path d="M10.8 11.4h2.4"/><path d="M10.8 12.6h2.4"/></svg>',
+    stress: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.2 14.3a8 8 0 1 1 -9.5 -11.6a7 7 0 0 0 9.5 11.6z"/><path d="M17 3.5l0.7 1.6l1.6 0.7l-1.6 0.7l-0.7 1.6l-0.7 -1.6l-1.6 -0.7l1.6 -0.7z"/></svg>'
+  };
+
   // Paste the deployment URL from the quiz Apps Script here once it's set up.
   // Until then, the quiz still works end to end, it just doesn't log/email anything.
   var QUIZ_ENDPOINT = 'https://script.google.com/macros/s/AKfycbx5WDsVj1hD-PFXoDZHdz_Poqw2dxOVTmkLYV-mxRdRj5K2Z6WPfUmawtXCjIFcW6l_/exec';
@@ -167,6 +177,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function showResult() {
     var r = RESULTS[winnerType];
+    document.querySelector('#quiz-result-icon').innerHTML = ICONS[winnerType] || '';
     document.querySelector('#quiz-result-type').textContent = r.type;
     document.querySelector('#quiz-result-desc').textContent = r.desc;
     document.querySelector('#quiz-result-actions').innerHTML =
