@@ -17,6 +17,17 @@
   --font-script: 'Dancing Script', cursive;
 
   --max-width: 1120px;
+
+  /* Spacing scale. Every margin/gap value on the site should snap to one of
+     these seven steps instead of an arbitrary pixel number, so vertical
+     rhythm stays consistent as pages get edited independently over time. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 14px;
+  --space-4: 20px;
+  --space-5: 26px;
+  --space-6: 34px;
+  --space-7: 40px;
 }
 
 * {
