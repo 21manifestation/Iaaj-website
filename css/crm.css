@@ -526,6 +526,7 @@ body.crm-body {
 
 /* Status Pill Colors */
 .status-new { border-left: 4px solid var(--crm-blue); }
+.status-no-reply { border-left: 4px solid var(--crm-red); }
 .status-contacted { border-left: 4px solid var(--crm-amber); }
 .status-follow-up { border-left: 4px solid var(--crm-purple); }
 .status-converted { border-left: 4px solid var(--crm-green); }

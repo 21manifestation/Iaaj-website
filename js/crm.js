@@ -272,6 +272,7 @@ document.addEventListener('DOMContentLoaded', function () {
               <label class="crm-field-label">Status</label>
               <select class="crm-select-sm card-status-select">
                 <option value="New" ${lead.status === 'New' ? 'selected' : ''}>New</option>
+                <option value="No Reply" ${lead.status === 'No Reply' ? 'selected' : ''}>Not replied on initial message</option>
                 <option value="Contacted" ${lead.status === 'Contacted' ? 'selected' : ''}>Contacted</option>
                 <option value="Follow-up" ${lead.status === 'Follow-up' ? 'selected' : ''}>Follow-up</option>
                 <option value="Converted" ${lead.status === 'Converted' ? 'selected' : ''}>Converted</option>
@@ -292,7 +293,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <div>
               <label class="crm-field-label">Next Follow-up</label>
               <input type="date" class="crm-input-sm card-followup-input" value="${toDateInput(lead.nextFollowUp)}">
-              <span class="crm-inline-error card-followup-error" style="display:none;">Set a follow-up date before saving as Contacted or Follow-up.</span>
+              <span class="crm-inline-error card-followup-error" style="display:none;">Set a follow-up date before saving as Contacted, Follow-up, or No Reply.</span>
             </div>
 
             <textarea class="crm-notes-textarea card-notes-input" placeholder="Add sales note or objection detail...">${escapeHtml(lead.notes || '')}</textarea>
@@ -342,11 +343,13 @@ document.addEventListener('DOMContentLoaded', function () {
     var followUpError = card.querySelector('.card-followup-error');
     var newFollowUp = followUpInput.value;
 
-    // A lead marked Contacted or Follow-up with no next follow-up date is
-    // exactly the gap that let leads sit un-worked before this was added
-    // (see the growth-plan data: 0 leads had nextFollowUp set). Block the
-    // save rather than let it happen silently again.
-    var needsFollowUp = (newStatus === 'Contacted' || newStatus === 'Follow-up') && !newFollowUp;
+    // A lead marked Contacted, Follow-up, or No Reply with no next follow-up
+    // date is exactly the gap that let leads sit un-worked before this was
+    // added (see the growth-plan data: 0 leads had nextFollowUp set). Block
+    // the save rather than let it happen silently again. No Reply needs a
+    // date too, since that's a lead waiting on a scheduled second attempt,
+    // not one to just leave sitting.
+    var needsFollowUp = (newStatus === 'Contacted' || newStatus === 'Follow-up' || newStatus === 'No Reply') && !newFollowUp;
     if (needsFollowUp) {
       followUpInput.classList.add('crm-input-error');
       followUpError.style.display = 'block';
