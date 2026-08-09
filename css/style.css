@@ -28,6 +28,23 @@
   --space-5: 26px;
   --space-6: 34px;
   --space-7: 40px;
+
+  /* Corner radius scale. Was 7 different values (8-20px) with no logic to
+     which element got which. Three steps: small controls, default cards,
+     large feature panels. Pills (999px) are already consistent, unchanged. */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+
+  /* Shadow / elevation scale. Was 12 distinct box-shadow recipes accreted
+     over many separate edits. Three steps for light backgrounds (resting,
+     default card, hover/elevated), one for dark sections (needs higher
+     opacity to read against black), and the brand-red one stays a
+     deliberate one-off for the primary button's hover state. */
+  --shadow-sm: 0 2px 12px rgba(17, 17, 17, 0.06);
+  --shadow-md: 0 12px 30px rgba(17, 17, 17, 0.10);
+  --shadow-lg: 0 20px 45px rgba(17, 17, 17, 0.14);
+  --shadow-dark: 0 14px 34px rgba(0, 0, 0, 0.28);
 }
 
 * {
@@ -57,7 +74,7 @@ html {
   align-items: flex-start;
   gap: 10px;
   border: 1.5px solid #e6e2da;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   padding: 14px;
   cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease;
@@ -85,7 +102,7 @@ html {
   justify-content: space-between;
   gap: 12px;
   border: 1.5px solid #e6e2da;
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   padding: 16px 18px;
   font-weight: 600;
   font-family: var(--font-heading);
@@ -113,8 +130,8 @@ html {
   width: 100%;
   height: auto;
   display: block;
-  border-radius: 14px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
 }
 
 .chat-marquee {
@@ -160,8 +177,8 @@ html {
 .chat-marquee-track img {
   height: 340px;
   width: auto;
-  border-radius: 14px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
   display: block;
   flex-shrink: 0;
 }
@@ -498,6 +515,20 @@ p { color: var(--grey); }
   padding: 90px 0 70px;
 }
 
+/* Soft glow behind the hero content, low in the frame so it reads as
+   atmosphere rather than decoration competing with the corner triangle. */
+.hero::before {
+  content: "";
+  position: absolute;
+  width: 640px;
+  height: 640px;
+  left: -120px;
+  bottom: -340px;
+  background: radial-gradient(circle, rgba(236, 0, 53, 0.35) 0%, rgba(236, 0, 53, 0) 70%);
+  z-index: 0;
+  pointer-events: none;
+}
+
 .hero .container {
   position: relative;
   z-index: 1;
@@ -602,7 +633,7 @@ section {
 .card {
   background: var(--white);
   border: 1px solid #ececec;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   padding: clamp(30px, 3vw, 38px) clamp(26px, 2.6vw, 34px);
 }
 
@@ -616,7 +647,7 @@ section {
 
 .pillar-card {
   background: var(--white);
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   padding: 26px;
   border-left: 4px solid var(--red);
 }
@@ -634,8 +665,8 @@ section {
 .proof-strip img {
   width: 100%;
   height: auto;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
 }
 
 .founder-note {
@@ -650,8 +681,8 @@ section {
 .founder-note img {
   width: 100%;
   height: auto;
-  border-radius: 18px;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.12);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
 }
 
 /* ---------------- BLESS method, pinned ---------------- */
@@ -710,7 +741,7 @@ section {
   background: var(--white);
   border: 1px solid #ececec;
   border-left: 4px solid var(--red);
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   padding: clamp(28px, 3vw, 40px);
   transition: box-shadow 0.35s ease, transform 0.35s ease;
 }
@@ -719,7 +750,7 @@ section {
 .bless-step p { margin-top: 8px; max-width: 54ch; }
 
 @media (min-width: 900px) {
-  .bless-step.active { box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08); transform: translateY(-2px); }
+  .bless-step.active { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -837,7 +868,7 @@ section {
 
 .mechanism-card {
   border: 1px solid #ececec;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   padding: 28px 26px;
   background: var(--white);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -845,7 +876,7 @@ section {
 
 .mechanism-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.07);
+  box-shadow: var(--shadow-lg);
 }
 
 .mech-tag {
@@ -882,7 +913,7 @@ section {
 
 /* ---------------- Craft polish ---------------- */
 .site-header.scrolled {
-  box-shadow: 0 2px 24px rgba(0, 0, 0, 0.07);
+  box-shadow: var(--shadow-sm);
 }
 
 .grid-3 .card {
@@ -891,11 +922,11 @@ section {
 
 .grid-3 .card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.07);
+  box-shadow: var(--shadow-lg);
 }
 
 .section-black .grid-3 .card:hover {
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-dark);
 }
 
 @media (min-width: 900px) {
@@ -906,7 +937,7 @@ section {
 .quiz-invite {
   background: var(--black);
   color: var(--white);
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   padding: 46px 32px;
   text-align: center;
 }
@@ -920,9 +951,9 @@ section {
 .quiz-card {
   background: var(--white);
   border: 1px solid #ececec;
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   padding: 38px 30px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-lg);
 }
 
 .quiz-screen { display: none; }
@@ -973,7 +1004,7 @@ section {
   width: 100%;
   cursor: pointer;
   border: 1.5px solid #e6e2da;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   padding: 16px 18px;
   font-family: var(--font-body);
   font-size: 1rem;
@@ -1114,14 +1145,14 @@ section {
 .article-card {
   display: block;
   border: 1px solid #ececec;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   padding: 26px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .article-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.07);
+  box-shadow: var(--shadow-lg);
 }
 
 .a-date {
@@ -1164,7 +1195,7 @@ section {
     #ebebeb 20px
   );
   border: 1px dashed #ccc;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1177,7 +1208,7 @@ section {
 
 .transformation-card {
   border: 1px solid #ececec;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--white);
 }
@@ -1204,7 +1235,7 @@ section {
 .insta-grid .placeholder-box {
   aspect-ratio: 1 / 1;
   min-height: 0;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-size: 0.7rem;
 }
 
@@ -1239,7 +1270,7 @@ section {
   width: 100%;
   padding: 13px 14px;
   border: 1px solid #ddd;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   font-family: var(--font-body);
   font-size: 1rem;
   background: var(--white);
@@ -1264,7 +1295,7 @@ section {
   border: 1px solid var(--green);
   color: #145c19;
   padding: 16px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   margin-top: 16px;
   font-size: 0.9rem;
 }
@@ -1292,6 +1323,11 @@ section {
   font-weight: 700;
 }
 
+.contact-row .icon svg {
+  width: 20px;
+  height: 20px;
+}
+
 /* ---------------- Journey Master chat panel ---------------- */
 
 .float-chat .faqbot-icon-close { display: none; }
@@ -1313,7 +1349,7 @@ section {
   height: 460px;
   max-height: calc(100vh - 200px);
   background: var(--white);
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
   display: none;
   flex-direction: column;
@@ -1374,7 +1410,7 @@ section {
 
 .faqbot-bubble {
   padding: 10px 14px;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   font-size: 0.88rem;
   line-height: 1.5;
 }
@@ -1476,7 +1512,7 @@ section {
     max-width: 100%;
     height: 78vh;
     max-height: 78vh;
-    border-radius: 18px 18px 0 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   }
 }
 
