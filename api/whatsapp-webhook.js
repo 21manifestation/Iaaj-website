@@ -179,6 +179,42 @@ async function handleButtonReply(from, name, buttonId) {
     return;
   }
 
+  // Reactivation campaign replies. These button ids come from the
+  // iaaj_reactivation_v1 Meta template (see IAAJ_WhatsApp_API_Build.md) -
+  // this file's routing doesn't send these buttons itself, it only handles
+  // the tap once the template's gone out.
+  if (buttonId === 'reactivation_interested') {
+    await logToCrm({
+      name: name || '',
+      phone: from,
+      condition: '',
+      qualification: 'QUALIFIED',
+      source: 'Reactivation Campaign',
+      notes: 'Past client, replied interested to reactivation message.'
+    });
+    await sendText(from, "So glad to hear that! To book your ₹1,999 consultation (fully credited toward a new program if you continue), just reply here and the team will send you a payment link and get you scheduled.");
+    if (process.env.GAURAV_WHATSAPP_NUMBER) {
+      await sendText(
+        process.env.GAURAV_WHATSAPP_NUMBER,
+        '👋 Past client replied to reactivation campaign\nName: ' + (name || 'unknown') + '\nPhone: ' + from + '\nWants to come back, logged to CRM as QUALIFIED.'
+      );
+    }
+    return;
+  }
+
+  if (buttonId === 'reactivation_not_now') {
+    await logToCrm({
+      name: name || '',
+      phone: from,
+      condition: '',
+      qualification: 'High Intent',
+      source: 'Reactivation Campaign',
+      notes: 'Past client, replied not right now. Do not re-send this campaign to them.'
+    });
+    await sendText(from, "Totally understood, no pressure at all. The door's always open whenever you're ready. Take care!");
+    return;
+  }
+
   // Unrecognized id (shouldn't happen unless buttons are edited without
   // updating this file) - fail safe to a human handoff rather than silence.
   await sendText(from, "Thanks! Someone from the team will follow up with you shortly.");
