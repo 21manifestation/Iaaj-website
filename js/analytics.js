@@ -15,10 +15,20 @@
 })();
 
 // ---- Shared event helper ----
-// Safe to call before GA has finished loading: gtag queues into dataLayer.
+// Safe to call before GA/Pixel finish loading: gtag queues into dataLayer,
+// and fbq queues onto its own stub queue (set up below) until the real
+// script loads. Fires both GA4 and the Meta Pixel from one call so event
+// call sites never have to remember to do both - e.g. quiz completion
+// needs to reach Meta specifically, since that's what lets a retargeting
+// Custom Audience exclude people who already finished the quiz (Pixel
+// only fires a generic PageView otherwise, which can't tell a bounce
+// apart from a completion).
 window.iaajTrack = function (name, params) {
   try {
     if (typeof window.gtag === 'function') window.gtag('event', name, params || {});
+  } catch (e) { /* tracking must never break the page */ }
+  try {
+    if (typeof window.fbq === 'function') window.fbq('trackCustom', name, params || {});
   } catch (e) { /* tracking must never break the page */ }
 };
 

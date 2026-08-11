@@ -185,6 +185,7 @@ document.addEventListener('DOMContentLoaded', function () {
       '<a class="btn btn-outline" target="_blank" rel="noopener" href="' + WA + encodeURIComponent(r.wa) + '">Message us on WhatsApp</a>' +
       '<a class="btn btn-outline" href="guides.html">Get your free guide</a>';
     show(rScreen);
+    if (typeof window.iaajTrack === 'function') window.iaajTrack('quiz_completed', { quiz_result: winnerType });
   }
 
   document.querySelector('#quiz-start').addEventListener('click', function () {
