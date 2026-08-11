@@ -277,6 +277,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <option value="Follow-up" ${lead.status === 'Follow-up' ? 'selected' : ''}>Follow-up</option>
                 <option value="Converted" ${lead.status === 'Converted' ? 'selected' : ''}>Converted</option>
                 <option value="Lost" ${lead.status === 'Lost' ? 'selected' : ''}>Lost</option>
+                <option value="Do Not Contact" ${lead.status === 'Do Not Contact' ? 'selected' : ''}>Do Not Contact (opted out)</option>
               </select>
             </div>
 

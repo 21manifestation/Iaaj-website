@@ -129,10 +129,18 @@ function doPost(e) {
     var totalRows = sheet.getLastRow();
     var leadId = 'LEAD-' + (1000 + totalRows);
     
+    // Opt-outs must never look like a workable "New" lead - a rep
+    // scanning the daily digest by status/count, not reading every note,
+    // could otherwise call someone who just said stop contacting them.
+    // Checked before round-robin assignment so an opt-out never consumes
+    // a rotation slot for an assignment that just gets discarded anyway.
+    var isOptOut = sourceStr === 'WhatsApp Opt-Out';
+    var initialStatus = isOptOut ? 'Do Not Contact' : 'New';
+
     var distributionMode = settingsSheet.getRange('B1').getValue() || 'MANUAL';
     var assignedRep = 'Unassigned';
-    
-    if (distributionMode === 'ROUND_ROBIN') {
+
+    if (distributionMode === 'ROUND_ROBIN' && !isOptOut) {
       var reps = ['Sales Rep 1', 'Sales Rep 2'];
       var lastIdx = parseInt(settingsSheet.getRange('B2').getValue() || '0', 10);
       var nextIdx = (lastIdx + 1) % reps.length;
@@ -155,7 +163,7 @@ function doPost(e) {
       sourceStr,
       leadCondition,
       qualification,
-      'New',
+      initialStatus,
       assignedRep,
       '', // Last Contacted
       '', // Next Follow-up
@@ -266,7 +274,7 @@ function sendDailySalesReminder() {
       var status = String(row[9] || 'New');
       if (status === 'New') counts.newLeads++;
       if (status === 'Converted') { counts.converted++; continue; }
-      if (status === 'Lost') continue;
+      if (status === 'Lost' || status === 'Do Not Contact') continue;
 
       var followUp = row[12];
       if (!(followUp instanceof Date) || isNaN(followUp.getTime())) continue;
