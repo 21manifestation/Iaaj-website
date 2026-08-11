@@ -15,6 +15,8 @@
  * 5. Deploy as Web App (Execute as: Me, Access: Anyone).
  */
 
+var GAURAV_EMAIL = '21manifestation@gmail.com';
+
 function doGet(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('All Leads') || ss.getSheets()[0];
@@ -137,24 +139,41 @@ function doPost(e) {
       assignedRep = reps[nextIdx];
       settingsSheet.getRange('B2').setValue(nextIdx);
     }
-    
+
+    var leadName = p.name || '';
+    var leadPhone = p.phone || p.whatsapp || '';
+    var leadCondition = p.condition || p.city || 'PCOS/Thyroid';
+    var qualification = p.qualification || (sourceStr.indexOf('QUALIFIED') > -1 ? 'QUALIFIED' : 'High Intent');
+
     sheet.appendRow([
       leadId,
       now,
-      p.name || '',
-      p.phone || p.whatsapp || '',
+      leadName,
+      leadPhone,
       p.email || '',
       p.city || '',
       sourceStr,
-      p.condition || p.city || 'PCOS/Thyroid',
-      p.qualification || (sourceStr.indexOf('QUALIFIED') > -1 ? 'QUALIFIED' : 'High Intent'),
+      leadCondition,
+      qualification,
       'New',
       assignedRep,
       '', // Last Contacted
       '', // Next Follow-up
       p.notes || p.guides || ''
     ]);
-    
+
+    // Instant email backup for hot leads, same choke point every lead
+    // source (website enquiry, WhatsApp, reactivation, Superreply IG)
+    // already passes through - so this covers all of them, not just one.
+    // Wrapped so a mail failure never blocks the lead actually saving.
+    if (qualification === 'QUALIFIED') {
+      try {
+        notifyGauravOfQualifiedLead(leadId, leadName, leadPhone, leadCondition, sourceStr, assignedRep);
+      } catch (mailErr) {
+        // swallow - the lead is already saved, a missed email isn't worth failing the request over
+      }
+    }
+
     return ContentService.createTextOutput(JSON.stringify({ status: 'success', leadId: leadId, assignedRep: assignedRep }))
       .setMimeType(ContentService.MimeType.JSON);
       
@@ -164,6 +183,30 @@ function doPost(e) {
   } finally {
     lock.releaseLock();
   }
+}
+
+// ---------------------------------------------------------------------------
+// Instant qualified-lead email (backup to the WhatsApp ping, in case a
+// ping is ever missed - this is the searchable record)
+// ---------------------------------------------------------------------------
+
+function notifyGauravOfQualifiedLead(leadId, name, phone, condition, source, assignedRep) {
+  var subject = '🔥 Qualified lead: ' + (name || 'Unnamed') + ' (' + condition + ')';
+  var html =
+    '<div style="font-family:Arial,sans-serif;color:#222;max-width:520px">' +
+    '<h2 style="margin-bottom:8px">A qualified lead just came in</h2>' +
+    '<table style="border-collapse:collapse;width:100%;margin:14px 0">' +
+    '<tr><td style="padding:4px 0;color:#666">Name</td><td style="padding:4px 0"><strong>' + escapeHtmlForEmail(name || 'Unnamed') + '</strong></td></tr>' +
+    '<tr><td style="padding:4px 0;color:#666">Phone</td><td style="padding:4px 0"><strong>' + escapeHtmlForEmail(phone || '') + '</strong></td></tr>' +
+    '<tr><td style="padding:4px 0;color:#666">Condition</td><td style="padding:4px 0">' + escapeHtmlForEmail(condition || '') + '</td></tr>' +
+    '<tr><td style="padding:4px 0;color:#666">Source</td><td style="padding:4px 0">' + escapeHtmlForEmail(source || '') + '</td></tr>' +
+    '<tr><td style="padding:4px 0;color:#666">Assigned to</td><td style="padding:4px 0">' + escapeHtmlForEmail(assignedRep || 'Unassigned') + '</td></tr>' +
+    '<tr><td style="padding:4px 0;color:#666">Lead ID</td><td style="padding:4px 0">' + escapeHtmlForEmail(leadId || '') + '</td></tr>' +
+    '</table>' +
+    '<p><a href="https://itsallaboutjourney.com/crm" style="background:#e8113c;color:#fff;padding:12px 16px;text-decoration:none;border-radius:5px;font-weight:bold">Open CRM</a></p>' +
+    '</div>';
+
+  MailApp.sendEmail({ to: GAURAV_EMAIL, subject: subject, htmlBody: html });
 }
 
 // ---------------------------------------------------------------------------

@@ -73,7 +73,7 @@ async function handleIncoming(req, res) {
     if (message.type === 'interactive' && message.interactive.type === 'button_reply') {
       await handleButtonReply(from, contactName, message.interactive.button_reply.id);
     } else if (message.type === 'text') {
-      await handleFreeText(from, contactName);
+      await handleFreeText(from, contactName, (message.text && message.text.body) || '');
     } else {
       // Image/audio/document/etc - Option B has no rule for these.
       await sendText(from, "Thanks for that! Someone from the team will take a look and get back to you.");
@@ -95,13 +95,41 @@ async function handleIncoming(req, res) {
 // guessing: if this phone number already has a qualified/logged lead,
 // don't re-run the welcome flow, just acknowledge and let a human pick it
 // up from the CRM. Otherwise treat it as a fresh start.
-async function handleFreeText(from, contactName) {
+//
+// Opt-out check comes first and short-circuits everything else - the
+// reactivation template promises "reply STOP", so a STOP reply has to
+// actually do something, not just fall through to the welcome flow.
+const OPT_OUT_WORDS = ['stop', 'unsubscribe', 'opt out', 'optout'];
+
+async function handleFreeText(from, contactName, text) {
+  const normalized = String(text || '').trim().toLowerCase();
+  if (OPT_OUT_WORDS.indexOf(normalized) !== -1) {
+    await handleOptOut(from, contactName);
+    return;
+  }
+
   const existing = await findExistingLead(from);
   if (existing) {
     await sendText(from, "Thanks for the message! Your Journey Master or a team member will get back to you shortly.");
     return;
   }
   await sendWelcome(from, contactName);
+}
+
+// Logged the same way as a reactivation "not now" reply (see
+// handleButtonReply) so the reactivation sender script's opt-out check -
+// reading the CRM for "do not re-send"/"opted out" in notes - catches
+// this too, with no separate opt-out list to keep in sync.
+async function handleOptOut(from, contactName) {
+  await logToCrm({
+    name: contactName || '',
+    phone: from,
+    condition: '',
+    qualification: 'High Intent',
+    source: 'WhatsApp Opt-Out',
+    notes: 'Replied STOP/unsubscribe. OPTED OUT, do not re-send any campaign to them.'
+  });
+  await sendText(from, "You're unsubscribed and won't get any more messages from us here. Take care!");
 }
 
 async function findExistingLead(phone) {
