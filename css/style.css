@@ -897,6 +897,15 @@ section {
 
 .mech-icon svg { width: 26px; height: 26px; }
 
+.team-photo {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: var(--space-3);
+  box-shadow: var(--shadow-sm);
+}
+
 .mech-tag {
   display: block;
   font-family: var(--font-heading);
