@@ -84,6 +84,18 @@
       </div>
 
       <div class="card" style="border:2px solid var(--red); margin-bottom:var(--space-5);">
+        <span class="eyebrow" style="color:var(--red);">Want to feel it before you commit?</span>
+        <h3 style="margin-top:var(--space-1);">Try the 7-Day Challenge at &#8377;799</h3>
+        <p style="margin-top:var(--space-2);">You have read enough advice by now. What you have not had is seven days of someone actually walking you through it, built around your hormonal type, insulin, thyroid, or stress.</p>
+        <p style="margin-top:var(--space-2);">Seven days will not undo years of this. It will show you the shift is real, and exactly where to go next.</p>
+        <div style="background:var(--cream); border-radius:8px; padding:14px 16px; margin:var(--space-3) 0; font-weight:600; font-size:0.92rem;">
+          Fully redeemable. Apply for BLESS 90 within 7 days of finishing the Challenge and the entire &#8377;799 is credited toward your program.
+        </div>
+        <button type="button" class="btn btn-primary btn-block" id="challenge-cta">Message us to start &rarr;</button>
+        <p class="form-note">Opens WhatsApp with a message ready to send. We'll confirm your track and get you started.</p>
+      </div>
+
+      <div class="card" style="border:2px solid var(--red); margin-bottom:var(--space-5);">
         <span class="eyebrow" style="color:var(--red);">Not ready to apply yet?</span>
         <h3 style="margin-top:var(--space-1);">Book a 1-on-1 consultation at &#8377;1,999</h3>
         <p style="margin-top:var(--space-2);">45 minutes with a Nutrition Journey Master. You leave with your starting point and a plan built around your body, no ongoing coaching attached.</p>
@@ -196,6 +208,14 @@
     if (consultBtn) {
       consultBtn.addEventListener('click', function () {
         var msg = 'Hi, I want to make payment for one time consultation.';
+        window.open('https://wa.me/919403912211?text=' + encodeURIComponent(msg), '_blank');
+      });
+    }
+
+    var challengeBtn = document.getElementById('challenge-cta');
+    if (challengeBtn) {
+      challengeBtn.addEventListener('click', function () {
+        var msg = 'Hi, I want to join the 7-Day Challenge.';
         window.open('https://wa.me/919403912211?text=' + encodeURIComponent(msg), '_blank');
       });
     }

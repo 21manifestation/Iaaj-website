@@ -65,6 +65,22 @@
       keywords: ['slots', 'availability', 'spots', 'how many clients', 'waitlist']
     },
     {
+      q: 'What do I get in the 7-Day Challenge?',
+      a: 'Seven days of daily WhatsApp guidance built around your hormonal type, insulin, thyroid, or stress, with one clear action each day. It will not undo years of this in a week, but it will show you the shift is real.',
+      keywords: ['799', '7 day', '7-day', 'seven day', 'challenge', 'week challenge', 'what is the challenge']
+    },
+    {
+      q: 'Does the 799 Challenge count toward BLESS 90?',
+      a: 'Yes. It is fully redeemable. Apply for BLESS 90 within 7 days of finishing the Challenge and the entire 799 is credited toward your program.',
+      keywords: ['challenge redeemable', 'challenge redeem', 'challenge credited', 'challenge count toward']
+    },
+    {
+      q: 'How do I start the 7-Day Challenge?',
+      a: 'Message us on WhatsApp saying you want to join, and we will confirm your track and get you started.',
+      keywords: ['start challenge', 'join challenge', 'begin challenge', 'how to join the challenge'],
+      link: { text: 'Start the Challenge', href: 'contact.html' }
+    },
+    {
       q: 'What do I get in the 1,999 consultation?',
       a: 'A 45-minute call with a Nutrition Journey Master, plus a starting plan built around your body. It is a one-time session, with no ongoing coaching or check-ins attached.',
       keywords: ['1999', '1,999', 'consultation', 'one time consultation', 'single session', 'what is the consultation']
