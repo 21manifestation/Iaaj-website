@@ -435,11 +435,18 @@ p { color: var(--grey); }
 .nav-toggle {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   gap: 5px;
   background: none;
   border: none;
   cursor: pointer;
+  /* 44px minimum touch target. The bars stay 24x2px - only the tappable
+     area grows, since this is the one control every mobile visitor has
+     to hit and it was sitting at 32px. */
   padding: 8px;
+  min-width: 44px;
+  min-height: 44px;
 }
 
 .nav-toggle span {
