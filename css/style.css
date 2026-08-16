@@ -174,6 +174,15 @@ html {
 
 .chat-marquee-track.marquee-reverse { animation-direction: reverse; }
 
+/* Images are wrapped in <picture> for WebP, so the <picture> is now the flex
+   item and needs the shrink guard - without it the track collapses and the
+   marquee stops looping correctly. The img keeps the visual treatment. */
+.chat-marquee-track picture {
+  display: block;
+  flex-shrink: 0;
+  line-height: 0;
+}
+
 .chat-marquee-track img {
   height: 340px;
   width: auto;
@@ -572,6 +581,15 @@ p { color: var(--grey); }
     border-radius: var(--radius-lg);
     overflow: hidden;
     background: var(--black);
+  }
+
+  /* The img is wrapped in <picture> for WebP, so the picture has to carry the
+     size itself - otherwise the img's height:100% resolves against an
+     auto-height parent and falls back to the image's natural height. */
+  .hero-proof picture {
+    display: block;
+    width: 100%;
+    height: 100%;
   }
 
   .hero-proof img {
