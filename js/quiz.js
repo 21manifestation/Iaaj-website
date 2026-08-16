@@ -101,21 +101,27 @@ document.addEventListener('DOMContentLoaded', function () {
       desc: "Your answers point to a blood-sugar rollercoaster: cravings, crashes, and weight around the middle. The fix is not eating less. It is changing how and when you eat so insulin settles down. A good place to start is the Insulin & Blood Sugar guide.",
       guideName: "Insulin & Blood Sugar Guide",
       guideUrl: "https://itsallaboutjourney.com/guides/iaaj-insulin-guide.pdf",
-      wa: "Hi, I took the quiz and my starting point looks like blood sugar and insulin. I'd like to know more about coaching."
+      wa: "Hi, I took the quiz and my starting point looks like blood sugar and insulin. I'd like to know more about coaching.",
+      challengeBlurb: "Your blood sugar rollercoaster has a pattern, and patterns can be broken. The Insulin track of our 7-Day Challenge walks you through breaking it, one clear action a day.",
+      challengeWa: "Hi, I took the quiz and my starting point looks like blood sugar and insulin. I'd like to join the 7-Day Challenge."
     },
     thyroid: {
       type: "Metabolism & energy",
       desc: "Fatigue and a stuck scale point to a slower metabolism. Crash diets make this worse, not better. The fix is steady, sustainable structure that protects your energy. A good place to start is the Protein guide.",
       guideName: "Protein Guide",
       guideUrl: "https://itsallaboutjourney.com/guides/iaaj-protein-guide.pdf",
-      wa: "Hi, I took the quiz and my starting point looks like metabolism and energy. I'd like to know more about coaching."
+      wa: "Hi, I took the quiz and my starting point looks like metabolism and energy. I'd like to know more about coaching.",
+      challengeBlurb: "Your metabolism is not broken. It is slow, and it responds to the right structure. The Metabolism track of our 7-Day Challenge walks you through waking it back up, one clear action a day.",
+      challengeWa: "Hi, I took the quiz and my starting point looks like metabolism and energy. I'd like to join the 7-Day Challenge."
     },
     stress: {
       type: "Stress & sleep",
       desc: "Tired-but-wired, broken sleep and stress eating point to cortisol running the show. The fix starts with sleep and stress, not willpower. A good place to start is the Stress & Cortisol guide.",
       guideName: "Stress & Cortisol Guide",
       guideUrl: "https://itsallaboutjourney.com/guides/iaaj-stress-cortisol-guide.pdf",
-      wa: "Hi, I took the quiz and my starting point looks like stress and sleep. I'd like to know more about coaching."
+      wa: "Hi, I took the quiz and my starting point looks like stress and sleep. I'd like to know more about coaching.",
+      challengeBlurb: "Cortisol is running this, not your willpower. The Stress track of our 7-Day Challenge walks you through calming it down, one clear action a day.",
+      challengeWa: "Hi, I took the quiz and my starting point looks like stress and sleep. I'd like to join the 7-Day Challenge."
     }
   };
 
@@ -180,8 +186,18 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelector('#quiz-result-icon').innerHTML = ICONS[winnerType] || '';
     document.querySelector('#quiz-result-type').textContent = r.type;
     document.querySelector('#quiz-result-desc').textContent = r.desc;
+    // Matched directly to the type she just got, the moment she's most
+    // likely to want it - the lowest-commitment paid step, not a jump
+    // straight to the full coaching ask.
+    document.querySelector('#quiz-result-challenge').innerHTML =
+      '<div style="background:var(--cream); border-radius:10px; padding:20px 22px; margin:var(--space-4) 0; text-align:left;">' +
+        '<span class="eyebrow" style="color:var(--red);">Want to feel it before you commit?</span>' +
+        '<h3 style="margin-top:6px;">Try the 7-Day Challenge at &#8377;799</h3>' +
+        '<p style="margin-top:var(--space-2);">' + r.challengeBlurb + '</p>' +
+        '<a class="btn btn-primary btn-block" style="margin-top:var(--space-3);" target="_blank" rel="noopener" href="' + WA + encodeURIComponent(r.challengeWa) + '">Start my 7-Day Challenge &rarr;</a>' +
+      '</div>';
     document.querySelector('#quiz-result-actions').innerHTML =
-      '<a class="btn btn-primary" href="contact.html">Fill the enquiry form</a>' +
+      '<a class="btn btn-outline" href="contact.html">Fill the enquiry form</a>' +
       '<a class="btn btn-outline" target="_blank" rel="noopener" href="' + WA + encodeURIComponent(r.wa) + '">Message us on WhatsApp</a>' +
       '<a class="btn btn-outline" href="guides.html">Get your free guide</a>';
     show(rScreen);
