@@ -1729,3 +1729,61 @@ section {
   background: var(--cream);
   color: var(--grey);
 }
+
+/* ---------------- Guarantee / risk reversal ----------------
+   The strongest conversion lever in the growth plan (Gap 2). The buyer has
+   already failed with other diets, doctors and trainers, so at the moment
+   she sees a price her dominant thought is "this probably will not work for
+   me either." This panel exists to move that risk off her and onto us.
+   Appears on program, home, contact and FAQ - the framing is varied per
+   page so it never reads as boilerplate, but the TERMS are always identical:
+   log meals, attend check-ins, 60 days, measurements, next 90 days free. */
+.guarantee-panel {
+  max-width: 640px;
+  margin: var(--space-6) auto 0;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(236, 0, 53, 0.45);
+  border-radius: var(--radius-lg);
+  padding: clamp(24px, 3vw, 34px);
+}
+
+.guarantee-badge {
+  display: inline-block;
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: var(--space-2);
+}
+
+.guarantee-panel h3 { color: #fff; margin-bottom: var(--space-3); }
+
+.guarantee-panel p {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.95rem;
+  margin-bottom: var(--space-2);
+}
+
+.guarantee-panel p strong { color: #fff; }
+
+.guarantee-panel .guarantee-note {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.85rem;
+  margin-top: var(--space-3);
+  margin-bottom: 0;
+}
+
+/* Light-background variant for the cream/white sections on other pages. */
+.guarantee-panel.on-light {
+  background: var(--white);
+  border-color: rgba(236, 0, 53, 0.35);
+  box-shadow: var(--shadow-md);
+}
+
+.guarantee-panel.on-light h3 { color: var(--black); }
+.guarantee-panel.on-light p { color: var(--grey); }
+.guarantee-panel.on-light p strong { color: var(--black); }
+.guarantee-panel.on-light .guarantee-note { color: #8a837c; }

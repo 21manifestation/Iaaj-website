@@ -65,6 +65,17 @@
       keywords: ['slots', 'availability', 'spots', 'how many clients', 'waitlist']
     },
     {
+      q: 'What if it does not work for me?',
+      a: 'Then you should not be the one who pays for it. Log your meals, attend your check-ins, and give it 60 days. If your measurements have not moved, your next 90 days are free.',
+      keywords: ['guarantee', 'refund', 'money back', 'what if it fails', 'does not work', 'doesnt work', 'not work', 'risk', 'promise', '60 days', 'no results'],
+      link: { text: 'See how the promise works', href: 'program.html' }
+    },
+    {
+      q: 'What counts as following the plan?',
+      a: 'Two things. Log your meals so your Nutrition Journey Master can see what is actually happening, and show up for your scheduled check-ins. We are not looking for perfection, just participation.',
+      keywords: ['following the plan', 'follow the plan', 'conditions', 'terms', 'qualify for guarantee', 'compliance']
+    },
+    {
       q: 'What do I get in the 7-Day Challenge?',
       a: 'Seven days of daily WhatsApp guidance built around your hormonal type, insulin, thyroid, or stress, with one clear action each day. It will not undo years of this in a week, but it will show you the shift is real.',
       keywords: ['799', '7 day', '7-day', 'seven day', 'challenge', 'week challenge', 'what is the challenge']
