@@ -3,7 +3,8 @@
 // number/infra either way so nothing here gets thrown away moving to
 // Option A later, only this file's routing logic gets replaced.
 //
-// NOT LIVE YET. Needs three env vars set in Vercel once the number exists:
+// LIVE since 14 Aug 2026 on the Cloud API number +91 83798 34211. Env vars
+// set in Vercel (do not treat this file as inert - it answers real leads):
 //   WHATSAPP_TOKEN            - permanent access token from Meta
 //   WHATSAPP_PHONE_NUMBER_ID  - the Cloud API phone number ID (not the number itself)
 //   WHATSAPP_VERIFY_TOKEN     - any string you choose, entered in Meta's webhook config too
@@ -108,6 +109,13 @@ async function handleFreeText(from, contactName, text) {
     return;
   }
 
+  // Buying intent outranks everything below it - see PURCHASE INTENT.
+  const intent = detectPurchaseIntent(text);
+  if (intent) {
+    await handlePurchaseIntent(from, contactName, intent);
+    return;
+  }
+
   const existing = await findExistingLead(from);
   if (existing) {
     await sendText(from, "Thanks for the message! Your Journey Master or a team member will get back to you shortly.");
@@ -130,6 +138,119 @@ async function handleOptOut(from, contactName) {
     notes: 'Replied STOP/unsubscribe. OPTED OUT, do not re-send any campaign to them.'
   });
   await sendText(from, "You're unsubscribed and won't get any more messages from us here. Take care!");
+}
+
+// --- 3b. PURCHASE INTENT (money in hand - must never hit the quiz) ---
+// Every string below is produced by a button on the site: contact.html's
+// consult/challenge CTAs and program.html's .plan-wa-btn pricing buttons
+// all open wa.me with a prefilled message naming the exact plan. So this
+// is matching text we author, not guessing at open-ended language. It
+// still matches on distinctive substrings rather than whole strings,
+// because WhatsApp lets people edit a prefilled message before sending.
+//
+// Checked BEFORE findExistingLead deliberately: a past lead coming back to
+// buy would otherwise hit the "someone will get back to you shortly" reply,
+// which is the worst possible answer to "I want to make payment". Checked
+// before sendWelcome for the same reason - asking "what are you dealing
+// with?" of someone who already picked a plan and named a price loses them.
+const PURCHASE_INTENTS = [
+  {
+    id: 'consultation',
+    label: 'One-time consultation (₹1,999)',
+    match: function (t) { return /one[\s-]?time consultation/.test(t); }
+  },
+  {
+    id: 'challenge',
+    label: '7-Day Challenge (₹799)',
+    match: function (t) { return /(7|seven)[\s-]*day challenge/.test(t); }
+  },
+  {
+    id: 'bless90',
+    label: 'BLESS 90',
+    match: function (t) { return /bless\s*90/.test(t); },
+    // The four pricing buttons differ only by PT and duration. Naming the
+    // exact one back to them is what proves a human-grade reply landed.
+    // 'without pt' is tested first: 'with pt' is not a substring of it,
+    // but ordering makes that non-obvious property explicit rather than load-bearing.
+    detail: function (t) {
+      var pt = /without\s*pt/.test(t) ? 'without PT' : (/with\s*pt/.test(t) ? 'with PT' : '');
+      var months = /6\s*month/.test(t) ? '6 months' : (/3\s*month/.test(t) ? '3 months' : '');
+      return [pt, months].filter(Boolean).join(', ');
+    }
+  },
+  {
+    // Catch-all for someone typing their own words instead of tapping a
+    // button. Last, so a named plan above always wins.
+    id: 'generic',
+    label: '',
+    match: function (t) {
+      return /make (a )?payment|want to pay|how (do i|to) pay|payment link|send me the link|sign me up|want to enroll|want to enrol/.test(t);
+    }
+  }
+];
+
+function detectPurchaseIntent(text) {
+  var t = String(text || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  if (!t) return null;
+  for (var i = 0; i < PURCHASE_INTENTS.length; i++) {
+    var intent = PURCHASE_INTENTS[i];
+    if (!intent.match(t)) continue;
+    var detail = intent.detail ? intent.detail(t) : '';
+    return { id: intent.id, label: detail ? intent.label + ' (' + detail + ')' : intent.label };
+  }
+  return null;
+}
+
+// Option 2 of the payment-handling choices: acknowledge instantly and hand
+// to a human, rather than the bot sending a payment link itself. Picked
+// because it needs no payment infrastructure to exist yet, and still
+// removes the part that actually loses buyers - the silence between "I
+// want to pay" and a human noticing. The link itself still comes from a
+// person, which is also why the copy below promises a person, not a bot.
+//
+// Note the reply deliberately does NOT promise a number of minutes. A
+// Cloud API number can't be answered from a phone, so the real reply time
+// depends on a rep being awake; over-promising here would burn exactly the
+// trust this business runs on.
+async function handlePurchaseIntent(from, contactName, intent) {
+  const firstName = contactName ? contactName.split(' ')[0] : 'there';
+  const knowsPlan = intent.id !== 'generic';
+
+  await logToCrm({
+    name: contactName || '',
+    phone: from,
+    condition: '',
+    qualification: 'QUALIFIED',
+    source: 'WhatsApp Payment Intent',
+    notes: 'WANTS TO PAY' + (knowsPlan ? ' - ' + intent.label : '') + '. Send payment link and confirm slot.'
+  });
+
+  const opening = knowsPlan
+    ? 'Perfect, ' + firstName + '! 🎉\n\n*' + intent.label + '* — got it.'
+    : 'Perfect, ' + firstName + '! 🎉\n\nGot it — let\'s get you started.';
+
+  await sendText(
+    from,
+    opening +
+    '\n\nThe team has been alerted and your payment link and confirmation will come through right here shortly (first thing in the morning if it\'s late where you are).' +
+    '\n\nNothing else for you to do. If there\'s anything you\'d like your coach to know before we set you up, just send it here.'
+  );
+
+  // The rep can't reply from the API number (Cloud API numbers are locked
+  // out of the WhatsApp app), so the ping carries a wa.me deep link - one
+  // tap opens the chat from their own WhatsApp, which is where the payment
+  // link or UPI QR actually gets sent from.
+  if (process.env.GAURAV_WHATSAPP_NUMBER) {
+    await sendText(
+      process.env.GAURAV_WHATSAPP_NUMBER,
+      '💰 PAYMENT INTENT — send link now\n' +
+      'Plan: ' + (knowsPlan ? intent.label : 'not specified, ask them') + '\n' +
+      'Name: ' + (contactName || 'unknown') + '\n' +
+      'Phone: ' + from + '\n' +
+      'Open chat: https://wa.me/' + from + '\n' +
+      'Logged to CRM as QUALIFIED.'
+    );
+  }
 }
 
 async function findExistingLead(phone) {

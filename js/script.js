@@ -1,18 +1,29 @@
 // Mobile nav toggle
 document.addEventListener('DOMContentLoaded', function () {
-  // Public coaching CTAs go to the application form and CRM. WhatsApp is only
-  // offered after someone completes the quiz or requests guides.
+  // Inline coaching CTAs still go to the application form, because the form
+  // captures things WhatsApp's qualification flow doesn't ask for (email,
+  // city, goal in their own words) and those CTAs sit on high-intent pages
+  // where that detail is worth the extra friction.
+  //
+  // The floating button is the exception and is now left alone. It used to be
+  // removed outright, because back then a WhatsApp chat landed in a personal
+  // inbox the CRM never saw - so every tap was a lead leaking out of the
+  // funnel. That is no longer true: the number is on the Cloud API and
+  // api/whatsapp-webhook.js qualifies the person, logs them to the same CRM
+  // sheet the form feeds, and round-robins them to a rep. With the leak
+  // closed, the argument for hiding the lowest-friction entry point on the
+  // site went with it.
   var isLeadMagnetPage = /\/(guides|quiz)(?:\.html)?$/.test(location.pathname);
   document.querySelectorAll('a[href*="wa.me/"]').forEach(function (link) {
     var isGuideCompletionLink = isLeadMagnetPage && !!link.closest('#guides-download');
     if (isGuideCompletionLink) return;
+    if (link.classList.contains('float-wa')) return;
     link.href = '/contact';
     link.removeAttribute('target');
     link.removeAttribute('rel');
     link.textContent = 'Apply for coaching';
     link.setAttribute('aria-label', 'Apply for coaching');
   });
-  document.querySelectorAll('.float-wa').forEach(function (button) { button.remove(); });
 
   var toggle = document.querySelector('.nav-toggle');
   var menu = document.querySelector('.mobile-menu');

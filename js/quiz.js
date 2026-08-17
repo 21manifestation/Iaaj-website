@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var card = document.querySelector('.quiz-card');
   if (!card) return;
 
-  var WA = 'https://wa.me/919403912211?text=';
+  var WA = 'https://wa.me/918379834211?text=';
 
   // Same custom icon set as the home page's "What's actually happening"
   // section (index.html), reused here so the same hormonal-type framework
