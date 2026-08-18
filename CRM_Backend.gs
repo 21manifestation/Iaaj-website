@@ -321,3 +321,166 @@ function metricCell(label, value, color) {
 function escapeHtmlForEmail(value) {
   return String(value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
+
+// ---------------------------------------------------------------------------
+// Daily WhatsApp digest to Gaurav (replaces/supplements the weekly email -
+// requested 18 Aug 2026: "daily morning message at 9AM about everything...
+// number of new leads, assign to whom, what happened to yesterday's leads")
+//
+// WHY A TEMPLATE, NOT A PLAIN sendText LIKE THE QUALIFIED-LEAD PING: this
+// runs on a time trigger, not in reply to an inbound message, so there's no
+// guarantee Gaurav messaged the bot inside the last 24 hours to keep the
+// free-form reply window open. A template is the only message type Meta
+// delivers outside that window. Template "iaaj_daily_digest" (UTILITY,
+// English) was submitted via the Graph API on 18 Aug 2026 and needs Meta's
+// approval (usually minutes to a few hours) before this will actually send -
+// check WhatsApp Manager > Message Templates if sendDailyWhatsAppDigest()
+// logs a failure.
+//
+// WHY "YESTERDAY", NOT "LAST 24 HOURS FROM NOW": this runs once at 9am, so
+// anchoring every count to yesterday's calendar day (not a rolling 24h
+// window from whenever the trigger actually fires) keeps "new leads",
+// "assigned to whom", and "what happened to them" all describing the exact
+// same batch of leads, which is what makes the digest answerable at a
+// glance instead of three numbers from three different time windows.
+//
+// Due-today/overdue are the exception - those describe the whole live
+// follow-up pipeline as of this morning, not just yesterday's leads, since
+// a lead from last week that's now overdue is exactly what a sales owner
+// needs flagged and yesterday-only counts would hide it.
+
+// Read from Script Properties (Apps Script editor > Project Settings >
+// Script Properties), NOT hardcoded here - this file lives inside the
+// website/ git repo, which is pushed to a real GitHub remote. A literal
+// token in source would sit in git history forever, readable by anyone
+// with repo access (or anyone who ever gets it, if visibility changes),
+// with no way to fully remove it short of rewriting history. Script
+// Properties keeps the same one-time-setup convenience without that risk.
+// One-time setup: Project Settings (gear icon) > Script Properties > Add
+// property, key DIGEST_WHATSAPP_TOKEN, value = the permanent access token.
+function getDigestWhatsAppToken_() {
+  var token = PropertiesService.getScriptProperties().getProperty('DIGEST_WHATSAPP_TOKEN');
+  if (!token) throw new Error('DIGEST_WHATSAPP_TOKEN not set - add it in Project Settings > Script Properties.');
+  return token;
+}
+var DIGEST_WHATSAPP_PHONE_NUMBER_ID = '1276526092207910'; // not a secret - public-facing phone number ID
+var DIGEST_GRAPH_VERSION = 'v25.0';
+var GAURAV_WHATSAPP_NUMBER = '919403912211';
+
+function setupDailyWhatsAppDigestTrigger() {
+  var triggers = ScriptApp.getProjectTriggers();
+  for (var i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === 'sendDailyWhatsAppDigest') {
+      ScriptApp.deleteTrigger(triggers[i]);
+    }
+  }
+  ScriptApp.newTrigger('sendDailyWhatsAppDigest').timeBased().everyDays(1).atHour(9).create();
+  Logger.log('Daily WhatsApp digest trigger set for 9am, script timezone (Extensions > Apps Script > Project Settings to check/change it).');
+}
+
+function sendDailyWhatsAppDigest() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('All Leads') || ss.getSheets()[0];
+  var data = sheet.getDataRange().getValues();
+
+  var now = new Date();
+  var todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  var yesterdayStart = new Date(todayStart.getTime() - 24 * 60 * 60 * 1000);
+
+  var yesterdayLeads = 0;
+  var repCounts = {};
+  var unassigned = 0;
+  var converted = 0, lost = 0, stillOpen = 0;
+  var dueToday = 0, overdue = 0;
+
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
+    if (!row[0] && !row[2]) continue;
+
+    var status = String(row[9] || 'New');
+    var rep = String(row[10] || 'Unassigned');
+    var createdDate = row[1] instanceof Date ? row[1] : null;
+
+    if (createdDate && createdDate >= yesterdayStart && createdDate < todayStart) {
+      yesterdayLeads++;
+      if (!rep || rep === 'Unassigned') {
+        unassigned++;
+      } else {
+        repCounts[rep] = (repCounts[rep] || 0) + 1;
+      }
+      if (status === 'Converted') converted++;
+      else if (status === 'Lost' || status === 'Do Not Contact') lost++;
+      else stillOpen++;
+    }
+
+    // Whole live pipeline, not just yesterday's leads - see comment above.
+    if (status !== 'Converted' && status !== 'Lost' && status !== 'Do Not Contact') {
+      var followUp = row[12];
+      if (followUp instanceof Date && !isNaN(followUp.getTime())) {
+        var dueDate = new Date(followUp.getFullYear(), followUp.getMonth(), followUp.getDate());
+        if (dueDate.getTime() < todayStart.getTime()) overdue++;
+        else if (dueDate.getTime() === todayStart.getTime()) dueToday++;
+      }
+    }
+  }
+
+  var dateLabel = Utilities.formatDate(yesterdayStart, Session.getScriptTimeZone(), 'd MMM');
+
+  var params = [
+    dateLabel,
+    String(yesterdayLeads),
+    String(repCounts['Sales Rep 1'] || 0),
+    String(repCounts['Sales Rep 2'] || 0),
+    String(unassigned),
+    String(yesterdayLeads),
+    String(converted),
+    String(stillOpen),
+    String(lost),
+    String(dueToday),
+    String(overdue)
+  ];
+
+  sendWhatsAppTemplate_(GAURAV_WHATSAPP_NUMBER, 'iaaj_daily_digest', 'en', params);
+}
+
+function sendWhatsAppTemplate_(to, templateName, langCode, bodyParams) {
+  var url = 'https://graph.facebook.com/' + DIGEST_GRAPH_VERSION + '/' + DIGEST_WHATSAPP_PHONE_NUMBER_ID + '/messages';
+  var payload = {
+    messaging_product: 'whatsapp',
+    to: to,
+    type: 'template',
+    template: {
+      name: templateName,
+      language: { code: langCode },
+      components: [
+        {
+          type: 'body',
+          parameters: bodyParams.map(function (p) { return { type: 'text', text: p }; })
+        }
+      ]
+    }
+  };
+  var options = {
+    method: 'post',
+    contentType: 'application/json',
+    headers: { Authorization: 'Bearer ' + getDigestWhatsAppToken_() },
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  };
+
+  var resp = UrlFetchApp.fetch(url, options);
+  if (resp.getResponseCode() >= 300) {
+    Logger.log('WhatsApp digest send failed: ' + resp.getContentText());
+    // Fall back to email so a delivery failure (e.g. template not approved
+    // yet) doesn't mean the digest just silently never arrives anywhere.
+    try {
+      MailApp.sendEmail({
+        to: GAURAV_EMAIL,
+        subject: 'IAAJ daily WhatsApp digest failed to send',
+        htmlBody: '<p>The WhatsApp send failed - check Message Templates in WhatsApp Manager for approval status. Raw response:</p><pre>' + escapeHtmlForEmail(resp.getContentText()) + '</pre>'
+      });
+    } catch (mailErr) {
+      // last resort already exhausted - visible in Executions log at least
+    }
+  }
+}
