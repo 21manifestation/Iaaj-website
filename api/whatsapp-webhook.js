@@ -73,6 +73,15 @@ async function handleIncoming(req, res) {
 
     if (message.type === 'interactive' && message.interactive.type === 'button_reply') {
       await handleButtonReply(from, contactName, message.interactive.button_reply.id);
+    } else if (message.type === 'button') {
+      // A tap on a TEMPLATE message's quick-reply button (campaign sends
+      // like the reactivation/old-leads messages) arrives in this shape,
+      // not the 'interactive' shape above - that one is only for buttons
+      // sent directly by this webhook (e.g. sendButtons() in the welcome
+      // flow). Meta returns the button's own visible text as the payload
+      // here (no custom id at template-creation time), so route by text,
+      // not by an assumed opaque id.
+      await handleTemplateButtonReply(from, contactName, (message.button && message.button.payload) || (message.button && message.button.text) || '');
     } else if (message.type === 'text') {
       await handleFreeText(from, contactName, (message.text && message.text.body) || '');
     } else {
@@ -328,45 +337,112 @@ async function handleButtonReply(from, name, buttonId) {
     return;
   }
 
-  // Reactivation campaign replies. These button ids come from the
-  // iaaj_reactivation_v1 Meta template (see IAAJ_WhatsApp_API_Build.md) -
-  // this file's routing doesn't send these buttons itself, it only handles
-  // the tap once the template's gone out.
-  if (buttonId === 'reactivation_interested') {
+  // Reactivation campaign replies, for whenever the TRUE past-client list
+  // (people who actually paid and finished a program) gets built and sent
+  // via iaaj_reactivation_v1 - see handleReactivationInterested_/NotNow_
+  // below for the actual behavior. Kept reachable by id here too in case a
+  // future direct interactive send ever reuses these ids, but the real
+  // path for a TEMPLATE button tap is handleTemplateButtonReply below (see
+  // the 'button' vs 'interactive' message-type split in handleIncoming).
+  if (buttonId === 'reactivation_interested') { await handleReactivationInterested_(from, name); return; }
+  if (buttonId === 'reactivation_not_now') { await handleReactivationNotNow_(from, name); return; }
+
+  // Unrecognized id (shouldn't happen unless buttons are edited without
+  // updating this file) - fail safe to a human handoff rather than silence.
+  await sendText(from, "Thanks! Someone from the team will follow up with you shortly.");
+}
+
+// --- 5b. TEMPLATE BUTTON REPLY ROUTING ---
+// Quick-reply buttons on a TEMPLATE message (any outbound campaign, not a
+// direct interactive send from this webhook) arrive as message.type ===
+// 'button' with the button's own visible TEXT as the payload - Meta's
+// template-creation API for QUICK_REPLY buttons doesn't take a separate
+// custom id, so matching on the exact text this webhook also defines the
+// template with is the correct approach, not a workaround. Case-sensitive
+// exact match is fine here (unlike free-text parsing) since a tapped
+// button's payload is never user-edited, unlike a prefilled wa.me message.
+async function handleTemplateButtonReply(from, name, payload) {
+  var text = String(payload || '').trim();
+
+  // iaaj_old_leads_reconnect_v1 - today's campaign, sent to the Master
+  // Leads consolidation (old website/Instagram enquiries that never
+  // converted). Deliberately separate copy and CRM source from the true
+  // reactivation flow below - these people never paid, so anything that
+  // implies otherwise (like the reactivation flow's "book your ₹1,999
+  // consultation... credited toward a new program if you CONTINUE") would
+  // be false for nearly all of them.
+  if (text === 'Tell me more') {
     await logToCrm({
       name: name || '',
       phone: from,
       condition: '',
       qualification: 'QUALIFIED',
-      source: 'Reactivation Campaign',
-      notes: 'Past client, replied interested to reactivation message.'
+      source: 'Old Leads Reconnect Campaign',
+      notes: 'Old enquiry lead, replied interested when re-contacted about the current PCOS/thyroid program.'
     });
-    await sendText(from, "So glad to hear that! To book your ₹1,999 consultation (fully credited toward a new program if you continue), just reply here and the team will send you a payment link and get you scheduled.");
+    await sendText(from, "That's great to hear! Someone from the team will reach out to you shortly to see how we can help. Talk soon!");
     if (process.env.GAURAV_WHATSAPP_NUMBER) {
       await sendText(
         process.env.GAURAV_WHATSAPP_NUMBER,
-        '👋 Past client replied to reactivation campaign\nName: ' + (name || 'unknown') + '\nPhone: ' + from + '\nWants to come back, logged to CRM as QUALIFIED.'
+        '👋 Old lead replied to reconnect campaign\nName: ' + (name || 'unknown') + '\nPhone: ' + from + '\nInterested, logged to CRM as QUALIFIED.'
       );
     }
     return;
   }
 
-  if (buttonId === 'reactivation_not_now') {
+  if (text === 'Not for me') {
     await logToCrm({
       name: name || '',
       phone: from,
       condition: '',
       qualification: 'High Intent',
-      source: 'Reactivation Campaign',
-      notes: 'Past client, replied not right now. Do not re-send this campaign to them.'
+      source: 'Old Leads Reconnect Campaign',
+      notes: 'Old enquiry lead, replied not interested when re-contacted. Do not re-send this campaign to them.'
     });
-    await sendText(from, "Totally understood, no pressure at all. The door's always open whenever you're ready. Take care!");
+    await sendText(from, "Totally understood, no pressure at all. Thanks for letting us know, and take care!");
     return;
   }
 
-  // Unrecognized id (shouldn't happen unless buttons are edited without
-  // updating this file) - fail safe to a human handoff rather than silence.
+  // iaaj_reactivation_v1 - true past-client reactivation (that list isn't
+  // built yet, see IAAJ_WhatsApp_API_Build.md section 3), kept ready here
+  // so this file doesn't need touching again once it exists.
+  if (text === "I'm interested") { await handleReactivationInterested_(from, name); return; }
+  if (text === 'Not right now') { await handleReactivationNotNow_(from, name); return; }
+
+  // Unrecognized button text (template edited without updating this file,
+  // or a template this webhook doesn't know about yet) - fail safe to a
+  // human handoff rather than silence.
   await sendText(from, "Thanks! Someone from the team will follow up with you shortly.");
+}
+
+async function handleReactivationInterested_(from, name) {
+  await logToCrm({
+    name: name || '',
+    phone: from,
+    condition: '',
+    qualification: 'QUALIFIED',
+    source: 'Reactivation Campaign',
+    notes: 'Past client, replied interested to reactivation message.'
+  });
+  await sendText(from, "So glad to hear that! To book your ₹1,999 consultation (fully credited toward a new program if you continue), just reply here and the team will send you a payment link and get you scheduled.");
+  if (process.env.GAURAV_WHATSAPP_NUMBER) {
+    await sendText(
+      process.env.GAURAV_WHATSAPP_NUMBER,
+      '👋 Past client replied to reactivation campaign\nName: ' + (name || 'unknown') + '\nPhone: ' + from + '\nWants to come back, logged to CRM as QUALIFIED.'
+    );
+  }
+}
+
+async function handleReactivationNotNow_(from, name) {
+  await logToCrm({
+    name: name || '',
+    phone: from,
+    condition: '',
+    qualification: 'High Intent',
+    source: 'Reactivation Campaign',
+    notes: 'Past client, replied not right now. Do not re-send this campaign to them.'
+  });
+  await sendText(from, "Totally understood, no pressure at all. The door's always open whenever you're ready. Take care!");
 }
 
 function conditionLabel(condId) {
