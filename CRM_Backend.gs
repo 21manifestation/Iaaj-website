@@ -146,7 +146,14 @@ function doPost(e) {
     var distributionMode = settingsSheet.getRange('B1').getValue() || 'MANUAL';
     var assignedRep = 'Unassigned';
 
-    if (distributionMode === 'ROUND_ROBIN' && !isClosedOnArrival) {
+    // A caller can explicitly pin who a lead belongs to (e.g. the WhatsApp
+    // webhook sends assignedRep: 'Gaurav' for a past client who wants to
+    // reactivate - Gaurav handles those personally, so they must never
+    // land in the Sales Rep 1/2 round-robin pool). Same override pattern
+    // as p.status above: explicit beats the default distribution logic.
+    if (p.assignedRep) {
+      assignedRep = p.assignedRep;
+    } else if (distributionMode === 'ROUND_ROBIN' && !isClosedOnArrival) {
       var reps = ['Sales Rep 1', 'Sales Rep 2'];
       var lastIdx = parseInt(settingsSheet.getRange('B2').getValue() || '0', 10);
       var nextIdx = (lastIdx + 1) % reps.length;

@@ -417,19 +417,25 @@ async function handleTemplateButtonReply(from, name, payload) {
 }
 
 async function handleReactivationInterested_(from, name) {
+  // assignedRep: 'Gaurav' keeps this out of the Sales Rep 1/2 round-robin
+  // pool entirely (CRM_Backend.gs honors an explicit assignedRep the same
+  // way it already honors an explicit status) - a past client saying
+  // they're interested goes straight to Gaurav for a personal
+  // conversation, not into a rep's queue.
   await logToCrm({
     name: name || '',
     phone: from,
     condition: '',
     qualification: 'QUALIFIED',
     source: 'Reactivation Campaign',
-    notes: 'Past client, replied interested to reactivation message.'
+    assignedRep: 'Gaurav',
+    notes: 'Past client, replied interested to reactivation message. Handling personally, not routed to a sales rep.'
   });
-  await sendText(from, "So glad to hear that! To book your ₹1,999 consultation (fully credited toward a new program if you continue), just reply here and the team will send you a payment link and get you scheduled.");
+  await sendText(from, "So glad to hear that! Gaurav will personally reach out to you shortly to catch up and get you sorted.");
   if (process.env.GAURAV_WHATSAPP_NUMBER) {
     await sendText(
       process.env.GAURAV_WHATSAPP_NUMBER,
-      '👋 Past client replied to reactivation campaign\nName: ' + (name || 'unknown') + '\nPhone: ' + from + '\nWants to come back, logged to CRM as QUALIFIED.'
+      '👋 Past client replied to reactivation campaign\nName: ' + (name || 'unknown') + '\nPhone: ' + from + '\nWants to come back - assigned to you personally, not a sales rep. Message them directly.'
     );
   }
 }
