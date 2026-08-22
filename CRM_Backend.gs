@@ -129,18 +129,24 @@ function doPost(e) {
     var totalRows = sheet.getLastRow();
     var leadId = 'LEAD-' + (1000 + totalRows);
     
-    // Opt-outs must never look like a workable "New" lead - a rep
-    // scanning the daily digest by status/count, not reading every note,
-    // could otherwise call someone who just said stop contacting them.
-    // Checked before round-robin assignment so an opt-out never consumes
-    // a rotation slot for an assignment that just gets discarded anyway.
+    // Opt-outs (and any caller that explicitly says this lead is already
+    // closed, e.g. a campaign "not interested" reply) must never look like
+    // a workable "New" lead - a rep scanning the daily digest by
+    // status/count, not reading every note, could otherwise call someone
+    // who already declined. p.status lets a caller like the WhatsApp
+    // webhook say so explicitly (e.g. status: 'Lost' on a decline reply);
+    // without it this still falls back to the original Opt-Out-only rule,
+    // so nothing already relying on that default behavior changes.
+    // Checked before round-robin assignment so a closed lead never
+    // consumes a rotation slot for an assignment that's discarded anyway.
     var isOptOut = sourceStr === 'WhatsApp Opt-Out';
-    var initialStatus = isOptOut ? 'Do Not Contact' : 'New';
+    var initialStatus = p.status || (isOptOut ? 'Do Not Contact' : 'New');
+    var isClosedOnArrival = initialStatus === 'Do Not Contact' || initialStatus === 'Lost';
 
     var distributionMode = settingsSheet.getRange('B1').getValue() || 'MANUAL';
     var assignedRep = 'Unassigned';
 
-    if (distributionMode === 'ROUND_ROBIN' && !isOptOut) {
+    if (distributionMode === 'ROUND_ROBIN' && !isClosedOnArrival) {
       var reps = ['Sales Rep 1', 'Sales Rep 2'];
       var lastIdx = parseInt(settingsSheet.getRange('B2').getValue() || '0', 10);
       var nextIdx = (lastIdx + 1) % reps.length;

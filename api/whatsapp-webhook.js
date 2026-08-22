@@ -396,6 +396,7 @@ async function handleTemplateButtonReply(from, name, payload) {
       phone: from,
       condition: '',
       qualification: 'High Intent',
+      status: 'Lost',
       source: 'Old Leads Reconnect Campaign',
       notes: 'Old enquiry lead, replied not interested when re-contacted. Do not re-send this campaign to them.'
     });
@@ -439,6 +440,7 @@ async function handleReactivationNotNow_(from, name) {
     phone: from,
     condition: '',
     qualification: 'High Intent',
+    status: 'Lost',
     source: 'Reactivation Campaign',
     notes: 'Past client, replied not right now. Do not re-send this campaign to them.'
   });
