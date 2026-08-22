@@ -364,7 +364,7 @@ async function handleButtonReply(from, name, buttonId) {
 async function handleTemplateButtonReply(from, name, payload) {
   var text = String(payload || '').trim();
 
-  // iaaj_old_leads_reconnect_v1 - today's campaign, sent to the Master
+  // iaaj_old_leads_reconnect_v2 - today's campaign, sent to the Master
   // Leads consolidation (old website/Instagram enquiries that never
   // converted). Deliberately separate copy and CRM source from the true
   // reactivation flow below - these people never paid, so anything that

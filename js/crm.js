@@ -220,6 +220,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
       var followUpState = getFollowUpState(l);
       var matchesFollowupView = activeFollowupView === 'ALL' ||
+        (activeFollowupView === 'NEW' && l.status === 'New') ||
         (activeFollowupView === 'TODAY' && followUpState === 'today') ||
         (activeFollowupView === 'OVERDUE' && followUpState === 'overdue');
 
