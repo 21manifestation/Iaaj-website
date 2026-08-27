@@ -125,12 +125,46 @@ async function handleFreeText(from, contactName, text) {
     return;
   }
 
+  // A past client who got the reactivation campaign but typed their own
+  // reply instead of tapping "I'm interested"/"Not right now" would
+  // otherwise fall into findExistingLead (not found, since past clients
+  // aren't in this CRM yet) and land in sendWelcome - the generic
+  // "pick your condition" quiz, a jarring experience for someone who just
+  // got a personal "come back" message from Gaurav by name. Checked before
+  // findExistingLead/sendWelcome for the same reason purchase intent is.
+  const pastClientStatus = await checkPastClientStatus_(from);
+  if (pastClientStatus.isPastClient && !pastClientStatus.isActiveClient) {
+    if (CAMPAIGN_DECLINE_RE.test(normalized)) {
+      await handleReactivationNotNow_(from, contactName);
+    } else {
+      await handleReactivationInterested_(from, contactName);
+    }
+    return;
+  }
+
   const existing = await findExistingLead(from);
   if (existing) {
     await sendText(from, "Thanks for the message! Your Journey Master or a team member will get back to you shortly.");
     return;
   }
   await sendWelcome(from, contactName);
+}
+
+// Matches the same "no thanks" language the button-tap path already
+// treats as a decline - anything else from a known past client is treated
+// as interested, since replying at all to a cold reactivation message is
+// itself a strong positive signal, and the cost of a false "interested" is
+// just Gaurav messaging someone who clarifies they're not up for it.
+const CAMPAIGN_DECLINE_RE = /not interest|not right now|no thanks|not now|maybe later|not for me|can'?t afford|cannot afford|too expensive|costly|don'?t want|do not want|stop|unsubscribe/i;
+
+async function checkPastClientStatus_(phone) {
+  try {
+    const resp = await fetch(CRM_ENDPOINT + '?action=past_client_lookup&phone=' + encodeURIComponent(phone), { redirect: 'follow' });
+    const data = await resp.json();
+    return { isPastClient: !!(data && data.isPastClient), isActiveClient: !!(data && data.isActiveClient) };
+  } catch (e) {
+    return { isPastClient: false, isActiveClient: false }; // fail open, same pattern as findExistingLead
+  }
 }
 
 // Logged the same way as a reactivation "not now" reply (see

@@ -17,11 +17,53 @@
 
 var GAURAV_EMAIL = '21manifestation@gmail.com';
 
+// Lets the WhatsApp webhook ask "is this phone number a past client we sent
+// the reactivation campaign to?" without duplicating that 1,477-row list
+// into this spreadsheet - it opens the Legacy Leads master sheet (a
+// different spreadsheet/account) directly by ID and checks the two tabs
+// buildPastClientsList() already produces there. Wrapped in try/catch and
+// defaults to "not a past client" on any failure (e.g. that sheet isn't
+// shared with whichever account runs this script) so a lookup failure
+// degrades to the webhook's normal generic flow instead of breaking replies.
+var PAST_CLIENTS_MASTER_SHEET_ID_ = '1F88qQE76X4hvZy4E24lduBWE3dSSgrca-ovhkloT0ZI';
+
+function handlePastClientLookup_(phoneRaw) {
+  var normalized = String(phoneRaw || '').replace(/\D/g, '').slice(-10);
+  var result = { status: 'success', isPastClient: false, isActiveClient: false };
+
+  if (normalized) {
+    try {
+      var master = SpreadsheetApp.openById(PAST_CLIENTS_MASTER_SHEET_ID_);
+      var phoneInTab = function (tabName) {
+        var tab = master.getSheetByName(tabName);
+        if (!tab || tab.getLastRow() < 2) return false;
+        var phones = tab.getRange(2, 2, tab.getLastRow() - 1, 1).getValues();
+        for (var i = 0; i < phones.length; i++) {
+          if (String(phones[i][0] || '').replace(/\D/g, '').slice(-10) === normalized) return true;
+        }
+        return false;
+      };
+      result.isPastClient = phoneInTab('WA Campaign - Past Clients');
+      result.isActiveClient = phoneInTab('Currently Active Clients (Reference)');
+    } catch (lookupErr) {
+      // fail open - see comment above
+    }
+  }
+
+  return ContentService.createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
 function doGet(e) {
+  var p = (e && e.parameter) || {};
+  if (p.action === 'past_client_lookup') {
+    return handlePastClientLookup_(p.phone);
+  }
+
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('All Leads') || ss.getSheets()[0];
   var settingsSheet = ss.getSheetByName('Settings');
-  
+
   var data = sheet.getDataRange().getValues();
   var leads = [];
   
