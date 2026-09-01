@@ -274,8 +274,8 @@ async function handlePurchaseIntent(from, contactName, intent) {
   });
 
   const opening = knowsPlan
-    ? 'Perfect, ' + firstName + '! 🎉\n\n*' + intent.label + '* — got it.'
-    : 'Perfect, ' + firstName + '! 🎉\n\nGot it — let\'s get you started.';
+    ? 'Perfect, ' + firstName + '! 🎉\n\n*' + intent.label + '*, got it.'
+    : 'Perfect, ' + firstName + '! 🎉\n\nGot it, let\'s get you started.';
 
   await sendText(
     from,
@@ -290,7 +290,7 @@ async function handlePurchaseIntent(from, contactName, intent) {
   // link or UPI QR actually gets sent from.
   await sendText(
     GAURAV_WHATSAPP_NUMBER,
-    '💰 PAYMENT INTENT — send link now\n' +
+    '💰 PAYMENT INTENT: send link now\n' +
     'Plan: ' + (knowsPlan ? intent.label : 'not specified, ask them') + '\n' +
     'Name: ' + (contactName || 'unknown') + '\n' +
     'Phone: ' + from + '\n' +
