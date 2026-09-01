@@ -18,39 +18,59 @@
 var GAURAV_EMAIL = '21manifestation@gmail.com';
 
 // Lets the WhatsApp webhook ask "is this phone number a past client we sent
-// the reactivation campaign to?" without duplicating that 1,477-row list
-// into this spreadsheet - it opens the Legacy Leads master sheet (a
-// different spreadsheet/account) directly by ID and checks the two tabs
-// buildPastClientsList() already produces there. Wrapped in try/catch and
-// defaults to "not a past client" on any failure (e.g. that sheet isn't
-// shared with whichever account runs this script) so a lookup failure
-// degrades to the webhook's normal generic flow instead of breaking replies.
-var PAST_CLIENTS_MASTER_SHEET_ID_ = '1F88qQE76X4hvZy4E24lduBWE3dSSgrca-ovhkloT0ZI';
+// the reactivation campaign to?" WITHOUT this script needing to open the
+// Legacy Leads master sheet (a different spreadsheet under a different
+// Google account - cross-account access needs manual sharing that turned
+// out unreliable to set up). Instead, syncPastClientPhonesFromLeadsProject()
+// (pasted into the OTHER project, same account as the master sheet, so
+// zero cross-account access needed) PUSHES the phone list here via a
+// normal doPost call, same as any other lead ingest - it lands in the
+// "Past Client Phones" tab in THIS spreadsheet, which this script already
+// owns outright, no sharing required.
+var PAST_CLIENT_PHONES_TAB_ = 'Past Client Phones';
 
 function handlePastClientLookup_(phoneRaw) {
   var normalized = String(phoneRaw || '').replace(/\D/g, '').slice(-10);
   var result = { status: 'success', isPastClient: false, isActiveClient: false };
 
   if (normalized) {
-    try {
-      var master = SpreadsheetApp.openById(PAST_CLIENTS_MASTER_SHEET_ID_);
-      var phoneInTab = function (tabName) {
-        var tab = master.getSheetByName(tabName);
-        if (!tab || tab.getLastRow() < 2) return false;
-        var phones = tab.getRange(2, 2, tab.getLastRow() - 1, 1).getValues();
-        for (var i = 0; i < phones.length; i++) {
-          if (String(phones[i][0] || '').replace(/\D/g, '').slice(-10) === normalized) return true;
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var tab = ss.getSheetByName(PAST_CLIENT_PHONES_TAB_);
+    if (tab && tab.getLastRow() >= 2) {
+      var rows = tab.getRange(2, 1, tab.getLastRow() - 1, 2).getValues(); // Phone, IsActive
+      for (var i = 0; i < rows.length; i++) {
+        if (String(rows[i][0] || '').replace(/\D/g, '').slice(-10) === normalized) {
+          result.isPastClient = true;
+          result.isActiveClient = rows[i][1] === true || rows[i][1] === 'TRUE';
+          break;
         }
-        return false;
-      };
-      result.isPastClient = phoneInTab('WA Campaign - Past Clients');
-      result.isActiveClient = phoneInTab('Currently Active Clients (Reference)');
-    } catch (lookupErr) {
-      // fail open - see comment above
+      }
     }
   }
 
   return ContentService.createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+// --- ACTION: sync_past_client_phones (called by the Leads project's
+// syncPastClientPhonesFromLeadsProject(), not by the webhook) ---
+function handleSyncPastClientPhones_(p) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var tab = ss.getSheetByName(PAST_CLIENT_PHONES_TAB_);
+  if (tab) ss.deleteSheet(tab);
+  tab = ss.insertSheet(PAST_CLIENT_PHONES_TAB_);
+  tab.appendRow(['Phone', 'IsActive']);
+
+  var pastPhones = String(p.pastPhones || '').split(',').filter(Boolean);
+  var activeSet = {};
+  String(p.activePhones || '').split(',').filter(Boolean).forEach(function (ph) {
+    activeSet[ph] = true;
+  });
+
+  var rows = pastPhones.map(function (ph) { return [ph, !!activeSet[ph]]; });
+  if (rows.length) tab.getRange(2, 1, rows.length, 2).setValues(rows);
+
+  return ContentService.createTextOutput(JSON.stringify({ status: 'success', synced: rows.length }))
     .setMimeType(ContentService.MimeType.JSON);
 }
 
@@ -127,7 +147,12 @@ function doPost(e) {
     
     var p = e.parameter || {};
     var action = p.action || 'ingest';
-    
+
+    // --- ACTION: sync past-client phone list from the Leads project ---
+    if (action === 'sync_past_client_phones') {
+      return handleSyncPastClientPhones_(p);
+    }
+
     // --- ACTION: Update Lead Status / Rep / Notes ---
     if (action === 'update_lead') {
       var targetId = p.leadId;
