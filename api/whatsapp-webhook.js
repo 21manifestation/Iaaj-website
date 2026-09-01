@@ -8,7 +8,6 @@
 //   WHATSAPP_TOKEN            - permanent access token from Meta
 //   WHATSAPP_PHONE_NUMBER_ID  - the Cloud API phone number ID (not the number itself)
 //   WHATSAPP_VERIFY_TOKEN     - any string you choose, entered in Meta's webhook config too
-//   GAURAV_WHATSAPP_NUMBER    - E.164 format, e.g. 919403912211, no leading +
 //
 // This function only ever REPLIES to a message the lead sent first (guide
 // download click, quiz completion, or a direct message), so every message
@@ -26,6 +25,12 @@
 
 const CRM_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxhhkL_pBf91KHLSFaXlc8YOZR5rCgbQpSpMsQswF5e0zR9QdiVR0DkAXVoa-n9bVqS/exec';
 const GRAPH_VERSION = 'v25.0';
+// Not a secret - just a phone number, already hardcoded the same way in
+// CRM_Backend.gs. Was a Vercel env var (process.env.GAURAV_WHATSAPP_NUMBER)
+// but that turned out to not actually be set in production - every ping to
+// Gaurav silently no-op'd behind the `if (process.env...)` guard with no
+// error anywhere. Hardcoding removes that whole failure mode.
+const GAURAV_WHATSAPP_NUMBER = '919403912211';
 
 module.exports = async (req, res) => {
   if (req.method === 'GET') {
@@ -283,17 +288,15 @@ async function handlePurchaseIntent(from, contactName, intent) {
   // out of the WhatsApp app), so the ping carries a wa.me deep link - one
   // tap opens the chat from their own WhatsApp, which is where the payment
   // link or UPI QR actually gets sent from.
-  if (process.env.GAURAV_WHATSAPP_NUMBER) {
-    await sendText(
-      process.env.GAURAV_WHATSAPP_NUMBER,
-      '💰 PAYMENT INTENT — send link now\n' +
-      'Plan: ' + (knowsPlan ? intent.label : 'not specified, ask them') + '\n' +
-      'Name: ' + (contactName || 'unknown') + '\n' +
-      'Phone: ' + from + '\n' +
-      'Open chat: https://wa.me/' + from + '\n' +
-      'Logged to CRM as QUALIFIED.'
-    );
-  }
+  await sendText(
+    GAURAV_WHATSAPP_NUMBER,
+    '💰 PAYMENT INTENT — send link now\n' +
+    'Plan: ' + (knowsPlan ? intent.label : 'not specified, ask them') + '\n' +
+    'Name: ' + (contactName || 'unknown') + '\n' +
+    'Phone: ' + from + '\n' +
+    'Open chat: https://wa.me/' + from + '\n' +
+    'Logged to CRM as QUALIFIED.'
+  );
 }
 
 async function findExistingLead(phone) {
@@ -359,12 +362,10 @@ async function handleButtonReply(from, name, buttonId) {
 
     if (qualified) {
       await sendText(from, "That's exactly the mindset that gets results. Someone from the team will reach out to you shortly to get you started. Talk soon!");
-      if (process.env.GAURAV_WHATSAPP_NUMBER) {
-        await sendText(
-          process.env.GAURAV_WHATSAPP_NUMBER,
-          '🔥 Qualified lead from WhatsApp\nName: ' + (name || 'unknown') + '\nPhone: ' + from + '\nCondition: ' + condition + '\nReady now, logged to CRM.'
-        );
-      }
+      await sendText(
+        GAURAV_WHATSAPP_NUMBER,
+        '🔥 Qualified lead from WhatsApp\nName: ' + (name || 'unknown') + '\nPhone: ' + from + '\nCondition: ' + condition + '\nReady now, logged to CRM.'
+      );
     } else {
       await sendText(from, "No pressure at all. Here are our free guides to get you started whenever you're ready: https://itsallaboutjourney.com/guides");
     }
@@ -415,12 +416,10 @@ async function handleTemplateButtonReply(from, name, payload) {
       notes: 'Old enquiry lead, replied interested when re-contacted about the current PCOS/thyroid program.'
     });
     await sendText(from, "That's great to hear! Someone from the team will reach out to you shortly to see how we can help. Talk soon!");
-    if (process.env.GAURAV_WHATSAPP_NUMBER) {
-      await sendText(
-        process.env.GAURAV_WHATSAPP_NUMBER,
-        '👋 Old lead replied to reconnect campaign\nName: ' + (name || 'unknown') + '\nPhone: ' + from + '\nInterested, logged to CRM as QUALIFIED.'
-      );
-    }
+    await sendText(
+      GAURAV_WHATSAPP_NUMBER,
+      '👋 Old lead replied to reconnect campaign\nName: ' + (name || 'unknown') + '\nPhone: ' + from + '\nInterested, logged to CRM as QUALIFIED.'
+    );
     return;
   }
 
@@ -466,12 +465,10 @@ async function handleReactivationInterested_(from, name) {
     notes: 'Past client, replied interested to reactivation message. Handling personally, not routed to a sales rep.'
   });
   await sendText(from, "So glad to hear that! Gaurav will personally reach out to you shortly to catch up and get you sorted.");
-  if (process.env.GAURAV_WHATSAPP_NUMBER) {
-    await sendText(
-      process.env.GAURAV_WHATSAPP_NUMBER,
-      '👋 Past client replied to reactivation campaign\nName: ' + (name || 'unknown') + '\nPhone: ' + from + '\nWants to come back - assigned to you personally, not a sales rep. Message them directly.'
-    );
-  }
+  await sendText(
+    GAURAV_WHATSAPP_NUMBER,
+    '👋 Past client replied to reactivation campaign\nName: ' + (name || 'unknown') + '\nPhone: ' + from + '\nWants to come back - assigned to you personally, not a sales rep. Message them directly.'
+  );
 }
 
 async function handleReactivationNotNow_(from, name) {
