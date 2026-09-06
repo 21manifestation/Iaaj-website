@@ -11,17 +11,41 @@
 // calls this same-origin endpoint instead, which removes CORS, the redirect and
 // the cookie problem in one go.
 //
-// Writes (update_lead / update_settings) still POST straight to Apps Script from
-// the browser using mode:'no-cors'. Those never needed to read a response, so
-// they were never affected by this bug and are deliberately left alone.
+// Writes (update_lead / update_settings) go through here too, as of Sep 2026.
+//
+// They used to POST straight to Apps Script from the browser with
+// mode:'no-cors'. The note that they "never needed to read a response" was
+// wrong in a way that cost real data: with no-cors the browser hands back an
+// OPAQUE response, so fetch RESOLVES even when Apps Script returned a 500 or
+// timed out on its lock. The dashboard's .then() therefore fired on failure
+// exactly as it does on success, printed "Saved!", and the rep walked away
+// believing the update stuck. It only surfaced on a later refresh, as a
+// change that had quietly reverted. Routing writes through this same-origin
+// proxy makes the response readable, so a failed save can actually say so.
 
 const CRM_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxhhkL_pBf91KHLSFaXlc8YOZR5rCgbQpSpMsQswF5e0zR9QdiVR0DkAXVoa-n9bVqS/exec';
+
+function toFormBody(body) {
+  if (!body) return '';
+  if (typeof body === 'string') return body;
+  return new URLSearchParams(body).toString();
+}
 
 module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
 
+  const isWrite = req.method === 'POST';
+
   try {
-    const upstream = await fetch(CRM_ENDPOINT, { redirect: 'follow' });
+    const upstream = isWrite
+      ? await fetch(CRM_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: toFormBody(req.body),
+          redirect: 'follow'
+        })
+      : await fetch(CRM_ENDPOINT, { redirect: 'follow' });
+
     const body = await upstream.text();
 
     let data;
@@ -36,8 +60,18 @@ module.exports = async (req, res) => {
       return;
     }
 
+    // Apps Script answers 200 with {status:'error'} for its own failures, so
+    // the body is the real verdict, not the HTTP code.
+    if (data && data.status === 'error') {
+      res.status(502).json(data);
+      return;
+    }
+
     res.status(200).json(data);
   } catch (err) {
-    res.status(502).json({ status: 'error', message: 'Could not reach the CRM backend.' });
+    res.status(502).json({
+      status: 'error',
+      message: isWrite ? 'Could not save to the CRM backend.' : 'Could not reach the CRM backend.'
+    });
   }
 };

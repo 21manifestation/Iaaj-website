@@ -7,8 +7,11 @@ document.addEventListener('DOMContentLoaded', function () {
   // 1. CRM Backend Endpoint URL
   // Paste your Apps Script Web App URL below after deploying CRM_Backend.gs
   var CRM_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxhhkL_pBf91KHLSFaXlc8YOZR5rCgbQpSpMsQswF5e0zR9QdiVR0DkAXVoa-n9bVqS/exec';
-  // Reads go through the same-origin serverless proxy (see api/crm.js); writes
-  // still go direct to CRM_ENDPOINT with mode:'no-cors'.
+  // Reads AND writes both go through the same-origin serverless proxy (see
+  // api/crm.js). CRM_ENDPOINT above is no longer fetched from the browser -
+  // it is kept only as the "is a real backend configured?" check below, and
+  // as the canonical record of which Apps Script deployment this dashboard
+  // is wired to.
   var CRM_READ_ENDPOINT = '/api/crm';
 
   // Security PIN Configuration — each sales rep gets their own PIN so they
@@ -120,7 +123,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Read through the same-origin proxy at /api/crm rather than hitting Apps
     // Script directly. Google's /exec redirect intermittently 404s for
     // cross-origin browser fetches, which silently emptied the whole dashboard.
-    // Writes still POST straight to CRM_ENDPOINT below, which works fine.
+    // Writes POST through the same proxy, for the same reason plus one more:
+    // a readable response, so a failed save can be reported instead of
+    // silently pretending to have worked.
     var endpointUrl = CRM_READ_ENDPOINT + '?_=' + Date.now();
     fetch(endpointUrl, { cache: 'no-store' })
       .then(function (res) { return res.json(); })
@@ -393,8 +398,19 @@ document.addEventListener('DOMContentLoaded', function () {
         nextFollowUp: newFollowUp,
         notes: newNotes
       });
-      fetch(CRM_ENDPOINT, { method: 'POST', mode: 'no-cors', body: body })
-        .then(function () {
+      // Through the same-origin proxy, NOT mode:'no-cors' direct to Apps
+      // Script. no-cors returns an opaque response that resolves even on a
+      // 500 or a lock timeout, so this used to print "Saved!" on failures
+      // and the rep only found out when the change reappeared undone after
+      // a refresh. Now the response is readable and a failed save says so.
+      fetch(CRM_READ_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body
+      })
+        .then(function (res) { return res.json().catch(function () { return null; }); })
+        .then(function (data) {
+          if (!data || data.status !== 'success') throw new Error('CRM rejected the save');
           btnEl.textContent = 'Saved!';
           setTimeout(function () {
             btnEl.textContent = 'Save Changes';
@@ -403,8 +419,11 @@ document.addEventListener('DOMContentLoaded', function () {
           }, 1000);
         })
         .catch(function () {
-          btnEl.textContent = 'Saved Locally!';
-          setTimeout(function () { btnEl.textContent = 'Save Changes'; btnEl.disabled = false; }, 1000);
+          // Deliberately alarming, and the button stays available: the edit
+          // exists only in this browser tab until it reaches the sheet.
+          btnEl.textContent = '⚠️ NOT SAVED - try again';
+          btnEl.disabled = false;
+          setTimeout(function () { btnEl.textContent = 'Save Changes'; }, 4000);
         });
     } else {
       btnEl.textContent = 'Saved!';
@@ -428,7 +447,24 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (CRM_ENDPOINT && CRM_ENDPOINT.indexOf('script.google.com') > -1) {
       var body = new URLSearchParams({ action: 'update_settings', distributionMode: mode });
-      fetch(CRM_ENDPOINT, { method: 'POST', mode: 'no-cors', body: body }).catch(function () {});
+      fetch(CRM_READ_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body
+      })
+        .then(function (res) { return res.json().catch(function () { return null; }); })
+        .then(function (data) {
+          if (!data || data.status !== 'success') throw new Error('CRM rejected the settings change');
+        })
+        .catch(function () {
+          // The toggle already moved optimistically, so say plainly that the
+          // saved setting and what's on screen no longer agree - otherwise
+          // new leads keep distributing the old way with no visible clue.
+          if (modeDesc) {
+            modeDesc.innerHTML = '<strong style="color:#b91c1c">Could not save that change.</strong> ' +
+              'Distribution is still set the previous way. Reload and try again.';
+          }
+        });
     }
   }
 

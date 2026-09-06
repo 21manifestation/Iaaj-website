@@ -65,6 +65,31 @@ function handleVerification(req, res) {
 // live-tested before launch. Doing the (fast: 1-2 HTTP calls) work first
 // and responding once it's done is slightly slower but unambiguously
 // correct, and still well inside Meta's timeout tolerance.
+// Meta redelivers any webhook it believes failed, and this handler makes
+// several sequential Apps Script calls before answering - so a slow run can
+// be retried while the first one is still working, and the same tap gets
+// processed twice: two identical replies to the lead, two pings to Gaurav.
+// One such double-ping is visible in the 5 Sep data (same contact, same
+// action, logged 29 seconds apart).
+//
+// Honest limit: this only catches retries that land on the SAME warm
+// serverless instance. That covers the fast redeliveries this is aimed at,
+// but it is a mitigation, not a lock - the CRM's own phone-level dedupe is
+// what guarantees the stored data stays correct either way.
+const RECENT_MESSAGE_IDS = new Map();
+const MESSAGE_ID_TTL_MS = 10 * 60 * 1000;
+
+function alreadyHandled(id) {
+  if (!id) return false;
+  const now = Date.now();
+  for (const entry of RECENT_MESSAGE_IDS) {
+    if (now - entry[1] > MESSAGE_ID_TTL_MS) RECENT_MESSAGE_IDS.delete(entry[0]);
+  }
+  if (RECENT_MESSAGE_IDS.has(id)) return true;
+  RECENT_MESSAGE_IDS.set(id, now);
+  return false;
+}
+
 async function handleIncoming(req, res) {
   try {
     const entry = req.body && req.body.entry && req.body.entry[0];
@@ -72,6 +97,12 @@ async function handleIncoming(req, res) {
     const value = change && change.value;
     const message = value && value.messages && value.messages[0];
     if (!message) { res.status(200).end(); return; } // status/delivery callbacks land here too, nothing to do
+
+    if (alreadyHandled(message.id)) {
+      console.log('duplicate webhook delivery ignored', message.id);
+      res.status(200).end();
+      return;
+    }
 
     const from = message.from; // sender's number, no leading +
     const contactName = (value.contacts && value.contacts[0] && value.contacts[0].profile && value.contacts[0].profile.name) || '';
@@ -137,7 +168,18 @@ async function handleFreeText(from, contactName, text) {
   // "pick your condition" quiz, a jarring experience for someone who just
   // got a personal "come back" message from Gaurav by name. Checked before
   // findExistingLead/sendWelcome for the same reason purchase intent is.
-  const pastClientStatus = await checkPastClientStatus_(from);
+  // Both lookups are independent CRM reads, so they run together rather
+  // than one after the other. Sequentially they were the slowest part of
+  // this path (findExistingLead downloads the entire lead list), and that
+  // latency is what pushes a run past Meta's patience and triggers the
+  // duplicate redelivery guarded against above. Costs one extra request
+  // when the person turns out to be a past client; saves a full
+  // round-trip of waiting on every text message.
+  const [pastClientStatus, existing] = await Promise.all([
+    checkPastClientStatus_(from),
+    findExistingLead(from)
+  ]);
+
   if (pastClientStatus.isPastClient && !pastClientStatus.isActiveClient) {
     if (CAMPAIGN_DECLINE_RE.test(normalized)) {
       await handleReactivationNotNow_(from, contactName);
@@ -147,7 +189,6 @@ async function handleFreeText(from, contactName, text) {
     return;
   }
 
-  const existing = await findExistingLead(from);
   if (existing) {
     await sendText(from, "Thanks for the message! Your Journey Master or a team member will get back to you shortly.");
     return;
