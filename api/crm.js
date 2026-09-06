@@ -37,16 +37,29 @@ module.exports = async (req, res) => {
   const isWrite = req.method === 'POST';
 
   try {
-    const upstream = isWrite
-      ? await fetch(CRM_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: toFormBody(req.body),
-          redirect: 'follow'
-        })
-      : await fetch(CRM_ENDPOINT, { redirect: 'follow' });
+    // Writes get one retry. The browser reaching this same-origin function
+    // is very reliable; the fragile hop is this one, into Apps Script,
+    // where a lock timeout under load is the known failure mode. Retrying
+    // server-side means a visitor's enquiry survives a blip without them
+    // waiting on it or ever seeing an error.
+    const attempts = isWrite ? 2 : 1;
+    let upstream = null;
+    let body = '';
 
-    const body = await upstream.text();
+    for (let i = 0; i < attempts; i++) {
+      upstream = isWrite
+        ? await fetch(CRM_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: toFormBody(req.body),
+            redirect: 'follow'
+          })
+        : await fetch(CRM_ENDPOINT, { redirect: 'follow' });
+
+      body = await upstream.text();
+      if (upstream.ok && body.indexOf('"status":"error"') === -1) break;
+      if (i < attempts - 1) await new Promise(function (r) { setTimeout(r, 1200); });
+    }
 
     let data;
     try {

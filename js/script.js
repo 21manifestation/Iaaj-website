@@ -233,7 +233,28 @@ document.addEventListener('DOMContentLoaded', function () {
           source: 'Website Enquiry',
           notes: val('struggle') + ' (start: ' + timeline + ', invest: ' + invest + ')'
         });
-        fetch(MASTER_CRM_ENDPOINT, { method: 'POST', mode: 'no-cors', body: crmBody }).catch(function () {});
+        // Through the same-origin /api/crm proxy, NOT mode:'no-cors' direct
+        // to Apps Script. This is the front door of the business: the code
+        // below shows the visitor a success screen immediately without
+        // waiting, so a write that failed here used to lose the enquiry
+        // outright - no lead in the CRM, no error, and a visitor who
+        // believes they have been contacted. The proxy retries server-side
+        // and, if it still fails, at least records it in the function logs
+        // instead of the failure evaporating in the browser.
+        fetch('/api/crm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: crmBody
+        })
+          .then(function (res) { return res.json().catch(function () { return null; }); })
+          .then(function (data) {
+            if (!data || data.status !== 'success') {
+              console.error('Enquiry did not reach the CRM', data);
+            }
+          })
+          .catch(function (err) {
+            console.error('Enquiry did not reach the CRM', err);
+          });
       }
 
       if (qualified) {
