@@ -219,8 +219,17 @@ document.addEventListener('DOMContentLoaded', function () {
       var matchesSource = sourceVal === 'ALL' || l.source === sourceVal;
 
       var followUpState = getFollowUpState(l);
+      // CAMPAIGN view answers one specific question: "who said yes to my
+      // WhatsApp campaign and still needs me?" That is exactly the set
+      // Gaurav gets pinged about on WhatsApp - declines and opt-outs never
+      // ping him - so this view and his phone show the same people, which
+      // is what makes the two lists comparable at a glance instead of by
+      // hand. Closed statuses are excluded for that reason, not to hide
+      // them: they are still there under All leads.
+      var isCampaign = (l.source || '').indexOf('Campaign') > -1;
       var matchesFollowupView = activeFollowupView === 'ALL' ||
         (activeFollowupView === 'NEW' && l.status === 'New') ||
+        (activeFollowupView === 'CAMPAIGN' && isCampaign && l.status !== 'Lost' && l.status !== 'Do Not Contact') ||
         (activeFollowupView === 'TODAY' && followUpState === 'today') ||
         (activeFollowupView === 'OVERDUE' && followUpState === 'overdue');
 
