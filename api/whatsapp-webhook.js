@@ -292,10 +292,7 @@ async function handlePurchaseIntent(from, contactName, intent) {
     GAURAV_WHATSAPP_NUMBER,
     '💰 PAYMENT INTENT: send link now\n' +
     'Plan: ' + (knowsPlan ? intent.label : 'not specified, ask them') + '\n' +
-    'Name: ' + (contactName || 'unknown') + '\n' +
-    'Phone: ' + from + '\n' +
-    'Open chat: https://wa.me/' + from + '\n' +
-    'Logged to CRM as QUALIFIED.'
+    contactBlock(contactName, from)
   );
 }
 
@@ -364,7 +361,7 @@ async function handleButtonReply(from, name, buttonId) {
       await sendText(from, "That's exactly the mindset that gets results. Someone from the team will reach out to you shortly to get you started. Talk soon!");
       await sendText(
         GAURAV_WHATSAPP_NUMBER,
-        '🔥 Qualified lead from WhatsApp\nName: ' + (name || 'unknown') + '\nPhone: ' + from + '\nCondition: ' + condition + '\nReady now, logged to CRM.'
+        '🔥 Qualified lead from WhatsApp\n' + contactBlock(name, from) + '\nCondition: ' + condition
       );
     } else {
       await sendText(from, "No pressure at all. Here are our free guides to get you started whenever you're ready: https://itsallaboutjourney.com/guides");
@@ -424,8 +421,7 @@ async function handleTemplateButtonReply(from, name, payload) {
     await sendText(from, "That's great to hear! Gaurav will reach out to you shortly to see how we can help. Talk soon!");
     await sendText(
       GAURAV_WHATSAPP_NUMBER,
-      '🔥 INTERESTED - old leads campaign\nName: ' + (name || 'unknown') + '\nPhone: ' + from +
-      '\nOpen chat: https://wa.me/' + from + crmWarning(saved)
+      '🔥 INTERESTED - old leads campaign\n' + contactBlock(name, from) + crmWarning(saved)
     );
     return;
   }
@@ -475,8 +471,7 @@ async function handleReactivationInterested_(from, name) {
   await sendText(from, "So glad to hear that! Gaurav will personally reach out to you shortly to catch up and get you sorted.");
   await sendText(
     GAURAV_WHATSAPP_NUMBER,
-    '🔥 INTERESTED - past client reactivation\nName: ' + (name || 'unknown') + '\nPhone: ' + from +
-    '\nOpen chat: https://wa.me/' + from + crmWarning(saved)
+    '🔥 INTERESTED - past client reactivation\n' + contactBlock(name, from) + crmWarning(saved)
   );
 }
 
@@ -546,6 +541,23 @@ async function logToCrm(fields) {
 // instead of being discovered days later by comparing two lists by hand.
 function crmWarning(saved) {
   return saved ? '' : '\n\n⚠️ NOT SAVED TO CRM - add this person manually.';
+}
+
+// The contact block every ping to Gaurav uses.
+//
+// `from` arrives from Meta as bare digits with no plus (919510525001).
+// Pasted into a message like that, WhatsApp and iOS read it as a local
+// number, so tapping it either did nothing useful or opened a mangled
+// half-number - which is why these pings were not actionable from the
+// phone. Two fixes, both needed: the displayed number gets a leading +
+// so it is recognized as E.164 and dials correctly, and every ping now
+// carries a wa.me link, which is the one-tap path straight into the chat
+// (previously only two of the four pings had one).
+function contactBlock(name, from) {
+  const digits = String(from || '').replace(/\D/g, '');
+  return 'Name: ' + (name || 'unknown') +
+    '\nPhone: +' + digits +
+    '\nChat: https://wa.me/' + digits;
 }
 
 // --- 7. SENDING MESSAGES (Meta Cloud API) ---
