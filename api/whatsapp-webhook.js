@@ -407,18 +407,25 @@ async function handleTemplateButtonReply(from, name, payload) {
   // consultation... credited toward a new program if you CONTINUE") would
   // be false for nearly all of them.
   if (text === 'Tell me more') {
-    await logToCrm({
+    // assignedRep 'Gaurav' on every campaign reply, interested or not:
+    // these are Gaurav's own outreach and he handles them personally, so
+    // they must never enter the Sales Rep 1/2 round-robin. Declines get
+    // his name too, so the whole campaign sits in one place he can see
+    // rather than being split across three different rep views.
+    const saved = await logToCrm({
       name: name || '',
       phone: from,
       condition: '',
       qualification: 'QUALIFIED',
       source: 'Old Leads Reconnect Campaign',
-      notes: 'Old enquiry lead, replied interested when re-contacted about the current PCOS/thyroid program.'
+      assignedRep: 'Gaurav',
+      notes: 'Old enquiry lead, replied INTERESTED when re-contacted about the current PCOS/thyroid program.'
     });
-    await sendText(from, "That's great to hear! Someone from the team will reach out to you shortly to see how we can help. Talk soon!");
+    await sendText(from, "That's great to hear! Gaurav will reach out to you shortly to see how we can help. Talk soon!");
     await sendText(
       GAURAV_WHATSAPP_NUMBER,
-      '👋 Old lead replied to reconnect campaign\nName: ' + (name || 'unknown') + '\nPhone: ' + from + '\nInterested, logged to CRM as QUALIFIED.'
+      '🔥 INTERESTED - old leads campaign\nName: ' + (name || 'unknown') + '\nPhone: ' + from +
+      '\nOpen chat: https://wa.me/' + from + crmWarning(saved)
     );
     return;
   }
@@ -431,7 +438,8 @@ async function handleTemplateButtonReply(from, name, payload) {
       qualification: 'High Intent',
       status: 'Lost',
       source: 'Old Leads Reconnect Campaign',
-      notes: 'Old enquiry lead, replied not interested when re-contacted. Do not re-send this campaign to them.'
+      assignedRep: 'Gaurav',
+      notes: 'Old enquiry lead, replied NOT INTERESTED when re-contacted. Do not re-send this campaign to them.'
     });
     await sendText(from, "Totally understood, no pressure at all. Thanks for letting us know, and take care!");
     return;
@@ -455,19 +463,20 @@ async function handleReactivationInterested_(from, name) {
   // way it already honors an explicit status) - a past client saying
   // they're interested goes straight to Gaurav for a personal
   // conversation, not into a rep's queue.
-  await logToCrm({
+  const saved = await logToCrm({
     name: name || '',
     phone: from,
     condition: '',
     qualification: 'QUALIFIED',
     source: 'Reactivation Campaign',
     assignedRep: 'Gaurav',
-    notes: 'Past client, replied interested to reactivation message. Handling personally, not routed to a sales rep.'
+    notes: 'Past client, replied INTERESTED to reactivation message. Handling personally, not routed to a sales rep.'
   });
   await sendText(from, "So glad to hear that! Gaurav will personally reach out to you shortly to catch up and get you sorted.");
   await sendText(
     GAURAV_WHATSAPP_NUMBER,
-    '👋 Past client replied to reactivation campaign\nName: ' + (name || 'unknown') + '\nPhone: ' + from + '\nWants to come back - assigned to you personally, not a sales rep. Message them directly.'
+    '🔥 INTERESTED - past client reactivation\nName: ' + (name || 'unknown') + '\nPhone: ' + from +
+    '\nOpen chat: https://wa.me/' + from + crmWarning(saved)
   );
 }
 
@@ -479,7 +488,8 @@ async function handleReactivationNotNow_(from, name) {
     qualification: 'High Intent',
     status: 'Lost',
     source: 'Reactivation Campaign',
-    notes: 'Past client, replied not right now. Do not re-send this campaign to them.'
+    assignedRep: 'Gaurav',
+    notes: 'Past client, replied NOT RIGHT NOW. Do not re-send this campaign to them.'
   });
   await sendText(from, "Totally understood, no pressure at all. The door's always open whenever you're ready. Take care!");
 }
@@ -499,9 +509,43 @@ function readinessLabel(key) {
 // js/script.js (name, phone, condition, qualification, source, notes) -
 // this is a second source feeding the same sheet/round-robin logic, not a
 // new schema.
+// Returns true only when the CRM actually confirmed the write.
+//
+// This used to be a bare `.catch(function () {})` - every failure mode
+// (Apps Script lock timeout during a campaign blast, a 500, a network
+// blip) vanished without a trace, and the caller carried on and pinged
+// Gaurav "logged to CRM" for a person who was never saved. That silent
+// swallow is exactly why the WhatsApp notifications and the CRM stopped
+// agreeing with each other. Two things changed: fetch resolving is no
+// longer treated as success (it does NOT reject on a 4xx/5xx, so the
+// response has to be inspected), and one retry covers the transient
+// lock-contention case that caused most of the losses.
 async function logToCrm(fields) {
   const body = new URLSearchParams(fields);
-  await fetch(CRM_ENDPOINT, { method: 'POST', body: body }).catch(function () {});
+
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      const resp = await fetch(CRM_ENDPOINT, { method: 'POST', body: body, redirect: 'follow' });
+      if (resp.ok) {
+        const text = await resp.text();
+        if (text.indexOf('"status":"success"') !== -1) return true;
+        console.error('logToCrm: CRM returned a non-success body', text.slice(0, 200));
+      } else {
+        console.error('logToCrm: CRM returned HTTP', resp.status);
+      }
+    } catch (err) {
+      console.error('logToCrm attempt ' + attempt + ' threw', err);
+    }
+    if (attempt === 1) await new Promise(function (r) { setTimeout(r, 1500); });
+  }
+  return false;
+}
+
+// Appended to Gaurav's ping when the CRM write failed, so a lead that
+// didn't save is visible immediately in the one place he actually reads,
+// instead of being discovered days later by comparing two lists by hand.
+function crmWarning(saved) {
+  return saved ? '' : '\n\n⚠️ NOT SAVED TO CRM - add this person manually.';
 }
 
 // --- 7. SENDING MESSAGES (Meta Cloud API) ---

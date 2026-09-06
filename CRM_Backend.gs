@@ -129,11 +129,45 @@ function doGet(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+// Matches on the last 10 digits so the same person is recognized whether
+// their number was stored as 9876543210, 919876543210 or +91 98765 43210 -
+// all three shapes genuinely exist in this sheet already. Returns the
+// 1-based sheet row, or -1 when this is a genuinely new person.
+function findRowByPhone_(sheet, phone) {
+  var target = String(phone || '').replace(/\D/g, '').slice(-10);
+  if (target.length < 10) return -1; // too short to match safely - treat as new
+
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return -1;
+
+  var phones = sheet.getRange(2, 4, lastRow - 1, 1).getValues();
+  for (var i = phones.length - 1; i >= 0; i--) { // newest first - most repeat contacts are recent
+    if (String(phones[i][0] || '').replace(/\D/g, '').slice(-10) === target) return i + 2;
+  }
+  return -1;
+}
+
+function statusRank_(status) {
+  var ranks = { 'New': 1, 'Contacted': 2, 'Follow-up': 3, 'Lost': 4, 'Do Not Contact': 5, 'Converted': 6 };
+  return ranks[String(status || 'New')] || 1;
+}
+
 function doPost(e) {
   var lock = LockService.getScriptLock();
-  lock.waitLock(20000);
-  
+  var gotLock = false;
+
   try {
+    // waitLock() THROWS when it times out, and it used to sit OUTSIDE this
+    // try block. During a campaign blast (many people tapping a reply
+    // button within the same few seconds) requests queue on this lock, and
+    // any that waited too long died right here - the lead was never
+    // written, doPost returned an error page, and the webhook's logToCrm
+    // swallowed that failure silently and still pinged Gaurav "logged to
+    // CRM" for a person who was never saved. That is the root cause of the
+    // WhatsApp-notification-vs-CRM mismatch. Now: longer wait, inside the
+    // try, and an explicit failure response so the caller can retry.
+    lock.waitLock(60000);
+    gotLock = true;
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName('All Leads') || ss.getSheets()[0];
     var settingsSheet = ss.getSheetByName('Settings');
@@ -233,6 +267,41 @@ function doPost(e) {
     var leadCondition = p.condition || p.city || 'PCOS/Thyroid';
     var qualification = p.qualification || (sourceStr.indexOf('QUALIFIED') > -1 ? 'QUALIFIED' : 'High Intent');
 
+    // One person = one row. Someone who taps a campaign button AND sends a
+    // text (or taps twice) used to create two or three separate rows for
+    // the same phone number - that is why the CRM looked fuller and
+    // messier than the list of WhatsApp notifications. Now a repeat
+    // contact UPDATES the row that already exists.
+    //
+    // Status never moves backwards: a decline or opt-out that arrives
+    // after an "interested" tap must win, or someone who explicitly said
+    // no would sit in the queue looking workable. Converted ranks highest
+    // so a real customer is never downgraded by a stray later message.
+    // Trade-off accepted: a genuine "actually yes" arriving after a
+    // decline won't flip the status back on its own - the appended note
+    // and the WhatsApp ping are what surface it.
+    var existingRowIdx = findRowByPhone_(sheet, leadPhone);
+    if (existingRowIdx > 0) {
+      var prevStatus = String(sheet.getRange(existingRowIdx, 10).getValue() || 'New');
+      var prevNotes = String(sheet.getRange(existingRowIdx, 14).getValue() || '');
+      var winningStatus = statusRank_(initialStatus) >= statusRank_(prevStatus) ? initialStatus : prevStatus;
+
+      sheet.getRange(existingRowIdx, 10).setValue(winningStatus);
+      if (p.assignedRep) sheet.getRange(existingRowIdx, 11).setValue(p.assignedRep);
+      if (!sheet.getRange(existingRowIdx, 3).getValue() && leadName) sheet.getRange(existingRowIdx, 3).setValue(leadName);
+      sheet.getRange(existingRowIdx, 14).setValue(
+        (prevNotes ? prevNotes + '\n---\n' : '') +
+        Utilities.formatDate(now, Session.getScriptTimeZone(), 'd MMM HH:mm') + ': ' + (p.notes || p.guides || '(repeat contact)')
+      );
+
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'success',
+        updatedExisting: true,
+        leadId: String(sheet.getRange(existingRowIdx, 1).getValue() || ''),
+        finalStatus: winningStatus
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
     sheet.appendRow([
       leadId,
       now,
@@ -269,7 +338,7 @@ function doPost(e) {
     return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: err.toString() }))
       .setMimeType(ContentService.MimeType.JSON);
   } finally {
-    lock.releaseLock();
+    if (gotLock) lock.releaseLock();
   }
 }
 
