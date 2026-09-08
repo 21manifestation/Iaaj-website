@@ -1,8 +1,7 @@
-// Client onboarding form -> Google Apps Script -> Google Sheet (+ photos to Drive).
-// Paste the deployment URL from the onboarding Apps Script between the quotes below.
+// Client onboarding form -> /api/onboarding proxy -> Apps Script -> Google
+// Sheet (+ photos to Drive). The Apps Script deployment URL lives
+// server-side in api/onboarding.js, not here - see that file for why.
 document.addEventListener('DOMContentLoaded', function () {
-  var ONBOARDING_ENDPOINT = 'https://script.google.com/macros/s/AKfycbym0dzREDgc6IJvysBb-OyIreFi5u_X_rgA2A6gu7dl2SUzy4ocHIZv6oK_2ATz9qtzxg/exec';
-
   var form = document.querySelector('#onboarding-form');
   if (!form) return;
 
@@ -133,18 +132,25 @@ document.addEventListener('DOMContentLoaded', function () {
         'Side Photo': photos[1]
       };
 
-      if (ONBOARDING_ENDPOINT.indexOf('script.google.com') === -1) {
-        // Endpoint not wired yet: don't lose the client, just confirm.
-        finish();
-        return;
-      }
-
+      // Through the same-origin /api/onboarding proxy, NOT mode:'no-cors'
+      // direct to Apps Script. The old code called finish() - the success
+      // screen - in BOTH the .then() and the .catch(), so a client whose
+      // submission failed to save was told it had succeeded either way,
+      // with no photos, no intake, and no way for anyone to know to
+      // re-contact them. The proxy retries once server-side and now a
+      // genuine failure shows an error and leaves the form filled in
+      // instead of quietly discarding a paying client's intake.
       var body = new URLSearchParams(payload);
-      fetch(ONBOARDING_ENDPOINT, { method: 'POST', mode: 'no-cors', body: body })
-        .then(finish)
-        .catch(function () {
-          // no-cors gives an opaque response; a network error is rare but handle it.
+      fetch('/api/onboarding', { method: 'POST', body: body })
+        .then(function (res) { return res.json().catch(function () { return null; }); })
+        .then(function (data) {
+          if (!data || data.status !== 'success') throw new Error('onboarding save failed');
           finish();
+        })
+        .catch(function () {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit and start my journey';
+          showStatus('Something went wrong sending your details. Please try again, or send us a message on WhatsApp so nothing gets lost.', true);
         });
     }).catch(function () {
       submitBtn.disabled = false;
