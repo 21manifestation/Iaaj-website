@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Paste the deployment URL from the quiz Apps Script here once it's set up.
   // Until then, the quiz still works end to end, it just doesn't log/email anything.
-  var QUIZ_ENDPOINT = 'https://script.google.com/macros/s/AKfycbx5WDsVj1hD-PFXoDZHdz_Poqw2dxOVTmkLYV-mxRdRj5K2Z6WPfUmawtXCjIFcW6l_/exec';
 
   var QUESTIONS = [
     {
@@ -227,10 +226,21 @@ document.addEventListener('DOMContentLoaded', function () {
       guideUrl: r.guideUrl,
       page: 'Hormonal quiz'
     };
-    if (QUIZ_ENDPOINT.indexOf('script.google.com') !== -1) {
-      var body = new URLSearchParams(payload);
-      fetch(QUIZ_ENDPOINT, { method: 'POST', mode: 'no-cors', body: body }).catch(function () {});
-    }
+    // Through /api/quiz, not mode:'no-cors' direct - same reasoning as the
+    // other forms: no-cors made a failed write indistinguishable from a
+    // successful one. The quiz result itself doesn't depend on this write
+    // succeeding (it's computed client-side from the answers), so a
+    // failure here is logged, not shown - showResult() still runs either
+    // way, matching the pre-existing behavior for what the visitor sees.
+    var body = new URLSearchParams(payload);
+    fetch('/api/quiz', { method: 'POST', body: body })
+      .then(function (res) { return res.json().catch(function () { return null; }); })
+      .then(function (data) {
+        if (!data || data.status !== 'success') console.error('Quiz lead did not reach the sheet', data);
+      })
+      .catch(function (err) {
+        console.error('Quiz lead did not reach the sheet', err);
+      });
     showResult();
   });
 

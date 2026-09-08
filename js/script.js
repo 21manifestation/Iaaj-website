@@ -106,11 +106,8 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // ---- Free guides lead magnet ----
-  // Data is sent to a Google Apps Script Web App, which appends it to a Google Sheet.
-  // Paste the deployment URL from Apps Script between the quotes below. Until then,
-  // downloads still work but submissions are not saved anywhere.
-  var GUIDES_ENDPOINT = 'https://script.google.com/macros/s/AKfycbz--RdsdnGAq-rdt1rMjbgYwsaiqGqz2MdrzLBF--XBq6tKYCVLANe03JQdOTYHBdf-7Q/exec';
-
+  // Submits through /api/guides (see that file for the actual Apps Script
+  // URL) rather than fetching Apps Script directly from here.
   var GUIDES = {
     protein:   { name: 'Protein Guide',               file: 'guides/iaaj-protein-guide.pdf' },
     hydration: { name: 'Hydration Guide',             file: 'guides/iaaj-hydration-guide.pdf' },
@@ -130,6 +127,11 @@ document.addEventListener('DOMContentLoaded', function () {
   if (guidesForm) {
     var guideBoxes = guidesForm.querySelectorAll('input[name="guides"]');
     var guideError = guidesForm.querySelector('#g-guide-error');
+    // Captured once so the "pick a guide" message can be restored after the
+    // network-failure branch below reuses this same element for its own
+    // text - without this, one failed submission would permanently replace
+    // the validation message for the rest of the page's life.
+    var guideErrorDefaultText = guideError ? guideError.textContent : '';
 
     // Highlight the card when its checkbox is ticked.
     function refreshCards() {
@@ -152,7 +154,10 @@ document.addEventListener('DOMContentLoaded', function () {
         .map(function (b) { return b.value; });
 
       if (selected.length === 0) {
-        if (guideError) guideError.style.display = 'block';
+        if (guideError) {
+          guideError.textContent = guideErrorDefaultText;
+          guideError.style.display = 'block';
+        }
         return;
       }
 
@@ -166,30 +171,40 @@ document.addEventListener('DOMContentLoaded', function () {
         page: 'Free guides'
       };
 
-      // Send to the Google Sheet if the endpoint is configured. Apps Script
-      // needs no-cors, so we cannot read the response, we just fire it.
-      if (GUIDES_ENDPOINT && GUIDES_ENDPOINT.indexOf('YOUR_APPS_SCRIPT_URL') === -1) {
-        var body = new URLSearchParams(payload);
-        fetch(GUIDES_ENDPOINT, { method: 'POST', mode: 'no-cors', body: body }).catch(function () {});
-      }
+      // Through the same-origin /api/guides proxy, not mode:'no-cors'
+      // direct to Apps Script. The guide is delivered by an email Apps
+      // Script sends after receiving this - a silently-failed write here
+      // used to mean the page said "check your email" and the email never
+      // came, with no error anywhere to explain why. The proxy retries
+      // once, and a genuine failure keeps the form up with an error
+      // instead of showing the download screen for nothing.
+      var body = new URLSearchParams(payload);
+      fetch('/api/guides', { method: 'POST', body: body })
+        .then(function (res) { return res.json().catch(function () { return null; }); })
+        .then(function (data) {
+          if (!data || data.status !== 'success') throw new Error('guides save failed');
 
-      // Guides are delivered by email (the Apps Script sends them). Confirm on-page.
-      var sentTo = document.querySelector('#sent-to-email');
-      if (sentTo) sentTo.textContent = payload.email;
+          // Confirm on-page which email the guides were sent to.
+          var sentTo = document.querySelector('#sent-to-email');
+          if (sentTo) sentTo.textContent = payload.email;
 
-      guidesForm.style.display = 'none';
-      document.querySelector('#guides-download').style.display = 'block';
+          guidesForm.style.display = 'none';
+          document.querySelector('#guides-download').style.display = 'block';
+        })
+        .catch(function () {
+          if (guideError) {
+            guideError.textContent = 'Something went wrong sending your guide. Please try again, or message us on WhatsApp.';
+            guideError.style.display = 'block';
+          }
+        });
     });
   }
 
-  // Enquiry form: qualify the lead on the page first. Every submission is logged to the
-  // Google Sheet and Master Sales CRM. Sales reps call qualified applicants directly.
-  var ENQUIRY_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwpUHmEvN8SwbZ9RBZL8osYQSYzmOjEHQFIN6RIhXtwr_rY5LiqUi-p4tp6L1VagbhHSw/exec';
-
-  // Also copies every enquiry into the sales team's Master CRM sheet, alongside their
-  // Instagram/Superreply leads. This is additive, the ENQUIRY_ENDPOINT sheet above still
-  // gets every submission and still drives the nurture emails, this is just a second copy.
-  var MASTER_CRM_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxhhkL_pBf91KHLSFaXlc8YOZR5rCgbQpSpMsQswF5e0zR9QdiVR0DkAXVoa-n9bVqS/exec';
+  // Enquiry form: qualify the lead on the page first, then log to two
+  // places - /api/enquiry (drives the nurture emails) and /api/crm (the
+  // sales team's Master CRM, alongside their Instagram/Superreply leads).
+  // Both proxies, both additive copies of the same submission. Sales reps
+  // call qualified applicants directly.
 
   var form = document.querySelector('#enquiry-form');
   if (form) {
@@ -208,22 +223,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // Log every enquiry to the sheet. Fields map to the existing Apps Script columns:
       // phone=WhatsApp, city=Condition, guides=Struggle, page=Source + qualification status.
-      if (ENQUIRY_ENDPOINT.indexOf('script.google.com') !== -1) {
-        var body = new URLSearchParams({
-          name: val('name'),
-          email: val('email'),
-          phone: val('whatsapp'),
-          city: val('condition'),
-          guides: val('struggle'),
-          page: 'Enquiry — ' + (qualified ? 'QUALIFIED' : 'not qualified') +
-                ' (start: ' + timeline + ', invest: ' + invest + ')'
+      // Through /api/enquiry, not mode:'no-cors' direct - same reasoning as
+      // the Master CRM copy just below: no-cors made a failed write here
+      // indistinguishable from a successful one.
+      var body = new URLSearchParams({
+        name: val('name'),
+        email: val('email'),
+        phone: val('whatsapp'),
+        city: val('condition'),
+        guides: val('struggle'),
+        page: 'Enquiry — ' + (qualified ? 'QUALIFIED' : 'not qualified') +
+              ' (start: ' + timeline + ', invest: ' + invest + ')'
+      });
+      fetch('/api/enquiry', { method: 'POST', body: body })
+        .then(function (res) { return res.json().catch(function () { return null; }); })
+        .then(function (data) {
+          if (!data || data.status !== 'success') console.error('Enquiry did not reach the nurture-email sheet', data);
+        })
+        .catch(function (err) {
+          console.error('Enquiry did not reach the nurture-email sheet', err);
         });
-        fetch(ENQUIRY_ENDPOINT, { method: 'POST', mode: 'no-cors', body: body }).catch(function () {});
-      }
 
       // Copy into the Master Sales CRM, using its own field names (condition + qualification
       // are native columns there, distinct from "city" which we don't collect on this form).
-      if (MASTER_CRM_ENDPOINT.indexOf('script.google.com') !== -1) {
+      {
         var crmBody = new URLSearchParams({
           name: val('name'),
           email: val('email'),
