@@ -74,6 +74,7 @@ document.addEventListener('DOMContentLoaded', function () {
         'Email': val('email'),
         'Contact Number': val('phone'),
         'Emergency Contact': val('emergencyPhone'),
+        'Instagram ID': val('instagramId'),
         'State/Country': val('location'),
         'Address': val('address'),
         'Gender': val('gender'),
