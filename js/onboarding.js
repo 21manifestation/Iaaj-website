@@ -1,6 +1,8 @@
 // Client onboarding form -> /api/onboarding proxy -> Apps Script -> Google
 // Sheet (+ photos to Drive). The Apps Script deployment URL lives
 // server-side in api/onboarding.js, not here - see that file for why.
+// build-marker: 2026-09-10-b (forces this file into the deploy's changed-file
+// set, so Vercel's deploy-time cache purge actually applies to it)
 document.addEventListener('DOMContentLoaded', function () {
   var form = document.querySelector('#onboarding-form');
   if (!form) return;
