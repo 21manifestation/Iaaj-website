@@ -325,16 +325,19 @@ async function handlePurchaseIntent(from, contactName, intent) {
     '\n\nNothing else for you to do. If there\'s anything you\'d like your coach to know before we set you up, just send it here.'
   );
 
-  // The rep can't reply from the API number (Cloud API numbers are locked
-  // out of the WhatsApp app), so the ping carries a wa.me deep link - one
-  // tap opens the chat from their own WhatsApp, which is where the payment
-  // link or UPI QR actually gets sent from.
-  await sendText(
-    GAURAV_WHATSAPP_NUMBER,
-    '💰 PAYMENT INTENT: send link now\n' +
-    'Plan: ' + (knowsPlan ? intent.label : 'not specified, ask them') + '\n' +
-    contactBlock(contactName, from)
-  );
+  // Template, not sendText: this is the single highest-value ping in the
+  // whole file (money in hand), so it can't be allowed to silently vanish
+  // just because Gaurav hasn't happened to message the bot number inside
+  // the last 24 hours. The chat link goes in the body as plain text, not a
+  // button - Meta rejects URL buttons that point back into WhatsApp itself
+  // (wa.me), the same reason iaaj_lead_alert has no button either.
+  const digits = String(from || '').replace(/\D/g, '');
+  await sendTemplate(GAURAV_WHATSAPP_NUMBER, 'iaaj_payment_alert', [
+    knowsPlan ? intent.label : 'not specified, ask them',
+    contactName || 'unknown',
+    '+' + digits,
+    'https://wa.me/' + digits
+  ]);
 }
 
 async function findExistingLead(phone) {
@@ -617,6 +620,27 @@ async function sendText(to, body) {
     to: to,
     type: 'text',
     text: { body: body }
+  });
+}
+
+// Templates aren't bound by the 24-hour free-form window a plain sendText
+// is - use this for anything pinging GAURAV_WHATSAPP_NUMBER, since nothing
+// guarantees he's messaged the bot number recently enough to receive a
+// free-form reply. A silent miss here (found 13 Sep 2026) is what let
+// WhatsApp leads go un-notified for weeks despite the CRM row saving fine.
+async function sendTemplate(to, templateName, bodyParams) {
+  return graphSend({
+    messaging_product: 'whatsapp',
+    to: to,
+    type: 'template',
+    template: {
+      name: templateName,
+      language: { code: 'en' },
+      components: [{
+        type: 'body',
+        parameters: bodyParams.map(function (p) { return { type: 'text', text: p }; })
+      }]
+    }
   });
 }
 
