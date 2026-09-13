@@ -387,7 +387,16 @@ async function handleButtonReply(from, name, buttonId) {
     const parts = buttonId.split('_'); // ['ready', 'now'|'month'|'explore', <condition slug>]
     const readiness = parts[1];
     const condition = conditionLabel('cond_' + parts.slice(2).join('_'));
-    const qualified = readiness === 'now';
+    // Matches the website form's bar (js/script.js: timeline is 'Ready
+    // now' OR 'Within a month'), not just literal "now" - this used to
+    // reject anyone who hedged with "within a month" on their first-ever
+    // message to a bot, sending them a guides-only brush-off with no CRM
+    // entry and no human ever seeing them, while the exact same answer on
+    // the form counted as qualified. The form also requires a separate
+    // "ready to invest" answer this flow doesn't ask, so this stays a
+    // notch more permissive than the form by design - a missed WhatsApp
+    // lead costs more than a rep spending a minute on a soft one.
+    const qualified = readiness === 'now' || readiness === 'month';
 
     await logToCrm({
       name: name || '',
