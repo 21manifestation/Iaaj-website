@@ -319,21 +319,9 @@ function doPost(e) {
       p.notes || p.guides || ''
     ]);
 
-    // Instant email backup for hot leads, same choke point every lead
-    // source (website enquiry, WhatsApp, reactivation, Superreply IG)
-    // already passes through - so this covers all of them, not just one.
-    // Wrapped so a mail failure never blocks the lead actually saving.
-    if (qualification === 'QUALIFIED') {
-      try {
-        notifyGauravOfQualifiedLead(leadId, leadName, leadPhone, leadCondition, sourceStr, assignedRep);
-      } catch (mailErr) {
-        // swallow - the lead is already saved, a missed email isn't worth failing the request over
-      }
-    }
-
     return ContentService.createTextOutput(JSON.stringify({ status: 'success', leadId: leadId, assignedRep: assignedRep }))
       .setMimeType(ContentService.MimeType.JSON);
-      
+
   } catch (err) {
     return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: err.toString() }))
       .setMimeType(ContentService.MimeType.JSON);
@@ -343,24 +331,56 @@ function doPost(e) {
 }
 
 // ---------------------------------------------------------------------------
-// Instant qualified-lead email (backup to the WhatsApp ping, in case a
-// ping is ever missed - this is the searchable record)
+// Weekly qualified-lead email (13 Sep 2026: replaces the instant per-lead
+// email above, which fired on every single QUALIFIED ingestion - at real
+// volume that was a constant drip of one-line emails all day, not a useful
+// signal. The WhatsApp ping (iaaj_lead_alert / iaaj_payment_alert once wired
+// up) is what's actually instant now; this is just a weekly roundup so a
+// week's qualified leads are never harder to find than one email away.
+//
+// Setup once: run setupWeeklyQualifiedLeadDigest() and approve permissions.
+// Creates one Monday 9 AM trigger in the script project's timezone.
 // ---------------------------------------------------------------------------
 
-function notifyGauravOfQualifiedLead(leadId, name, phone, condition, source, assignedRep) {
-  var subject = '🔥 Qualified lead: ' + (name || 'Unnamed') + ' (' + condition + ')';
+function setupWeeklyQualifiedLeadDigest() {
+  var triggers = ScriptApp.getProjectTriggers();
+  for (var i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === 'sendWeeklyQualifiedLeadDigest') {
+      ScriptApp.deleteTrigger(triggers[i]);
+    }
+  }
+  ScriptApp.newTrigger('sendWeeklyQualifiedLeadDigest').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(9).create();
+}
+
+function sendWeeklyQualifiedLeadDigest() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('All Leads') || ss.getSheets()[0];
+  var data = sheet.getDataRange().getValues();
+
+  var weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+
+  var rows = [];
+  for (var i = 1; i < data.length; i++) {
+    var row = data[i];
+    var date = row[1];
+    if (String(row[8] || '') !== 'QUALIFIED') continue;
+    if (!(date instanceof Date) || date < weekAgo) continue;
+    rows.push(row);
+  }
+
+  var listItems = rows.map(function (row) {
+    return '<li><strong>' + escapeHtmlForEmail(String(row[2] || 'Unnamed')) + '</strong> - ' +
+      escapeHtmlForEmail(String(row[7] || '')) + ' via ' + escapeHtmlForEmail(String(row[6] || '')) +
+      ' (assigned: ' + escapeHtmlForEmail(String(row[10] || 'Unassigned')) + ', ' + escapeHtmlForEmail(String(row[0] || '')) + ')</li>';
+  });
+
+  var subject = 'IAAJ weekly qualified leads: ' + rows.length + ' this week';
   var html =
-    '<div style="font-family:Arial,sans-serif;color:#222;max-width:520px">' +
-    '<h2 style="margin-bottom:8px">A qualified lead just came in</h2>' +
-    '<table style="border-collapse:collapse;width:100%;margin:14px 0">' +
-    '<tr><td style="padding:4px 0;color:#666">Name</td><td style="padding:4px 0"><strong>' + escapeHtmlForEmail(name || 'Unnamed') + '</strong></td></tr>' +
-    '<tr><td style="padding:4px 0;color:#666">Phone</td><td style="padding:4px 0"><strong>' + escapeHtmlForEmail(phone || '') + '</strong></td></tr>' +
-    '<tr><td style="padding:4px 0;color:#666">Condition</td><td style="padding:4px 0">' + escapeHtmlForEmail(condition || '') + '</td></tr>' +
-    '<tr><td style="padding:4px 0;color:#666">Source</td><td style="padding:4px 0">' + escapeHtmlForEmail(source || '') + '</td></tr>' +
-    '<tr><td style="padding:4px 0;color:#666">Assigned to</td><td style="padding:4px 0">' + escapeHtmlForEmail(assignedRep || 'Unassigned') + '</td></tr>' +
-    '<tr><td style="padding:4px 0;color:#666">Lead ID</td><td style="padding:4px 0">' + escapeHtmlForEmail(leadId || '') + '</td></tr>' +
-    '</table>' +
-    '<p><a href="https://itsallaboutjourney.com/crm" style="background:#e8113c;color:#fff;padding:12px 16px;text-decoration:none;border-radius:5px;font-weight:bold">Open CRM</a></p>' +
+    '<div style="font-family:Arial,sans-serif;color:#222;max-width:560px">' +
+    '<h2 style="margin-bottom:8px">' + rows.length + ' qualified lead' + (rows.length === 1 ? '' : 's') + ' this week</h2>' +
+    (rows.length ? '<ul>' + listItems.join('') + '</ul>' : '<p>No qualified leads this week.</p>') +
+    '<p style="margin-top:22px"><a href="https://itsallaboutjourney.com/crm" style="background:#e8113c;color:#fff;padding:12px 16px;text-decoration:none;border-radius:5px;font-weight:bold">Open CRM</a></p>' +
     '</div>';
 
   MailApp.sendEmail({ to: GAURAV_EMAIL, subject: subject, htmlBody: html });
