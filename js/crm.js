@@ -285,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function () {
           <div class="crm-card-actions">
             <div>
               <label class="crm-field-label">Status</label>
-              <select class="crm-select-sm card-status-select">
+              <select class="crm-select-sm card-status-select" onchange="autofillLastContacted(this)">
                 <option value="New" ${lead.status === 'New' ? 'selected' : ''}>New</option>
                 <option value="No Reply" ${lead.status === 'No Reply' ? 'selected' : ''}>Not replied on initial message</option>
                 <option value="Contacted" ${lead.status === 'Contacted' ? 'selected' : ''}>Contacted</option>
@@ -304,6 +304,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 <option value="Sales Rep 1" ${lead.assignedRep === 'Sales Rep 1' ? 'selected' : ''}>Sales Rep 1</option>
                 <option value="Sales Rep 2" ${lead.assignedRep === 'Sales Rep 2' ? 'selected' : ''}>Sales Rep 2</option>
               </select>
+            </div>
+
+            <div>
+              <label class="crm-field-label">Last Contacted</label>
+              <input type="date" class="crm-input-sm card-lastcontacted-input" value="${toDateInput(lead.lastContacted)}">
+              <span class="crm-inline-error card-lastcontacted-error" style="display:none;">Log when you actually contacted them before saving this status.</span>
             </div>
 
             <div>
@@ -349,6 +355,19 @@ document.addEventListener('DOMContentLoaded', function () {
     return 'https://wa.me/' + rawPhone + '?text=' + encodeURIComponent(text);
   }
 
+  // Auto-fills today's date into Last Contacted the moment a rep picks any
+  // status other than New, since the whole point is making logging a real
+  // contact effortless - a rep who already did the work shouldn't also have
+  // to type today's date by hand. Only fills when empty: never overwrites a
+  // date the rep deliberately backdated (e.g. logging yesterday's call).
+  window.autofillLastContacted = function (selectEl) {
+    var card = selectEl.closest('.crm-lead-card');
+    var lastContactedInput = card.querySelector('.card-lastcontacted-input');
+    if (selectEl.value !== 'New' && !lastContactedInput.value) {
+      lastContactedInput.value = toDateInput(new Date());
+    }
+  };
+
   // --- 6. SAVE LEAD CHANGES ---
   window.saveLeadEdit = function (leadId, btnEl) {
     var card = btnEl.closest('.crm-lead-card');
@@ -358,6 +377,9 @@ document.addEventListener('DOMContentLoaded', function () {
     var followUpInput = card.querySelector('.card-followup-input');
     var followUpError = card.querySelector('.card-followup-error');
     var newFollowUp = followUpInput.value;
+    var lastContactedInput = card.querySelector('.card-lastcontacted-input');
+    var lastContactedError = card.querySelector('.card-lastcontacted-error');
+    var newLastContacted = lastContactedInput.value;
 
     // A lead marked Contacted, Follow-up, or No Reply with no next follow-up
     // date is exactly the gap that let leads sit un-worked before this was
@@ -375,6 +397,22 @@ document.addEventListener('DOMContentLoaded', function () {
     followUpInput.classList.remove('crm-input-error');
     followUpError.style.display = 'none';
 
+    // Every status past New implies someone actually reached out - and until
+    // this field existed, there was nowhere on the card to record that, which
+    // is the real reason lastContacted sat empty on all 380 leads (not that
+    // reps skipped logging it - there was no field to log it in). Same block
+    // pattern as the follow-up date above: no exceptions, including Lost and
+    // Do Not Contact, since those still came from a real conversation.
+    var needsLastContacted = newStatus !== 'New' && !newLastContacted;
+    if (needsLastContacted) {
+      lastContactedInput.classList.add('crm-input-error');
+      lastContactedError.style.display = 'block';
+      lastContactedInput.focus();
+      return;
+    }
+    lastContactedInput.classList.remove('crm-input-error');
+    lastContactedError.style.display = 'none';
+
     btnEl.textContent = 'Saving...';
     btnEl.disabled = true;
 
@@ -385,6 +423,7 @@ document.addEventListener('DOMContentLoaded', function () {
         allLeads[i].assignedRep = newRep;
         allLeads[i].notes = newNotes;
         allLeads[i].nextFollowUp = newFollowUp ? newFollowUp + 'T00:00:00' : '';
+        allLeads[i].lastContacted = newLastContacted ? newLastContacted + 'T00:00:00' : '';
         break;
       }
     }
@@ -396,6 +435,7 @@ document.addEventListener('DOMContentLoaded', function () {
         status: newStatus,
         assignedRep: newRep,
         nextFollowUp: newFollowUp,
+        lastContacted: newLastContacted,
         notes: newNotes
       });
       // Through the same-origin proxy, NOT mode:'no-cors' direct to Apps
