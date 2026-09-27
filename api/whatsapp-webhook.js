@@ -412,10 +412,14 @@ async function handleButtonReply(from, name, buttonId) {
 
     if (qualified) {
       await sendText(from, "That's exactly the mindset that gets results. Someone from the team will reach out to you shortly to get you started. Talk soon!");
-      await sendText(
-        GAURAV_WHATSAPP_NUMBER,
-        '🔥 Qualified lead from WhatsApp\n' + contactBlock(name, from) + '\nCondition: ' + condition
-      );
+      const digits = String(from || '').replace(/\D/g, '');
+      await sendTemplate(GAURAV_WHATSAPP_NUMBER, 'iaaj_lead_alert', [
+        'Qualified - ' + readinessLabel(readiness),
+        name || 'unknown',
+        '+' + digits,
+        'Condition: ' + condition,
+        'https://wa.me/' + digits
+      ]);
     } else {
       await sendText(from, "No pressure at all. Here are our free guides to get you started whenever you're ready: https://itsallaboutjourney.com/guides");
     }
@@ -472,10 +476,14 @@ async function handleTemplateButtonReply(from, name, payload) {
       notes: 'Old enquiry lead, replied INTERESTED when re-contacted about the current PCOS/thyroid program.'
     });
     await sendText(from, "That's great to hear! Gaurav will reach out to you shortly to see how we can help. Talk soon!");
-    await sendText(
-      GAURAV_WHATSAPP_NUMBER,
-      '🔥 INTERESTED - old leads campaign\n' + contactBlock(name, from) + crmWarning(saved)
-    );
+    const digits1 = String(from || '').replace(/\D/g, '');
+    await sendTemplate(GAURAV_WHATSAPP_NUMBER, 'iaaj_lead_alert', [
+      'Interested - Old Leads Reconnect',
+      name || 'unknown',
+      '+' + digits1,
+      'Replied to reconnect campaign' + (saved ? '' : ' - NOT SAVED TO CRM, add manually'),
+      'https://wa.me/' + digits1
+    ]);
     return;
   }
 
@@ -522,10 +530,14 @@ async function handleReactivationInterested_(from, name) {
     notes: 'Past client, replied INTERESTED to reactivation message. Handling personally, not routed to a sales rep.'
   });
   await sendText(from, "So glad to hear that! Gaurav will personally reach out to you shortly to catch up and get you sorted.");
-  await sendText(
-    GAURAV_WHATSAPP_NUMBER,
-    '🔥 INTERESTED - past client reactivation\n' + contactBlock(name, from) + crmWarning(saved)
-  );
+  const digits2 = String(from || '').replace(/\D/g, '');
+  await sendTemplate(GAURAV_WHATSAPP_NUMBER, 'iaaj_lead_alert', [
+    'Interested - Past Client Reactivation',
+    name || 'unknown',
+    '+' + digits2,
+    'Wants to restart coaching' + (saved ? '' : ' - NOT SAVED TO CRM, add manually'),
+    'https://wa.me/' + digits2
+  ]);
 }
 
 async function handleReactivationNotNow_(from, name) {
@@ -587,30 +599,6 @@ async function logToCrm(fields) {
     if (attempt === 1) await new Promise(function (r) { setTimeout(r, 1500); });
   }
   return false;
-}
-
-// Appended to Gaurav's ping when the CRM write failed, so a lead that
-// didn't save is visible immediately in the one place he actually reads,
-// instead of being discovered days later by comparing two lists by hand.
-function crmWarning(saved) {
-  return saved ? '' : '\n\n⚠️ NOT SAVED TO CRM - add this person manually.';
-}
-
-// The contact block every ping to Gaurav uses.
-//
-// `from` arrives from Meta as bare digits with no plus (919510525001).
-// Pasted into a message like that, WhatsApp and iOS read it as a local
-// number, so tapping it either did nothing useful or opened a mangled
-// half-number - which is why these pings were not actionable from the
-// phone. Two fixes, both needed: the displayed number gets a leading +
-// so it is recognized as E.164 and dials correctly, and every ping now
-// carries a wa.me link, which is the one-tap path straight into the chat
-// (previously only two of the four pings had one).
-function contactBlock(name, from) {
-  const digits = String(from || '').replace(/\D/g, '');
-  return 'Name: ' + (name || 'unknown') +
-    '\nPhone: +' + digits +
-    '\nChat: https://wa.me/' + digits;
 }
 
 // --- 7. SENDING MESSAGES (Meta Cloud API) ---
