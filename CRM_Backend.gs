@@ -147,6 +147,41 @@ function findRowByPhone_(sheet, phone) {
   return -1;
 }
 
+// Google Sheets auto-parses a cell's value as a formula/expression when it
+// is SET to a string starting with '+' or '-', not just when typed by hand
+// - this applies to setValue()/appendRow() from Apps Script too, not only
+// manual entry. A phone number like "+91-7415717218" silently became the
+// ARITHMETIC RESULT of 91 minus 7415717218 (no error, no warning - just a
+// wrong number a rep could actually try to call). One with a space instead
+// of a second operator ("+1 6693242353") fails to parse at all and shows
+// "#ERROR!" instead. Found 1 Oct 2026 after both reps reported broken
+// phone numbers; traced back to at least 13 Aug 2026 (LEAD-1050), so this
+// had been silently corrupting phone numbers for weeks - a batch of Tally
+// leads with international "+"-prefixed numbers just made it suddenly
+// visible all at once.
+//
+// Fix: force the cell to Plain Text format BEFORE writing the value -
+// setNumberFormat('@') must come first. Reformatting AFTER a bad write
+// only changes how the already-wrong stored value displays; it cannot
+// recover the original string, since by then it is already gone.
+function setPhoneSafe_(range, phoneValue) {
+  range.setNumberFormat('@').setValue(String(phoneValue || ''));
+}
+
+// One-time fix: run manually once. Sets the whole Phone column (D) to
+// Plain Text so manual pastes/edits made directly in the Sheets UI are
+// protected too, not just API writes (already safe via setPhoneSafe_
+// above). Does NOT retroactively repair cells that are already corrupted
+// - those need their correct number re-entered (via update_lead's phone
+// field) after this runs.
+function fixPhoneColumnFormat() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('All Leads') || ss.getSheets()[0];
+  var rows = Math.max(sheet.getLastRow(), 1000); // headroom for future rows
+  sheet.getRange(1, 4, rows, 1).setNumberFormat('@');
+  Logger.log('Phone column (D) set to Plain Text for ' + rows + ' rows.');
+}
+
 function statusRank_(status) {
   var ranks = { 'New': 1, 'Contacted': 2, 'Follow-up': 3, 'Lost': 4, 'Do Not Contact': 5, 'Converted': 6 };
   return ranks[String(status || 'New')] || 1;
@@ -195,6 +230,9 @@ function doPost(e) {
       
       for (var i = 1; i < data.length; i++) {
         if (data[i][0] == targetId) {
+          // setNumberFormat('@') FIRST, value SECOND - see setPhoneSafe_ below
+          // for why this exact order matters for a repair write.
+          if (p.phone !== undefined) setPhoneSafe_(sheet.getRange(i + 1, 4), p.phone);
           if (p.status !== undefined) sheet.getRange(i + 1, 10).setValue(p.status);
           if (p.assignedRep !== undefined) sheet.getRange(i + 1, 11).setValue(p.assignedRep);
           if (p.lastContacted !== undefined) sheet.getRange(i + 1, 12).setValue(p.lastContacted ? new Date(p.lastContacted) : '');
@@ -306,7 +344,7 @@ function doPost(e) {
       leadId,
       now,
       leadName,
-      leadPhone,
+      '', // Phone - never through appendRow, see setPhoneSafe_ call right below
       p.email || '',
       p.city || '',
       sourceStr,
@@ -318,6 +356,7 @@ function doPost(e) {
       '', // Next Follow-up
       p.notes || p.guides || ''
     ]);
+    setPhoneSafe_(sheet.getRange(sheet.getLastRow(), 4), leadPhone);
 
     return ContentService.createTextOutput(JSON.stringify({ status: 'success', leadId: leadId, assignedRep: assignedRep }))
       .setMimeType(ContentService.MimeType.JSON);
