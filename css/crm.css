@@ -448,6 +448,17 @@ body.crm-body {
   color: #ffffff;
 }
 
+/* Shown instead of the WhatsApp CTA when a lead has no usable phone
+   number, so a broken number is obvious rather than silently falling
+   back to Gaurav's own WhatsApp (the bug this replaces, found 1 Oct 2026). */
+.crm-wa-btn-broken {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  cursor: default;
+  box-shadow: none;
+}
+
 /* Lead Actions Grid */
 .crm-card-actions {
   display: grid;

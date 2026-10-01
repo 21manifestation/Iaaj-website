@@ -277,9 +277,9 @@ document.addEventListener('DOMContentLoaded', function () {
           </div>
 
           <!-- Tap-to-WhatsApp CTA -->
-          <a href="${waUrl}" target="_blank" class="crm-wa-btn">
-            💬 Chat on WhatsApp
-          </a>
+          ${waUrl
+            ? `<a href="${waUrl}" target="_blank" class="crm-wa-btn">💬 Chat on WhatsApp</a>`
+            : `<div class="crm-wa-btn crm-wa-btn-broken">⚠️ No valid phone number - fix before contacting</div>`}
 
           <!-- Quick Actions & Status -->
           <div class="crm-card-actions">
@@ -335,7 +335,16 @@ document.addEventListener('DOMContentLoaded', function () {
   // --- 5. TAP-TO-WHATSAPP MESSAGE GENERATOR ---
   function generateWhatsAppUrl(lead) {
     var rawPhone = String(lead.phone || '').replace(/\D/g, '');
-    if (!rawPhone) return 'https://wa.me/919403912211';
+    // A rep's "Chat on WhatsApp" tap must never silently open a chat with
+    // someone other than the actual lead. The old fallback for a missing
+    // phone pointed at Gaurav's OWN number here - exactly how a broken or
+    // corrupted phone (e.g. the Sheets formula-auto-parsing bug fixed
+    // 1 Oct 2026, which also showed as "#ERROR!" in the phone field)
+    // turned into a rep unknowingly messaging Gaurav instead of the lead.
+    // Returning null and showing a clear broken-phone state instead is the
+    // fix - see renderLeadCards' use of this return value. Same 10-digit
+    // floor findRowByPhone_ already uses elsewhere in this file.
+    if (rawPhone.length < 10) return null;
 
     if (rawPhone.length === 10) rawPhone = '91' + rawPhone;
 
