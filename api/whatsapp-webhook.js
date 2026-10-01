@@ -461,21 +461,23 @@ async function handleTemplateButtonReply(from, name, payload) {
   // consultation... credited toward a new program if you CONTINUE") would
   // be false for nearly all of them.
   if (text === 'Tell me more') {
-    // assignedRep 'Gaurav' on every campaign reply, interested or not:
-    // these are Gaurav's own outreach and he handles them personally, so
-    // they must never enter the Sales Rep 1/2 round-robin. Declines get
-    // his name too, so the whole campaign sits in one place he can see
-    // rather than being split across three different rep views.
+    // No assignedRep override (1 Oct 2026, was 'Gaurav' on every reply) -
+    // this campaign is active and generating enough interested replies
+    // that pinging Gaurav for every single one became the bottleneck, not
+    // a feature. Omitting it lets CRM_Backend.gs's own ROUND_ROBIN logic
+    // assign these to Sales Rep 1/2 like any other lead. Declines ('Not
+    // for me' below) still go to Gaurav - no live follow-up needed there,
+    // and keeping the whole decline list in one place he can see is still
+    // worth it with no downside, unlike interested replies.
     const saved = await logToCrm({
       name: name || '',
       phone: from,
       condition: '',
       qualification: 'QUALIFIED',
       source: 'Old Leads Reconnect Campaign',
-      assignedRep: 'Gaurav',
       notes: 'Old enquiry lead, replied INTERESTED when re-contacted about the current PCOS/thyroid program.'
     });
-    await sendText(from, "That's great to hear! Gaurav will reach out to you shortly to see how we can help. Talk soon!");
+    await sendText(from, "That's great to hear! Someone from our team will reach out to you shortly to see how we can help. Talk soon!");
     const digits1 = String(from || '').replace(/\D/g, '');
     await sendTemplate(GAURAV_WHATSAPP_NUMBER, 'iaaj_lead_alert', [
       'Interested - Old Leads Reconnect',
@@ -515,21 +517,21 @@ async function handleTemplateButtonReply(from, name, payload) {
 }
 
 async function handleReactivationInterested_(from, name) {
-  // assignedRep: 'Gaurav' keeps this out of the Sales Rep 1/2 round-robin
-  // pool entirely (CRM_Backend.gs honors an explicit assignedRep the same
-  // way it already honors an explicit status) - a past client saying
-  // they're interested goes straight to Gaurav for a personal
-  // conversation, not into a rep's queue.
+  // No assignedRep override (1 Oct 2026, was 'Gaurav') - same fix and same
+  // reason as the old-leads-reconnect "Tell me more" handler above: this
+  // campaign is active enough that every interested reply landing on
+  // Gaurav personally became the bottleneck. Omitted, not set to a rep
+  // directly, so CRM_Backend.gs's own ROUND_ROBIN logic assigns it - same
+  // mechanism every other lead source already goes through.
   const saved = await logToCrm({
     name: name || '',
     phone: from,
     condition: '',
     qualification: 'QUALIFIED',
     source: 'Reactivation Campaign',
-    assignedRep: 'Gaurav',
-    notes: 'Past client, replied INTERESTED to reactivation message. Handling personally, not routed to a sales rep.'
+    notes: 'Past client, replied INTERESTED to reactivation message.'
   });
-  await sendText(from, "So glad to hear that! Gaurav will personally reach out to you shortly to catch up and get you sorted.");
+  await sendText(from, "So glad to hear that! Someone from our team will reach out to you shortly to catch up and get you sorted.");
   const digits2 = String(from || '').replace(/\D/g, '');
   await sendTemplate(GAURAV_WHATSAPP_NUMBER, 'iaaj_lead_alert', [
     'Interested - Past Client Reactivation',
