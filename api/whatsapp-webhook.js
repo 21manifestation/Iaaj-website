@@ -254,6 +254,13 @@ const PURCHASE_INTENTS = [
     match: function (t) { return /(7|seven)[\s-]*day challenge/.test(t); }
   },
   {
+    // New Year Reset Bootcamp (Oct 2026). Add reset45 / reset30 entries here
+    // when those admissions open - same pattern, different price.
+    id: 'reset60',
+    label: 'Reset 60 (₹9,999)',
+    match: function (t) { return /reset\s*60/.test(t); }
+  },
+  {
     id: 'bless90',
     label: 'BLESS 90',
     match: function (t) { return /bless\s*90/.test(t); },
@@ -501,6 +508,15 @@ async function handleTemplateButtonReply(from, name, payload) {
       notes: 'Old enquiry lead, replied NOT INTERESTED when re-contacted. Do not re-send this campaign to them.'
     });
     await sendText(from, "Totally understood, no pressure at all. Thanks for letting us know, and take care!");
+    return;
+  }
+
+  // iaaj_reset60_launch quick-reply button. Template button taps arrive here
+  // (not in handleFreeText), so the payment-intent flow has to be called
+  // explicitly - otherwise a tap on "Join Reset 60" would only get the
+  // generic "someone will follow up" reply and no payment ping.
+  if (/reset\s*60/i.test(text)) {
+    await handlePurchaseIntent(from, name, detectPurchaseIntent(text));
     return;
   }
 

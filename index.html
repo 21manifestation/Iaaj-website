@@ -194,6 +194,25 @@
   </div>
 </header>
 
+<!-- Reset 60 takeover (Oct 2026): fills the first screen so it is the only
+     thing a visitor sees on arrival. The regular hero and the rest of the
+     page sit below it, unchanged, so search indexing of the real content is
+     not affected. Remove this section after 30 October when admissions close. -->
+<section class="hero reset-hero">
+  <div class="corner-block top-right"></div>
+  <div class="container reset-hero-inner">
+    <span class="eyebrow">New Year Reset Bootcamp &middot; Admissions close 30 October</span>
+    <h1>Reset 60.</h1>
+    <p class="reset-hero-sub">Sixty days to lose fat, rebuild your habits and finish before New Year. Starts the day you join.</p>
+    <p class="reset-hero-price">&#8377;9,999 <span>for the full 60 days</span></p>
+    <div class="hero-actions">
+      <button type="button" class="btn btn-primary reset-wa-btn">Join Reset 60 on WhatsApp</button>
+      <a href="reset60.html" class="btn btn-outline-white">See what's inside</a>
+    </div>
+    <p class="reset-hero-pcos">Have PCOS, PCOD or a thyroid condition? <a href="program.html">See BLESS 90 instead &rarr;</a></p>
+  </div>
+</section>
+
 <section class="hero">
   <div class="corner-block top-right"></div>
   <div class="container hero-layout">
@@ -585,6 +604,18 @@
 
 
 <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+<script>
+  // <button>, not <a href="wa.me/...">: js/script.js rewrites every wa.me link
+  // on the site into "Apply for coaching". The message names the plan so the
+  // WhatsApp bot logs it as a Reset 60 payment intent.
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.reset-wa-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        window.open('https://wa.me/918379834211?text=' + encodeURIComponent('Hey, I want to join Reset 60 (New Year Reset Bootcamp).'), '_blank');
+      });
+    });
+  });
+</script>
 <script src="js/faq-bot.js"></script>
 <script src="js/script.js"></script>
 <div class="float-stack">

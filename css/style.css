@@ -550,6 +550,33 @@ p { color: var(--grey); }
   z-index: 1;
 }
 
+/* ---- Reset 60 homepage takeover ----
+   One offer filling the first screen, so a new visitor sees nothing else
+   until they scroll. Sits above the normal hero, which is unchanged. */
+.reset-hero {
+  min-height: calc(100vh - 76px);
+  display: flex;
+  align-items: center;
+}
+.reset-hero-inner { padding-top: 20px; padding-bottom: 20px; }
+.reset-hero h1 { font-size: clamp(3.4rem, 11vw, 7rem); line-height: 1; margin-top: var(--space-2); }
+.reset-hero-sub {
+  color: rgba(255,255,255,0.88);
+  max-width: 560px;
+  margin-top: var(--space-3);
+  font-size: 1.2rem;
+}
+.reset-hero-price {
+  margin-top: var(--space-4);
+  font-family: var(--font-heading);
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: #fff;
+}
+.reset-hero-price span { font-size: 0.95rem; font-weight: 500; color: rgba(255,255,255,0.7); }
+.reset-hero-pcos { margin-top: var(--space-5); font-size: 0.9rem; color: rgba(255,255,255,0.7); max-width: 300px; }
+.reset-hero-pcos a { color: #fff; font-weight: 700; text-decoration: underline; }
+
 /* ---- Hero proof visual (desktop only) ----
    The headline only fills ~56% of the container at desktop width, which left
    a large dead area to the right. Two overlapping before/after cards fill it
