@@ -6,6 +6,14 @@
 // extra words/phrases a visitor might type that don't appear in the question itself.
 (function () {
   var FAQS = [
+    // Reset 60 (Oct 2026): first, so it shows as a suggested question when the
+    // bot opens. Remove these Reset entries after admissions close on 30 Oct.
+    {
+      q: 'What is Reset 60?',
+      a: 'Our New Year Reset Bootcamp: 60 days to lose fat and rebuild your habits before New Year. You get a nutrition plan, a workout plan, daily WhatsApp group support, a weekly group call, two live group calls with Gaurav, a welcome kit and a festive survival plan. It starts the day you join, and admissions close on 30 October.',
+      keywords: ['what is reset', 'reset 60', 'reset60', 'bootcamp', 'boot camp', '60 day program', '60 days program', '60 day bootcamp', 'sixty day', 'new year'],
+      link: { text: 'See Reset 60', href: 'reset60.html' }
+    },
     {
       q: 'How do I start?',
       a: 'Fill the coaching application and the team will understand what you are dealing with before getting in touch.',
@@ -21,6 +29,28 @@
       q: 'Is the coaching online?',
       a: 'Yes, fully online. Everything runs through your private WhatsApp group and video calls, so you can be coached from anywhere.',
       keywords: ['online', 'remote', 'video call', 'whatsapp group', 'in person', 'location']
+    },
+    {
+      q: 'How much does Reset 60 cost?',
+      a: 'The Reset 60 bootcamp price is 9,999 for the full 60 days, paid once at signup. That is about 167 a day.',
+      keywords: ['reset 60 cost', 'reset 60 price', 'reset 60 fee', 'reset price', 'reset cost', 'reset fee', 'cost of reset', 'price of reset', 'how much is reset', 'bootcamp price', 'bootcamp cost', 'bootcamp fee', '9999', '9,999']
+    },
+    {
+      q: 'When does Reset 60 start and finish?',
+      a: 'You start the day you join. Admissions close on 30 October, so everyone finishes before New Year, even the last person to join.',
+      keywords: ['reset start', 'reset end', 'reset dates', 'when does reset', 'when does the bootcamp', 'last date', 'deadline', 'admissions close', '30 october', 'when can i start reset']
+    },
+    {
+      q: 'I have PCOS or thyroid. Is Reset 60 right for me?',
+      a: 'Reset 60 is a group program for general fat loss. If you have PCOS, PCOD or a thyroid condition, your hormones need a plan built for your body, so BLESS 90 is the right program for you.',
+      keywords: ['pcos reset', 'reset pcos', 'thyroid reset', 'reset thyroid', 'pcod reset', 'reset pcod', 'bootcamp pcos', 'pcos bootcamp'],
+      link: { text: 'See BLESS 90', href: 'program.html' }
+    },
+    {
+      q: 'How do I join Reset 60?',
+      a: 'Tap Join Reset 60 on the Reset 60 page. It opens WhatsApp with your message ready, and the team will send your payment link and get you started.',
+      keywords: ['join reset', 'join the reset', 'how to join reset', 'enroll reset', 'enrol reset', 'sign up reset', 'join bootcamp', 'join the bootcamp', 'pay for reset'],
+      link: { text: 'Go to Reset 60', href: 'reset60.html' }
     },
     {
       q: 'Do you work with clients outside India?',
