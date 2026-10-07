@@ -129,6 +129,58 @@ function doGet(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+// Lead IDs used to be 'LEAD-' + (1000 + row count). Any time rows were
+// deleted or moved, the count went backwards and a new lead got an ID that
+// already existed: 23 IDs (LEAD-1488 to LEAD-1510) ended up shared between
+// a July lead at the top of the sheet and a 2 Oct campaign lead lower down.
+// update_lead stops at the FIRST matching ID, so a rep's edit to the
+// October lead silently landed on the July one, and the October lead kept
+// coming back unchanged (reported by Sales Rep 1 on 7 Oct 2026). Now the
+// next ID is always one higher than the highest ID already in the sheet,
+// which can never collide no matter how rows are deleted or sorted.
+function nextLeadId_(sheet) {
+  var lastRow = sheet.getLastRow();
+  var maxNum = 1000;
+  if (lastRow >= 2) {
+    var ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+    for (var i = 0; i < ids.length; i++) {
+      var m = String(ids[i][0] || '').match(/^LEAD-(\d+)$/);
+      if (m) maxNum = Math.max(maxNum, parseInt(m[1], 10));
+    }
+  }
+  return 'LEAD-' + (maxNum + 1);
+}
+
+// One-time repair: run manually once from the Apps Script editor. For
+// every lead ID that appears more than once, the first row keeps its ID
+// and every later row gets a fresh unique one, with a note saying what it
+// used to be so reps can find it. Safe to run again: with no duplicates
+// left it changes nothing.
+function fixDuplicateLeadIds() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('All Leads') || ss.getSheets()[0];
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return;
+  var ids = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+  var seen = {};
+  var stamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'd MMM');
+  var changed = [];
+  for (var i = 0; i < ids.length; i++) {
+    var id = String(ids[i][0] || '');
+    if (!id) continue;
+    if (!seen[id]) { seen[id] = true; continue; }
+    var row = i + 2;
+    var newId = nextLeadId_(sheet);
+    sheet.getRange(row, 1).setValue(newId);
+    var notesCell = sheet.getRange(row, 14);
+    var prev = String(notesCell.getValue() || '');
+    notesCell.setValue((prev ? prev + '\n---\n' : '') + stamp + ': Lead ID changed from ' + id + ' to ' + newId + ' (duplicate ID fix).');
+    seen[newId] = true;
+    changed.push(id + ' -> ' + newId);
+  }
+  Logger.log(changed.length ? 'Re-numbered ' + changed.length + ' rows: ' + changed.join(', ') : 'No duplicate lead IDs found.');
+}
+
 // Matches on the last 10 digits so the same person is recognized whether
 // their number was stored as 9876543210, 919876543210 or +91 98765 43210 -
 // all three shapes genuinely exist in this sheet already. Returns the
@@ -265,8 +317,7 @@ function doPost(e) {
     }
 
     var now = new Date();
-    var totalRows = sheet.getLastRow();
-    var leadId = 'LEAD-' + (1000 + totalRows);
+    var leadId = nextLeadId_(sheet);
     
     // Opt-outs (and any caller that explicitly says this lead is already
     // closed, e.g. a campaign "not interested" reply) must never look like
