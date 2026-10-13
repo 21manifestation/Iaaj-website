@@ -574,6 +574,16 @@ p { color: var(--grey); }
   color: #fff;
 }
 .reset-hero-price span { font-size: 0.95rem; font-weight: 500; color: rgba(255,255,255,0.7); }
+/* Struck-through launch anchor (₹14,999 -> ₹9,999), matches the brochure */
+.price-was {
+  font-size: 0.7em;
+  font-weight: 600;
+  color: rgba(255,255,255,0.6);
+  text-decoration: line-through;
+  text-decoration-color: var(--red);
+  text-decoration-thickness: 2px;
+  margin-right: 0.35em;
+}
 .reset-hero-pcos { margin-top: var(--space-5); font-size: 0.9rem; color: rgba(255,255,255,0.7); max-width: 300px; }
 .reset-hero-pcos a { color: #fff; font-weight: 700; text-decoration: underline; }
 

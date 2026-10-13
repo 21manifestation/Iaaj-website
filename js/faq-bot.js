@@ -32,7 +32,7 @@
     },
     {
       q: 'How much does Reset 60 cost?',
-      a: 'The Reset 60 bootcamp price is 9,999 for the full 60 days, paid once at signup. That is about 167 a day.',
+      a: 'The Reset 60 launch price is 9,999 for the full 60 days, down from 14,999, paid once at signup. That is about 167 a day.',
       keywords: ['reset 60 cost', 'reset 60 price', 'reset 60 fee', 'reset price', 'reset cost', 'reset fee', 'cost of reset', 'price of reset', 'how much is reset', 'bootcamp price', 'bootcamp cost', 'bootcamp fee', '9999', '9,999']
     },
     {
