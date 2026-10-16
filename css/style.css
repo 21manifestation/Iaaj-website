@@ -573,7 +573,7 @@ p { color: var(--grey); }
   font-weight: 700;
   color: #fff;
 }
-.reset-hero-price span { font-size: 0.95rem; font-weight: 500; color: rgba(255,255,255,0.7); }
+.reset-hero-price span { font-size: 0.95rem; font-weight: 500; color: rgba(255,255,255,0.7); white-space: nowrap; }
 /* Struck-through launch anchor (₹14,999 -> ₹9,999), matches the brochure */
 .price-was {
   font-size: 0.7em;
@@ -725,9 +725,9 @@ section {
   color: rgba(255, 255, 255, 0.75);
 }
 
-/* Homepage "Most watched" Instagram reels: one swipeable row. Instagram's
-   embed.js swaps each blockquote for an iframe with its own inline width,
-   hence the !important overrides to keep every card the same size. */
+/* Homepage "Most watched" Instagram reels: cover images stored on our own
+   site so the row appears instantly, one swipeable row on phones, all five
+   in a line on desktop. A tap opens the reel on Instagram. */
 .reels-row {
   display: flex;
   gap: 16px;
@@ -737,23 +737,40 @@ section {
   margin-top: var(--space-5);
   padding-bottom: 12px;
 }
-.reels-row .instagram-media {
-  flex: 0 0 326px;
-  min-width: 326px !important;
-  max-width: 326px !important;
-  margin: 0 !important;
-  scroll-snap-align: start;
-  border-radius: 12px !important;
-}
-.reels-row blockquote.instagram-media {
-  min-height: 560px;
+/* Centres the row when it fits, without clipping the first card when it scrolls */
+.reels-row > .reel-card:first-child { margin-left: auto; }
+.reels-row > .reel-card:last-child { margin-right: auto; }
+.reel-card {
+  position: relative;
+  flex: 0 0 200px;
+  aspect-ratio: 9 / 16;
+  border-radius: 14px;
+  overflow: hidden;
   background: rgba(255, 255, 255, 0.06);
+  scroll-snap-align: start;
+}
+.reel-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+.reel-card:hover img { transform: scale(1.04); }
+.reel-card:focus-visible { outline: 3px solid var(--red); outline-offset: 3px; }
+.reel-play {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
 }
-.reels-row blockquote.instagram-media a { color: rgba(255, 255, 255, 0.8); }
+@media (prefers-reduced-motion: reduce) { .reel-card img { transition: none; } }
 
 .section-head {
   max-width: 700px;

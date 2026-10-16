@@ -380,21 +380,23 @@
 <!-- Most-watched reels, hand-picked by Gaurav from Instagram Insights
      (Oct 2026). Behold's free plan only returns the latest 6 posts, so it
      can't find the real top performers; these are fixed on purpose. To swap
-     one, change both reel URLs in its blockquote. Instagram's embed script
-     loads only when this section nears the screen (see js/script.js). -->
+     one, change the reel ID in its link and add its cover to images/reels/.
+     Covers are stored here so the row shows instantly; Instagram's own embed
+     took several seconds to appear. Licensed music in some reels means the
+     video itself can only play on Instagram, so a tap opens it there. -->
 <section class="section-black">
   <div class="container">
     <div class="section-head center">
       <span class="eyebrow">Most watched on Instagram</span>
       <h2>Our most watched reels.</h2>
-      <p>Short, straight answers. Watch a few and see if the way we think makes sense to you.</p>
+      <p>Short, straight answers. Tap any reel to watch it on Instagram.</p>
     </div>
     <div class="reels-row">
-      <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DJrULKAsL9K/" data-instgrm-version="14"><a href="https://www.instagram.com/reel/DJrULKAsL9K/" target="_blank" rel="noopener">Watch this reel on Instagram</a></blockquote>
-      <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DZaEnK7sx2q/" data-instgrm-version="14"><a href="https://www.instagram.com/reel/DZaEnK7sx2q/" target="_blank" rel="noopener">Watch this reel on Instagram</a></blockquote>
-      <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DZpgrQ7Cy1S/" data-instgrm-version="14"><a href="https://www.instagram.com/reel/DZpgrQ7Cy1S/" target="_blank" rel="noopener">Watch this reel on Instagram</a></blockquote>
-      <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DJ1l02zSXlf/" data-instgrm-version="14"><a href="https://www.instagram.com/reel/DJ1l02zSXlf/" target="_blank" rel="noopener">Watch this reel on Instagram</a></blockquote>
-      <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/DbN-HDfCs3D/" data-instgrm-version="14"><a href="https://www.instagram.com/reel/DbN-HDfCs3D/" target="_blank" rel="noopener">Watch this reel on Instagram</a></blockquote>
+      <a class="reel-card" href="https://www.instagram.com/reel/DJrULKAsL9K/" target="_blank" rel="noopener" aria-label="Watch on Instagram: Insulin resistance, the hidden cause of belly fat"><img src="images/reels/DJrULKAsL9K.jpg" alt="Insulin resistance, the hidden cause of belly fat" width="405" height="720" loading="lazy" decoding="async"><span class="reel-play" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span></a>
+      <a class="reel-card" href="https://www.instagram.com/reel/DZaEnK7sx2q/" target="_blank" rel="noopener" aria-label="Watch on Instagram: Stop doing cardio"><img src="images/reels/DZaEnK7sx2q.jpg" alt="Stop doing cardio" width="405" height="720" loading="lazy" decoding="async"><span class="reel-play" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span></a>
+      <a class="reel-card" href="https://www.instagram.com/reel/DZpgrQ7Cy1S/" target="_blank" rel="noopener" aria-label="Watch on Instagram: PCOS is not PCOS anymore"><img src="images/reels/DZpgrQ7Cy1S.jpg" alt="PCOS is not PCOS anymore" width="405" height="720" loading="lazy" decoding="async"><span class="reel-play" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span></a>
+      <a class="reel-card" href="https://www.instagram.com/reel/DJ1l02zSXlf/" target="_blank" rel="noopener" aria-label="Watch on Instagram: Estrogen dominance and weight gain"><img src="images/reels/DJ1l02zSXlf.jpg" alt="Estrogen dominance and weight gain" width="405" height="720" loading="lazy" decoding="async"><span class="reel-play" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span></a>
+      <a class="reel-card" href="https://www.instagram.com/reel/DbN-HDfCs3D/" target="_blank" rel="noopener" aria-label="Watch on Instagram: Stop doing treadmill"><img src="images/reels/DbN-HDfCs3D.jpg" alt="Stop doing treadmill" width="405" height="720" loading="lazy" decoding="async"><span class="reel-play" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></span></a>
     </div>
     <div class="text-center" style="margin-top:var(--space-5);">
       <a class="btn btn-outline-white" href="https://www.instagram.com/itsallaboutjourney/" target="_blank" rel="noopener">Follow @itsallaboutjourney</a>
@@ -532,9 +534,9 @@
   <div class="container">
     <div class="section-head center">
       <span class="eyebrow">A real team behind you</span>
-      <h2>A coach, a Nutrition Journey Master, a Workout Journey Master, a Care Journey Master, and support that answers.</h2>
+      <h2>A coach, a Nutrition Journey Master, a Care Journey Master, and support that answers.</h2>
     </div>
-    <div class="grid-2">
+    <div class="grid-3">
       <div class="card">
         <img src="images/journey-master-gaurav.jpg" alt="Gaurav Pawar, Founder and Coach" class="team-photo">
         <h3>Founder &amp; Coach</h3>
@@ -544,11 +546,6 @@
         <img src="images/journey-master-mehwish.jpg" alt="Mehwish, Nutrition Journey Master" class="team-photo">
         <h3>Nutrition Journey Master</h3>
         <p style="margin-top:var(--space-2);">Mehwish builds and adjusts your personalised nutrition plan around your condition and progress, and checks your daily meal photos.</p>
-      </div>
-      <div class="card">
-        <img src="images/journey-master-pratik.jpg" alt="Pratik, Workout Journey Master" class="team-photo">
-        <h3>Workout Journey Master</h3>
-        <p style="margin-top:var(--space-2);">Pratik designs your training plan around your equipment, schedule and body, and runs your PT sessions where included.</p>
       </div>
       <div class="card">
         <img src="images/journey-master-shweta.jpg" alt="Shweta Pawar, Care Journey Master" class="team-photo">
