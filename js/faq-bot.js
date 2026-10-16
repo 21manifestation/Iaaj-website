@@ -80,7 +80,7 @@
     },
     {
       q: 'Who builds and checks my plan?',
-      a: 'Your Nutrition Journey Master and Workout Journey Master build it, and Gaurav personally checks every plan before it reaches you.',
+      a: 'Mehwish, your Nutrition and Workout Journey Master, builds it, and Gaurav personally checks every plan before it reaches you.',
       keywords: ['who builds', 'dietician', 'nutritionist', 'coach', 'trainer', 'who checks']
     },
     {
