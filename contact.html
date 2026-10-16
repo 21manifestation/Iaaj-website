@@ -152,6 +152,11 @@
               <option value="Thinking">I need to think about it first</option>
             </select>
           </div>
+          <!-- Honeypot: hidden from people, but form-filling bots fill every field. -->
+          <div aria-hidden="true" style="position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;">
+            <label for="company">Company</label>
+            <input type="text" id="company" name="company" tabindex="-1" autocomplete="off">
+          </div>
           <button type="submit" class="btn btn-primary btn-block">Submit coaching application</button>
         </form>
         <div id="form-success" class="form-success">Thank you. Your application is with the team. We will review it and contact you on the number you shared.</div>

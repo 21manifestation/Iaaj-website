@@ -220,6 +220,53 @@ function setPhoneSafe_(range, phoneValue) {
   range.setNumberFormat('@').setValue(String(phoneValue || ''));
 }
 
+// The Superreply sync script reads the phone from Superreply's sheet as a
+// NUMBER and posts it, and Apps Script turns a number in a POST payload
+// into Java's scientific notation: 8805825608 arrives as "8.805825608E9".
+// While column D was a normal number column, Sheets quietly turned that
+// back into 8805825608, so nobody noticed. Once the column became Plain
+// Text (the 1 Oct phone fix above), the scrambled text was stored as-is
+// and reps saw a number they could not call (LEAD-1613, 1619, 1620 and
+// others, reported 16 Oct 2026).
+//
+// Java's format ("8.805825608E9", no "+") always keeps every digit, so it
+// converts back exactly. The spreadsheet display format ("8.26E+09", with
+// "+") has already thrown digits away and cannot be recovered here - those
+// are left untouched rather than replaced with a wrong number.
+function normalizePhone_(raw) {
+  var s = String(raw || '').trim();
+  if (/^\d(\.\d+)?E\d+$/.test(s)) {
+    var n = Number(s);
+    if (isFinite(n) && n === Math.round(n)) return String(n);
+  }
+  return s;
+}
+
+// One-time repair: run manually once from the Apps Script editor. Rewrites
+// every phone stored in Java scientific notation as the real number. Logs
+// the "E+" ones that lost digits, since those need the number re-entered
+// from Superreply or Instagram.
+function fixScientificNotationPhones() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('All Leads') || ss.getSheets()[0];
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return;
+  var rows = sheet.getRange(2, 1, lastRow - 1, 4).getValues();
+  var fixed = [], lost = [];
+  for (var i = 0; i < rows.length; i++) {
+    var phone = String(rows[i][3] || '').trim();
+    var clean = normalizePhone_(phone);
+    if (clean !== phone) {
+      setPhoneSafe_(sheet.getRange(i + 2, 4), clean);
+      fixed.push(rows[i][0] + ' ' + phone + ' -> ' + clean);
+    } else if (/E\+/i.test(phone)) {
+      lost.push(rows[i][0] + ' ' + phone);
+    }
+  }
+  Logger.log('Fixed ' + fixed.length + ': ' + fixed.join(', '));
+  Logger.log('Cannot recover ' + lost.length + ' (digits already lost): ' + lost.join(', '));
+}
+
 // One-time fix: run manually once. Sets the whole Phone column (D) to
 // Plain Text so manual pastes/edits made directly in the Sheets UI are
 // protected too, not just API writes (already safe via setPhoneSafe_
@@ -352,7 +399,7 @@ function doPost(e) {
     }
 
     var leadName = p.name || '';
-    var leadPhone = p.phone || p.whatsapp || '';
+    var leadPhone = normalizePhone_(p.phone || p.whatsapp || '');
     var leadCondition = p.condition || p.city || 'PCOS/Thyroid';
     var qualification = p.qualification || (sourceStr.indexOf('QUALIFIED') > -1 ? 'QUALIFIED' : 'High Intent');
 

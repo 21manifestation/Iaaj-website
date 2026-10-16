@@ -206,6 +206,16 @@ document.addEventListener('DOMContentLoaded', function () {
   // Both proxies, both additive copies of the same submission. Sales reps
   // call qualified applicants directly.
 
+  // One unbroken word of 10+ letters whose case flips back and forth.
+  // Real names have spaces or normal capitals ("AnnaMariaJoseph" passes).
+  function looksLikeBotName(name) {
+    var n = String(name || '').trim();
+    if (n.length < 10 || !/^[A-Za-z]+$/.test(n)) return false;
+    var innerCaps = (n.slice(1).match(/[A-Z]/g) || []).length;
+    var caseFlips = (n.match(/[a-z][A-Z]|[A-Z][a-z]/g) || []).length;
+    return innerCaps >= 4 && caseFlips >= 4;
+  }
+
   var form = document.querySelector('#enquiry-form');
   if (form) {
     form.addEventListener('submit', function (e) {
@@ -216,6 +226,19 @@ document.addEventListener('DOMContentLoaded', function () {
         var el = document.getElementById(id);
         return el ? el.value.trim() : '';
       };
+
+      // Spam bots have been filling this form since Aug 2026 with random
+      // mixed-case names like "RLIXxImCqXUkmLttBBNg" and made-up numbers,
+      // and every one landed in a rep's queue as a lead with a number that
+      // goes nowhere. Two checks: the hidden honeypot field (people never
+      // see it, bots fill it) and the name pattern (it matched all 13 bot
+      // leads in the CRM and none of the ~575 real names). A bot gets the
+      // normal success screen so it has no signal to adapt to.
+      if (val('company') || looksLikeBotName(val('name'))) {
+        form.style.display = 'none';
+        document.querySelector('#form-success').style.display = 'block';
+        return;
+      }
 
       var timeline = val('timeline');
       var invest = val('invest');

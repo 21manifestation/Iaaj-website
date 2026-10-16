@@ -31,10 +31,31 @@ function toFormBody(body) {
   return new URLSearchParams(body).toString();
 }
 
+// Same rule as looksLikeBotName in js/script.js. Repeated here because a bot
+// can POST to this endpoint without ever running the page's JavaScript.
+function looksLikeBotName(name) {
+  const n = String(name || '').trim();
+  if (n.length < 10 || !/^[A-Za-z]+$/.test(n)) return false;
+  const innerCaps = (n.slice(1).match(/[A-Z]/g) || []).length;
+  const caseFlips = (n.match(/[a-z][A-Z]|[A-Z][a-z]/g) || []).length;
+  return innerCaps >= 4 && caseFlips >= 4;
+}
+
 module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
 
   const isWrite = req.method === 'POST';
+
+  // Website-form spam never reaches the CRM. Only new website enquiries are
+  // checked; rep updates (update_lead) and other sources pass straight through.
+  if (isWrite) {
+    const fields = new URLSearchParams(toFormBody(req.body));
+    if (!fields.get('action') && fields.get('source') === 'Website Enquiry' &&
+        (fields.get('company') || looksLikeBotName(fields.get('name')))) {
+      res.status(200).json({ status: 'success', skipped: 'spam' });
+      return;
+    }
+  }
 
   try {
     // Writes get one retry. The browser reaching this same-origin function
