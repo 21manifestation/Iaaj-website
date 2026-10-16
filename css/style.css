@@ -725,6 +725,36 @@ section {
   color: rgba(255, 255, 255, 0.75);
 }
 
+/* Homepage "Most watched" Instagram reels: one swipeable row. Instagram's
+   embed.js swaps each blockquote for an iframe with its own inline width,
+   hence the !important overrides to keep every card the same size. */
+.reels-row {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  margin-top: var(--space-5);
+  padding-bottom: 12px;
+}
+.reels-row .instagram-media {
+  flex: 0 0 326px;
+  min-width: 326px !important;
+  max-width: 326px !important;
+  margin: 0 !important;
+  scroll-snap-align: start;
+  border-radius: 12px !important;
+}
+.reels-row blockquote.instagram-media {
+  min-height: 560px;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.reels-row blockquote.instagram-media a { color: rgba(255, 255, 255, 0.8); }
+
 .section-head {
   max-width: 700px;
   margin-bottom: clamp(44px, 5vw, 68px);

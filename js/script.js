@@ -206,6 +206,27 @@ document.addEventListener('DOMContentLoaded', function () {
   // Both proxies, both additive copies of the same submission. Sales reps
   // call qualified applicants directly.
 
+  // Instagram reels on the homepage. embed.js plus five video iframes is
+  // heavy, so nothing loads until the row is close to the screen.
+  var reelsRow = document.querySelector('.reels-row');
+  if (reelsRow) {
+    var loadReels = function () {
+      if (window.instgrm) { window.instgrm.Embeds.process(); return; }
+      var s = document.createElement('script');
+      s.src = 'https://www.instagram.com/embed.js';
+      s.async = true;
+      document.body.appendChild(s);
+    };
+    if ('IntersectionObserver' in window) {
+      var reelsObserver = new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting) { reelsObserver.disconnect(); loadReels(); }
+      }, { rootMargin: '600px 0px' });
+      reelsObserver.observe(reelsRow);
+    } else {
+      loadReels();
+    }
+  }
+
   // One unbroken word of 10+ letters whose case flips back and forth.
   // Real names have spaces or normal capitals ("AnnaMariaJoseph" passes).
   function looksLikeBotName(name) {
