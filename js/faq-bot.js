@@ -17,6 +17,14 @@
       link: { text: 'Join Reset 45', href: 'index.html' }
     },
     {
+      // Second, so BLESS 90 shows as a suggested question alongside the Reset.
+      // Without this entry, "what is bless 90" matched the 799 Challenge answer.
+      q: 'What is BLESS 90?',
+      a: 'Our one-to-one coaching program for women with PCOS, PCOD or a thyroid condition. You get a nutrition plan built around your body and condition, a training plan for your equipment and schedule, daily meal check-ins, weekly call reviews, supplement guidance, and direct WhatsApp support from Gaurav and the team. It runs for 3 or 6 months and starts at 6,667 a month.',
+      keywords: ['what is bless 90', 'bless 90', 'bless90', 'about bless', 'one to one', '1 on 1', 'one on one', 'personal coaching', 'coaching program', '90 day program', '90 days program'],
+      link: { text: 'See BLESS 90', href: 'program.html' }
+    },
+    {
       q: 'How do I start?',
       a: 'Fill the coaching application and the team will understand what you are dealing with before getting in touch.',
       keywords: ['start', 'begin', 'join', 'sign up', 'get started', 'enquiry', 'first step'],
@@ -24,13 +32,21 @@
     },
     {
       q: 'Is this paid?',
-      a: "Yes. It is a paid, personalised coaching program. We explain everything clearly after your enquiry.",
+      a: "Yes. BLESS 90, our one-to-one coaching, starts at 6,667 a month, and the Reset 45 bootcamp is 7,999 for 45 days. Ask about either one and we will explain what fits you best.",
       keywords: ['cost', 'price', 'pricing', 'fee', 'money', 'free', 'charges', 'how much does it cost']
     },
     {
       q: 'Is the coaching online?',
       a: 'Yes, fully online. Everything runs through your private WhatsApp group and video calls, so you can be coached from anywhere.',
       keywords: ['online', 'remote', 'video call', 'whatsapp group', 'in person', 'location']
+    },
+    {
+      // Prices are public on program.html (Aug 2026 rule change), so the bot
+      // answers them directly instead of deferring to the consultation call.
+      q: 'How much does BLESS 90 cost?',
+      a: 'BLESS 90 starts at 6,667 a month. Without PT: 24,999 for 3 months or 39,999 for 6 months. With PT: 49,999 for 3 months or 79,999 for 6 months. The 6-month plans save you 9,999 (without PT) or 19,999 (with PT) compared with two 3-month plans.',
+      keywords: ['bless 90 price', 'bless 90 pricing', 'bless 90 cost', 'bless 90 fee', 'how much is bless 90', 'bless price', 'program price', 'program cost', 'coaching price', 'coaching fee', '6667', '6,667'],
+      link: { text: 'See all BLESS 90 plans', href: 'program.html' }
     },
     {
       q: 'How much does Reset 45 cost?',
@@ -136,7 +152,7 @@
     {
       q: 'Will I get BLESS 90 pricing on the consultation call?',
       a: 'Yes. We share BLESS 90 pricing before the call ends, so you leave knowing all your options. There is no pressure either way.',
-      keywords: ['bless 90 price', 'bless 90 pricing', 'how much is bless 90', 'program price', 'program cost']
+      keywords: ['consultation pricing', 'pricing on the call', 'price on the call', 'tell me the price on call']
     },
     {
       q: 'How do I book the 1,999 consultation?',
