@@ -194,20 +194,20 @@
   </div>
 </header>
 
-<!-- Reset 60 takeover (Oct 2026): fills the first screen so it is the only
-     thing a visitor sees on arrival. The regular hero and the rest of the
-     page sit below it, unchanged, so search indexing of the real content is
-     not affected. Remove this section after 30 October when admissions close. -->
+<!-- New Year Reset takeover: fills the first screen so it is the only thing
+     a visitor sees on arrival. The regular hero and the rest of the page sit
+     below it, unchanged, so search indexing of the real content is not
+     affected. Now Reset 45 (admissions 1 to 15 November 2026). After 15
+     November, swap to Reset 30 or remove this section. -->
 <section class="hero reset-hero">
   <div class="corner-block top-right"></div>
   <div class="container reset-hero-inner">
-    <span class="eyebrow">New Year Reset Bootcamp &middot; Admissions close 30 October</span>
-    <h1>Reset 60.</h1>
-    <p class="reset-hero-sub">Sixty days to lose fat, rebuild your habits and finish before New Year. Starts the day you join.</p>
-    <p class="reset-hero-price"><s class="price-was">&#8377;14,999</s>&#8377;9,999 <span>for the full 60 days</span></p>
+    <span class="eyebrow">New Year Reset Bootcamp &middot; Admissions close 15 November</span>
+    <h1>Reset 45.</h1>
+    <p class="reset-hero-sub">Forty-five days to lose fat, rebuild your habits and finish before New Year. Starts the day you join.</p>
+    <p class="reset-hero-price">&#8377;7,999 <span>for the full 45 days</span></p>
     <div class="hero-actions">
-      <button type="button" class="btn btn-primary reset-wa-btn">Join Reset 60 on WhatsApp</button>
-      <a href="reset60.html" class="btn btn-outline-white">See what's inside</a>
+      <button type="button" class="btn btn-primary reset-wa-btn">Join Reset 45 on WhatsApp</button>
     </div>
     <p class="reset-hero-pcos">Have PCOS, PCOD or a thyroid condition? <a href="program.html">See BLESS 90 instead &rarr;</a></p>
   </div>
@@ -629,11 +629,11 @@
 <script>
   // <button>, not <a href="wa.me/...">: js/script.js rewrites every wa.me link
   // on the site into "Apply for coaching". The message names the plan so the
-  // WhatsApp bot logs it as a Reset 60 payment intent.
+  // WhatsApp bot logs it as a Reset 45 payment intent.
   document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.reset-wa-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        window.open('https://wa.me/918379834211?text=' + encodeURIComponent('Hey, I want to join Reset 60 (New Year Reset Bootcamp).'), '_blank');
+        window.open('https://wa.me/918379834211?text=' + encodeURIComponent('Hey, I want to join Reset 45 (New Year Reset Bootcamp).'), '_blank');
       });
     });
   });

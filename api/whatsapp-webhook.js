@@ -254,8 +254,13 @@ const PURCHASE_INTENTS = [
     match: function (t) { return /(7|seven)[\s-]*day challenge/.test(t); }
   },
   {
-    // New Year Reset Bootcamp (Oct 2026). Add reset45 / reset30 entries here
-    // when those admissions open - same pattern, different price.
+    // New Year Reset Bootcamp (Oct 2026). Add a reset30 entry here when
+    // those admissions open - same pattern, different price.
+    id: 'reset45',
+    label: 'Reset 45 (₹7,999)',
+    match: function (t) { return /reset\s*45/.test(t); }
+  },
+  {
     id: 'reset60',
     label: 'Reset 60 (₹9,999)',
     match: function (t) { return /reset\s*60/.test(t); }
@@ -515,7 +520,7 @@ async function handleTemplateButtonReply(from, name, payload) {
   // (not in handleFreeText), so the payment-intent flow has to be called
   // explicitly - otherwise a tap on "Join Reset 60" would only get the
   // generic "someone will follow up" reply and no payment ping.
-  if (/reset\s*60/i.test(text)) {
+  if (/reset\s*(60|45)/i.test(text)) {
     await handlePurchaseIntent(from, name, detectPurchaseIntent(text));
     return;
   }
