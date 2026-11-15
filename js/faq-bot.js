@@ -6,15 +6,15 @@
 // extra words/phrases a visitor might type that don't appear in the question itself.
 (function () {
   var FAQS = [
-    // New Year Reset Bootcamp, now Reset 45 (admissions 1 to 15 Nov 2026):
-    // first, so it shows as a suggested question when the bot opens. Switch to
-    // Reset 30 or remove these entries after 15 Nov. 'reset 60' keywords stay
-    // so anyone still asking about Reset 60 learns it closed and Reset 45 is open.
+    // New Year Reset Bootcamp, now Reset 30 (admissions 15 to 30 Nov 2026),
+    // the last of the three: first, so it shows as a suggested question when
+    // the bot opens. Remove these entries after 30 Nov. Older 'reset 45' and
+    // 'reset 60' keywords stay so anyone asking about them learns Reset 30 is open.
     {
-      q: 'What is Reset 45?',
-      a: 'Our New Year Reset Bootcamp: 45 days to lose fat and rebuild your habits before New Year. You get a nutrition plan, a workout plan, daily WhatsApp group support, a weekly group call and a welcome kit. It starts the day you join, and admissions close on 15 November. (Reset 60 admissions closed on 30 October.)',
-      keywords: ['what is reset', 'about reset', 'reset 45', 'reset45', 'bootcamp', 'boot camp', '45 day', '45 days', '60 day program', '60 day bootcamp', 'forty five day', 'new year'],
-      link: { text: 'Join Reset 45', href: 'index.html' }
+      q: 'What is Reset 30?',
+      a: 'Our New Year Reset Bootcamp: 30 days to lose fat and rebuild your habits before New Year. You get a nutrition plan, a workout plan, daily WhatsApp group support, a weekly group call and a welcome kit. It starts the day you join, and admissions close on 30 November. (Reset 60 and Reset 30 have closed.)',
+      keywords: ['what is reset', 'about reset', 'reset 30', 'reset30', 'reset 45', 'reset45', 'bootcamp', 'boot camp', '30 day', '30 days', '45 day', '45 days', '60 day program', '60 day bootcamp', 'thirty day', 'forty five day', 'new year'],
+      link: { text: 'Join Reset 30', href: 'index.html' }
     },
     {
       // Second, so BLESS 90 shows as a suggested question alongside the Reset.
@@ -32,7 +32,7 @@
     },
     {
       q: 'Is this paid?',
-      a: "Yes. BLESS 90, our one-to-one coaching, starts at 6,667 a month, and the Reset 45 bootcamp is 7,999 for 45 days. Ask about either one and we will explain what fits you best.",
+      a: "Yes. BLESS 90, our one-to-one coaching, starts at 6,667 a month, and the Reset 30 bootcamp is 5,999 for 30 days. Ask about either one and we will explain what fits you best.",
       keywords: ['cost', 'price', 'pricing', 'fee', 'money', 'free', 'charges', 'how much does it cost']
     },
     {
@@ -49,26 +49,26 @@
       link: { text: 'See all BLESS 90 plans', href: 'program.html' }
     },
     {
-      q: 'How much does Reset 45 cost?',
-      a: 'The Reset 45 bootcamp price is 7,999 for the full 45 days, paid once at signup. That is about 178 a day.',
-      keywords: ['reset 45 cost', 'reset 45 price', 'reset 45 fee', 'how much is the bootcamp', 'how much is reset 45', '7999', '7,999', 'reset 60 cost', 'reset 60 price', 'reset 60 fee', 'reset price', 'reset cost', 'reset fee', 'cost of reset', 'price of reset', 'how much is reset', 'bootcamp price', 'bootcamp cost', 'bootcamp fee', '9999', '9,999']
+      q: 'How much does Reset 30 cost?',
+      a: 'The Reset 30 bootcamp price is 5,999 for the full 30 days, paid once at signup. That is about 200 a day.',
+      keywords: ['reset 30 cost', 'reset 30 price', 'reset 30 fee', 'reset 45 cost', 'reset 45 price', 'reset 45 fee', 'how much is the bootcamp', 'how much is reset 30', 'how much is reset 45', '5999', '5,999', '7999', '7,999', 'reset 60 cost', 'reset 60 price', 'reset 60 fee', 'reset price', 'reset cost', 'reset fee', 'cost of reset', 'price of reset', 'how much is reset', 'bootcamp price', 'bootcamp cost', 'bootcamp fee', '9999', '9,999']
     },
     {
-      q: 'When does Reset 45 start and finish?',
-      a: 'You start the day you join. Admissions close on 15 November, so everyone finishes before New Year, even the last person to join.',
-      keywords: ['reset start', 'reset end', 'reset dates', 'when does reset', 'when does the bootcamp', 'last date', 'deadline', 'admissions close', '15 november', '30 october', 'when can i start reset']
+      q: 'When does Reset 30 start and finish?',
+      a: 'You start the day you join. Admissions close on 30 November, so everyone finishes before New Year, even the last person to join.',
+      keywords: ['reset start', 'reset end', 'reset dates', 'when does reset', 'when does the bootcamp', 'last date', 'deadline', 'admissions close', '30 november', '15 november', '30 october', 'when can i start reset']
     },
     {
-      q: 'I have PCOS or thyroid. Is Reset 45 right for me?',
-      a: 'Reset 45 is a group program for general fat loss. If you have PCOS, PCOD or a thyroid condition, your hormones need a plan built for your body, so BLESS 90 is the right program for you.',
+      q: 'I have PCOS or thyroid. Is Reset 30 right for me?',
+      a: 'Reset 30 is a group program for general fat loss. If you have PCOS, PCOD or a thyroid condition, your hormones need a plan built for your body, so BLESS 90 is the right program for you.',
       keywords: ['pcos reset', 'reset pcos', 'thyroid reset', 'reset thyroid', 'pcod reset', 'reset pcod', 'bootcamp pcos', 'pcos bootcamp'],
       link: { text: 'See BLESS 90', href: 'program.html' }
     },
     {
-      q: 'How do I join Reset 45?',
-      a: 'Tap Join Reset 45 on our homepage. It opens WhatsApp with your message ready, and the team will send your payment link and get you started.',
+      q: 'How do I join Reset 30?',
+      a: 'Tap Join Reset 30 on our homepage. It opens WhatsApp with your message ready, and the team will send your payment link and get you started.',
       keywords: ['join reset', 'join the reset', 'how to join reset', 'enroll reset', 'enrol reset', 'sign up reset', 'join bootcamp', 'join the bootcamp', 'pay for reset'],
-      link: { text: 'Go to Reset 45', href: 'index.html' }
+      link: { text: 'Go to Reset 30', href: 'index.html' }
     },
     {
       q: 'Do you work with clients outside India?',
